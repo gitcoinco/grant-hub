@@ -39,7 +39,7 @@ contract ProjectRegistry {
     // Modifiers
 
     modifier onlyProjectOwner(uint96 projectID) {
-        require(projectsOwners[projectID].list[msg.sender] != address(0), "not owner");
+        require(projectsOwners[projectID].list[msg.sender], "not owner");
         _;
     }
 
@@ -59,7 +59,7 @@ contract ProjectRegistry {
         g.recipient = recipient;
         g.metadata = metadata;
 
-        initProjectOwners(projectID);
+        initProjectOwners(projectID, recipient);
 
         emit ProjectCreated(msg.sender, projectID);
     }
@@ -79,14 +79,13 @@ contract ProjectRegistry {
      * @dev todo
      */
     function addProjectOwner(uint96 projectID, address newOwner) external onlyProjectOwner(projectID) {
-        require(newOwner != address(0) && newOwner != OWNERS_LIST_SENTINEL && newOwner != address(this), "bad owner");
+        require(newOwner != address(0) && newOwner != address(this), "bad owner");
 
         OwnerList storage owners = projectsOwners[projectID];
 
-        require(owners.list[newOwner] == address(0), "already owner");
+        require(!owners.list[newOwner], "already owner");
 
-        owners.list[newOwner] = owners.list[OWNERS_LIST_SENTINEL];
-        owners.list[OWNERS_LIST_SENTINEL] = newOwner;
+        owners.list[newOwner] = true;
         owners.count++;
     }
 
@@ -99,11 +98,10 @@ contract ProjectRegistry {
 
         OwnerList storage owners = projectsOwners[projectID];
 
-        require(owners.list[prevOwner] == owner, "bad prevOwner");
+        require(owners.list[prevOwner], "bad prevOwner");
         require(owners.count > 1, "single owner");
 
-        owners.list[prevOwner] = owners.list[owner];
-        delete owners.list[owner];
+        owners.list[owner] = false;
         owners.count--;
     }
 
@@ -117,30 +115,10 @@ contract ProjectRegistry {
         return projectsOwners[projectID].count;
     }
 
-    /**
-     * @notice todo
-     * @dev todo
-     */
-    function getProjectOwners(uint96 projectID) public view returns(address[] memory) {
-        OwnerList storage owners = projectsOwners[projectID];
-
-        address[] memory list = new address[](owners.count);
-
-        uint256 index = 0;
-        address current = owners.list[OWNERS_LIST_SENTINEL];
-
-        if (current == address(0x0)) {
-            return list;
-        }
-
-        while (current != OWNERS_LIST_SENTINEL) {
-            list[index] = current;
-            current = owners.list[current];
-            index++;
-        }
-
-        return list;
+    function activeProjectOwner(uint96 projectID, address possibleOwner) public view returns(bool) {
+        return projectsOwners[projectID].list[possibleOwner];
     }
+
 
     // Internal functions
 
@@ -148,11 +126,10 @@ contract ProjectRegistry {
      * @notice todo
      * @dev todo
      */
-    function initProjectOwners(uint96 projectID) internal {
+    function initProjectOwners(uint96 projectID, address recipient) internal {
         OwnerList storage owners = projectsOwners[projectID];
 
-        owners.list[OWNERS_LIST_SENTINEL] = msg.sender;
-        owners.list[msg.sender] = OWNERS_LIST_SENTINEL;
+        owners.list[recipient] = true;
         owners.count = 1;
     }
 

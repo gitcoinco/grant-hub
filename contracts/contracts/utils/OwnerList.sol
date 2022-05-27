@@ -15,5 +15,5 @@ pragma solidity ^0.8.0;
 // }
 struct OwnerList {
     uint256 count;
-    mapping(address => address) list;
+    mapping(address => bool) list;
 }
