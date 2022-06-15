@@ -1,6 +1,11 @@
 import { useEffect, useState } from "react";
 import { shallowEqual, useSelector, useDispatch } from "react-redux";
-import { TextArea, TextInput, WebsiteInput } from "../grants/inputs";
+import {
+  TextArea,
+  TextInput,
+  WebsiteInput,
+  ImageInput,
+} from "../grants/inputs";
 import { RootState } from "../../reducers";
 import { fetchGrantData } from "../../actions/grantsMetadata";
 import Button, { ButtonVariants } from "./Button";
@@ -116,6 +121,7 @@ function ProjectForm({ currentGrantId }: { currentGrantId?: string }) {
   return (
     <div className="border border-solid border-tertiary-text rounded text-primary-text p-4">
       <form onSubmit={(e) => e.preventDefault()}>
+        <ImageInput />
         <TextInput
           label="Project Name"
           name="title"

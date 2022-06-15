@@ -97,3 +97,30 @@ export function TextArea({
     </div>
   );
 }
+
+export function ImageInput() {
+  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // eslint-disable-next-line
+    const files = e.target.files;
+    const file = files![0];
+    if (file !== undefined) {
+      const img = new Image();
+      const fr = new FileReader();
+
+      img.onload = function () {
+        console.log("img loaded");
+        console.log("img", img.width);
+        console.log("img", img.height);
+      };
+
+      fr.onload = function () {
+        console.log("fr loaded");
+        img.src = String(fr.result);
+      };
+
+      fr.readAsDataURL(file);
+    }
+  };
+
+  return <input type="file" onChange={onChange} />;
+}
