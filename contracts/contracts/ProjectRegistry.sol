@@ -38,7 +38,7 @@ contract ProjectRegistry is Initializable {
     // State variables
 
     // Used as sentinel value in the owners linked list.
-    address public constant OWNERS_LIST_SENTINEL = address(0x1);
+    address constant OWNERS_LIST_SENTINEL = address(0x1);
 
     // The number of projects created, used to give an incremental id to each one
     uint96 public projectsCount;
@@ -182,7 +182,7 @@ contract ProjectRegistry is Initializable {
 
     /**
      * @notice Create initial OwnerList for passed project
-     * @param projectID ID of project 
+     * @param projectID ID of project
      */
     function initProjectOwners(uint96 projectID) internal {
         OwnerList storage owners = projectsOwners[projectID];
