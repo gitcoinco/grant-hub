@@ -81,7 +81,7 @@ Retrieve list of project owners
 
 | Name | Type | Description |
 |---|---|---|
-| _0 | address[] | undefined |
+| _0 | address[] | List of current owners of given project |
 
 ### initialize
 
@@ -114,7 +114,7 @@ Retrieve count of existing project owners
 
 | Name | Type | Description |
 |---|---|---|
-| _0 | uint256 | undefined |
+| _0 | uint256 | Count of owners for given project |
 
 ### projects
 
@@ -185,7 +185,7 @@ function projectsOwners(uint96) external view returns (uint256 count)
 function removeProjectOwner(uint96 projectID, address prevOwner, address owner) external nonpayable
 ```
 
-Disassociate a new owner with a project
+Disassociate an existing owner from a project
 
 
 
