@@ -182,6 +182,7 @@ function ProjectForm({ currentGrantId }: { currentGrantId?: string }) {
       </form>
       <Toast
         show={show}
+        fadeOut={props.txStatus === "complete"}
         onClose={() => showToast(false)}
         error={props.txStatus === "error"}
       >
