@@ -54,10 +54,9 @@ function Layout(ownProps: Props) {
             </p>
             <ul>
               {Object.entries(chains).map((chain) => (
-                <li>
+                <li key={chain[0]}>
                   <Button
                     className="bg-transparent mx-4 outline-none focus:outline-none"
-                    key={chain[0]}
                     onClick={() =>
                       dispatch(switchNetwork(parseInt(chain[0], 10)))
                     }
