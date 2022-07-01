@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { shallowEqual, useSelector, useDispatch } from "react-redux";
+import { ValidationError } from "yup";
 import { TextArea, TextInput, WebsiteInput } from "../grants/inputs";
 import ImageInput from "./ImageInput";
 import { RootState } from "../../reducers";
@@ -7,6 +8,7 @@ import { fetchGrantData } from "../../actions/grantsMetadata";
 import Button, { ButtonVariants } from "./Button";
 import { saveFileToIPFS, resetFileStatus, FileTypes } from "../../actions/ipfs";
 import { publishGrant, resetTXStatus } from "../../actions/newGrant";
+import { validateProjectForm } from "./projectFormValidation";
 import Toast from "./Toast";
 import TXLoading from "./TXLoading";
 
@@ -35,10 +37,12 @@ function ProjectForm({ currentGrantId }: { currentGrantId?: string }) {
     };
   }, shallowEqual);
 
-  // if currentGrantId is undefined, the form is empty so it's not valid
-  const [validated, setValidated] = useState(currentGrantId !== undefined);
+  const [formValidation, setFormValidation] = useState({
+    message: "",
+    valid: false,
+  });
+  const [submitted, setSubmitted] = useState(false);
   const [formInputs, setFormInputs] = useState(initialFormValues);
-
   const [show, showToast] = useState(false);
 
   const resetStatus = () => {
@@ -48,6 +52,8 @@ function ProjectForm({ currentGrantId }: { currentGrantId?: string }) {
   const [projectImg, setProjectImg] = useState<Buffer | undefined>();
 
   const publishProject = async () => {
+    setSubmitted(true);
+    if (!formValidation.valid) return;
     resetStatus();
     showToast(true);
     if (projectImg) {
@@ -89,17 +95,24 @@ function ProjectForm({ currentGrantId }: { currentGrantId?: string }) {
     }
   }, [dispatch, props.ipfsInitialized, currentGrantId, props.currentGrant]);
 
+  const validate = async () => {
+    try {
+      await validateProjectForm(formInputs);
+      setFormValidation({
+        message: "",
+        valid: true,
+      });
+    } catch (e) {
+      const error = e as ValidationError;
+      setFormValidation({
+        message: error.message,
+        valid: false,
+      });
+    }
+  };
   // perform validation after the fields state is updated
   useEffect(() => {
-    const validValues = Object.values(formInputs).filter((input) => {
-      if (typeof input === "string") {
-        return input.length > 0;
-      }
-
-      return false;
-    });
-
-    setValidated(validValues.length === Object.keys(formInputs).length);
+    validate();
   }, [formInputs]);
 
   // eslint-disable-next-line
@@ -178,9 +191,14 @@ function ProjectForm({ currentGrantId }: { currentGrantId?: string }) {
           value={formInputs.challenges}
           changeHandler={(e) => handleInput(e)}
         />
+        {!formValidation.valid && submitted && (
+          <p className="text-danger-text w-full text-center font-semibold my-2">
+            Please correct the following error: {formValidation.message}
+          </p>
+        )}
         <div className="flex w-full justify-end mt-6">
           <Button
-            disabled={!validated || !props.ipfsInitialized}
+            disabled={!props.ipfsInitialized}
             variant={ButtonVariants.primary}
             onClick={publishProject}
           >
