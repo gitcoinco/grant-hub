@@ -10,6 +10,14 @@ import { publishGrant, resetTXStatus } from "../../actions/newGrant";
 import Toast from "./Toast";
 import TXLoading from "./TXLoading";
 
+const initialFormValues = {
+  title: "",
+  description: "",
+  website: "",
+  challenges: "",
+  roadmap: "",
+};
+
 function ProjectForm({ currentGrantId }: { currentGrantId?: string }) {
   const dispatch = useDispatch();
   const props = useSelector((state: RootState) => {
@@ -29,13 +37,7 @@ function ProjectForm({ currentGrantId }: { currentGrantId?: string }) {
 
   // if currentGrantId is undefined, the form is empty so it's not valid
   const [validated, setValidated] = useState(currentGrantId !== undefined);
-  const [formInputs, setFormInputs] = useState({
-    title: "",
-    description: "",
-    website: "",
-    challenges: "",
-    roadmap: "",
-  });
+  const [formInputs, setFormInputs] = useState(initialFormValues);
 
   const [show, showToast] = useState(false);
 
@@ -106,6 +108,12 @@ function ProjectForm({ currentGrantId }: { currentGrantId?: string }) {
       resetStatus();
     };
   }, []);
+
+  useEffect(() => {
+    if (props.txStatus === "complete") {
+      setFormInputs(initialFormValues);
+    }
+  }, [props.txStatus]);
 
   if (props.currentGrant === undefined && props.ipfsInitializationError) {
     return <>Error initializing IPFS. Reload the page and try again.</>;
