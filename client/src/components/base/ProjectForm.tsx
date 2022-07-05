@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { shallowEqual, useSelector, useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { TextArea, TextInput, WebsiteInput } from "../grants/inputs";
 import ImageInput from "./ImageInput";
 import { RootState } from "../../reducers";
@@ -10,9 +11,12 @@ import { publishGrant, resetTXStatus } from "../../actions/newGrant";
 import Toast from "./Toast";
 import TXLoading from "./TXLoading";
 import ExitModal from "./ExitModal";
+import { slugs } from "../../routes";
 
 function ProjectForm({ currentGrantId }: { currentGrantId?: string }) {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+
   const props = useSelector((state: RootState) => {
     const grantMetadata = state.grantsMetadata[Number(currentGrantId)];
     return {
@@ -55,7 +59,8 @@ function ProjectForm({ currentGrantId }: { currentGrantId?: string }) {
     }
 
     await dispatch(saveFileToIPFS(formInputs, FileTypes.PROJECT));
-    dispatch(publishGrant(currentGrantId));
+    await dispatch(publishGrant(currentGrantId));
+    setTimeout(() => navigate(slugs.grants, { replace: true }), 1500);
   };
 
   const handleInput = (
