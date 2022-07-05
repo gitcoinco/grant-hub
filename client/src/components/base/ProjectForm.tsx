@@ -9,6 +9,7 @@ import { saveFileToIPFS, resetFileStatus, FileTypes } from "../../actions/ipfs";
 import { publishGrant, resetTXStatus } from "../../actions/newGrant";
 import Toast from "./Toast";
 import TXLoading from "./TXLoading";
+import ExitModal from "./ExitModal";
 
 function ProjectForm({ currentGrantId }: { currentGrantId?: string }) {
   const dispatch = useDispatch();
@@ -38,6 +39,7 @@ function ProjectForm({ currentGrantId }: { currentGrantId?: string }) {
   });
 
   const [show, showToast] = useState(false);
+  const [modalOpen, toggleModal] = useState(false);
 
   const resetStatus = () => {
     dispatch(resetTXStatus());
@@ -172,6 +174,12 @@ function ProjectForm({ currentGrantId }: { currentGrantId?: string }) {
         />
         <div className="flex w-full justify-end mt-6">
           <Button
+            variant={ButtonVariants.outline}
+            onClick={() => toggleModal(true)}
+          >
+            Cancel
+          </Button>
+          <Button
             disabled={!validated || !props.ipfsInitialized}
             variant={ButtonVariants.primary}
             onClick={publishProject}
@@ -187,6 +195,7 @@ function ProjectForm({ currentGrantId }: { currentGrantId?: string }) {
       >
         <TXLoading status={props.txStatus} />
       </Toast>
+      <ExitModal modalOpen={modalOpen} toggleModal={toggleModal} />
     </div>
   );
 }
