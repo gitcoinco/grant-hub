@@ -18,10 +18,10 @@ export default function Toast({
 }) {
   useEffect(() => {
     if (fadeOut) {
-      setTimeout(() => {
-        onClose();
-      }, 3000);
+      const timer = setTimeout(onClose, 3000);
+      return () => clearTimeout(timer);
     }
+    return undefined;
   }, [fadeOut]);
 
   return (
