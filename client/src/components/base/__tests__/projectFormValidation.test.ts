@@ -10,7 +10,7 @@ const validInputs = {
 };
 
 describe("Form Validation", () => {
-  it("returns original inputs if they are valid", async () => {
+  it("returns originall inputs if they are valid", async () => {
     const validation = await validateProjectForm(validInputs);
 
     expect(validation).toBe(validInputs);
@@ -22,7 +22,7 @@ describe("Form Validation", () => {
       await validateProjectForm(validInputs);
     } catch (e) {
       const error = e as ValidationError;
-      expect(error.message).toBe("title is a required field");
+      expect(error.message).toBe("Project Name is required");
       expect(error.name).toBe("ValidationError");
     }
   });
@@ -33,7 +33,9 @@ describe("Form Validation", () => {
       await validateProjectForm(validInputs);
     } catch (e) {
       const error = e as ValidationError;
-      expect(error.message).toBe("website must be a valid URL");
+      expect(error.message).toBe(
+        "Project Website must be a valid url. e.g. https://gitcoin.co/"
+      );
       expect(error.name).toBe("ValidationError");
     }
   });
