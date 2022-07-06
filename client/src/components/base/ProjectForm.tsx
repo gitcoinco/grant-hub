@@ -60,8 +60,6 @@ function ProjectForm({ currentGrantId }: { currentGrantId?: string }) {
 
     await dispatch(saveFileToIPFS(formInputs, FileTypes.PROJECT));
     await dispatch(publishGrant(currentGrantId));
-
-    setTimeout(() => navigate(slugs.grants), 1500);
   };
 
   const handleInput = (
@@ -72,6 +70,12 @@ function ProjectForm({ currentGrantId }: { currentGrantId?: string }) {
     const { value } = e.target;
     setFormInputs({ ...formInputs, [e.target.name]: value });
   };
+
+  useEffect(() => {
+    if (props.txStatus === "complete") {
+      setTimeout(() => navigate(slugs.grants), 1500);
+    }
+  }, [props.txStatus]);
 
   // TODO: feels like this could be extracted to a component
   useEffect(() => {
