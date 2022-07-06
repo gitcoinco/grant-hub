@@ -60,7 +60,8 @@ function ProjectForm({ currentGrantId }: { currentGrantId?: string }) {
 
     await dispatch(saveFileToIPFS(formInputs, FileTypes.PROJECT));
     await dispatch(publishGrant(currentGrantId));
-    setTimeout(() => navigate(slugs.grants, { replace: true }), 1500);
+
+    setTimeout(() => navigate(slugs.grants), 1500);
   };
 
   const handleInput = (
