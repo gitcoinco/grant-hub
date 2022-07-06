@@ -20,6 +20,11 @@ const initialFormValues = {
   roadmap: "",
 };
 
+const validation = {
+  message: "",
+  valid: false,
+};
+
 function ProjectForm({ currentGrantId }: { currentGrantId?: string }) {
   const dispatch = useDispatch();
   const props = useSelector((state: RootState) => {
@@ -37,15 +42,14 @@ function ProjectForm({ currentGrantId }: { currentGrantId?: string }) {
     };
   }, shallowEqual);
 
-  const [formValidation, setFormValidation] = useState({
-    message: "",
-    valid: false,
-  });
+  const [formValidation, setFormValidation] = useState(validation);
   const [submitted, setSubmitted] = useState(false);
   const [formInputs, setFormInputs] = useState(initialFormValues);
   const [show, showToast] = useState(false);
 
   const resetStatus = () => {
+    setSubmitted(false);
+    setFormValidation(validation);
     dispatch(resetTXStatus());
     dispatch(resetFileStatus());
   };
@@ -193,12 +197,14 @@ function ProjectForm({ currentGrantId }: { currentGrantId?: string }) {
         />
         {!formValidation.valid && submitted && (
           <p className="text-danger-text w-full text-center font-semibold my-2">
-            Please correct the following error: {formValidation.message}
+            {formValidation.message}
           </p>
         )}
         <div className="flex w-full justify-end mt-6">
           <Button
-            disabled={!props.ipfsInitialized}
+            disabled={
+              !props.ipfsInitialized || (!formValidation.valid && submitted)
+            }
             variant={ButtonVariants.primary}
             onClick={publishProject}
           >
