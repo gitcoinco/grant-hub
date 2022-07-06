@@ -47,11 +47,9 @@ export function aggregateEvents(
   const result = [...created, ...updated].reduce(
     (prev: any, cur: ProjectEvent) => {
       const value = prev;
-      if (value[cur.id] && cur.block > value[cur.id].block) {
+      if (value[cur.id] === undefined || cur.block > value[cur.id].block) {
         value[cur.id] = cur;
-        return value;
       }
-      value[cur.id] = cur;
       return value;
     },
     {}
@@ -83,6 +81,11 @@ export const loadProjects =
       block: event.blockNumber,
     }));
 
+    if (createdIds.length === 0) {
+      dispatch(projectsLoaded([]));
+      return;
+    }
+
     const ids = createdIds.map((item) => ethers.utils.hexlify(item.id));
     const metadataFilter = contract.filters.MetadataUpdated(ids);
     const metadataEvents = await contract.queryFilter(metadataFilter);
@@ -91,7 +94,6 @@ export const loadProjects =
       id: BigNumber.from(event.args[0]).toNumber(),
       block: event.blockNumber,
     }));
-
     const events = aggregateEvents(createdIds, updateIds);
 
     dispatch(projectsLoaded(events));

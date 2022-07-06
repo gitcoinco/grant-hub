@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { shallowEqual, useSelector, useDispatch } from "react-redux";
 import { ValidationError } from "yup";
+import { useNavigate } from "react-router-dom";
 import { TextArea, TextInput, WebsiteInput } from "../grants/inputs";
 import ImageInput from "./ImageInput";
 import { RootState } from "../../reducers";
@@ -11,6 +12,8 @@ import { publishGrant, resetTXStatus } from "../../actions/newGrant";
 import { validateProjectForm } from "./projectFormValidation";
 import Toast from "./Toast";
 import TXLoading from "./TXLoading";
+import ExitModal from "./ExitModal";
+import { slugs } from "../../routes";
 
 const initialFormValues = {
   title: "",
@@ -27,6 +30,8 @@ const validation = {
 
 function ProjectForm({ currentGrantId }: { currentGrantId?: string }) {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+
   const props = useSelector((state: RootState) => {
     const grantMetadata = state.grantsMetadata[Number(currentGrantId)];
     return {
@@ -46,6 +51,7 @@ function ProjectForm({ currentGrantId }: { currentGrantId?: string }) {
   const [submitted, setSubmitted] = useState(false);
   const [formInputs, setFormInputs] = useState(initialFormValues);
   const [show, showToast] = useState(false);
+  const [modalOpen, toggleModal] = useState(false);
 
   const resetStatus = () => {
     setSubmitted(false);
@@ -65,7 +71,7 @@ function ProjectForm({ currentGrantId }: { currentGrantId?: string }) {
     }
 
     await dispatch(saveFileToIPFS(formInputs, FileTypes.PROJECT));
-    dispatch(publishGrant(currentGrantId));
+    await dispatch(publishGrant(currentGrantId));
   };
 
   const handleInput = (
@@ -76,6 +82,12 @@ function ProjectForm({ currentGrantId }: { currentGrantId?: string }) {
     const { value } = e.target;
     setFormInputs({ ...formInputs, [e.target.name]: value });
   };
+
+  useEffect(() => {
+    if (props.txStatus === "complete") {
+      setTimeout(() => navigate(slugs.grants), 1500);
+    }
+  }, [props.txStatus]);
 
   // TODO: feels like this could be extracted to a component
   useEffect(() => {
@@ -205,6 +217,15 @@ function ProjectForm({ currentGrantId }: { currentGrantId?: string }) {
             disabled={
               !props.ipfsInitialized || (!formValidation.valid && submitted)
             }
+            variant={ButtonVariants.outline}
+            onClick={() => toggleModal(true)}
+          >
+            Cancel
+          </Button>
+          <Button
+            disabled={
+              !props.ipfsInitialized || (!formValidation.valid && submitted)
+            }
             variant={ButtonVariants.primary}
             onClick={publishProject}
           >
@@ -214,11 +235,13 @@ function ProjectForm({ currentGrantId }: { currentGrantId?: string }) {
       </form>
       <Toast
         show={show}
+        fadeOut={props.txStatus === "complete"}
         onClose={() => showToast(false)}
         error={props.txStatus === "error"}
       >
         <TXLoading status={props.txStatus} />
       </Toast>
+      <ExitModal modalOpen={modalOpen} toggleModal={toggleModal} />
     </div>
   );
 }
