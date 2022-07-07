@@ -70,7 +70,9 @@ function ProjectForm({ currentProjectId }: { currentProjectId?: string }) {
       await dispatch(saveFileToIPFS(projectImg, FileTypes.IMG));
     }
 
-    await dispatch(saveFileToIPFS(formInputs, FileTypes.PROJECT));
+    await dispatch(
+      saveFileToIPFS(formInputs, FileTypes.PROJECT, currentProjectId)
+    );
     await dispatch(publishGrant(currentProjectId));
   };
 
@@ -184,6 +186,7 @@ function ProjectForm({ currentProjectId }: { currentProjectId?: string }) {
         />
         <ImageInput
           label="Project Logo"
+          currentProject={props.currentProject}
           imgHandler={(buffer: Buffer) => setProjectImg(buffer)}
         />
         <TextArea
