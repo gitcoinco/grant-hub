@@ -138,7 +138,7 @@ export const saveFileToIPFS =
 
     const id = Number(currentProjectId);
 
-    if (currentProjectId && state.grantsMetadata[id]) {
+    if (currentProjectId !== undefined && state.grantsMetadata[id]) {
       fullContent.projectImg = state.grantsMetadata[id].metadata?.projectImg;
     }
 
