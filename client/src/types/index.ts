@@ -7,14 +7,15 @@ export interface Metadata {
   roadmap: string;
   challenges: string;
   website: string;
-  projectImg?: string | Buffer;
+  projectImg?: string;
 }
 
 // Inputs
 export type InputProps = {
   label: string;
   name: string;
-  value?: string;
+  info?: string;
+  value?: string | number;
   placeholder?: string;
   changeHandler: (
     event:
@@ -33,4 +34,41 @@ export type RadioInputProps = {
 export interface ProjectEvent {
   id: number;
   block: number;
+}
+
+export interface MetaPtr {
+  protocol: string;
+  pointer: string;
+}
+
+export interface RoundMetadata {
+  name: string;
+}
+
+export interface RoundApplicationQuestion {
+  id: number;
+  question: string;
+  type: string;
+  required: boolean;
+  info?: string;
+  choices?: string[];
+}
+
+export interface RoundApplicationMetadata {
+  id: string;
+  lastUpdatedOn: number;
+  applicationSchema: RoundApplicationQuestion[];
+}
+
+export interface Round {
+  address: string;
+  applicationsStartTime: number;
+  applicationsEndTime: number;
+  roundStartTime: number;
+  roundEndTime: number;
+  token: string;
+  roundMetaPtr: MetaPtr;
+  roundMetadata: RoundMetadata;
+  applicationMetaPtr: MetaPtr;
+  applicationMetadata: RoundApplicationMetadata;
 }

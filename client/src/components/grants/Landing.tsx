@@ -21,7 +21,7 @@ function Landing() {
 
   useEffect(() => {
     if (props.account) {
-      navigate(slugs.grants, { replace: true });
+      navigate(slugs.grants);
     }
   }, [props.account]);
 
@@ -50,7 +50,7 @@ function Landing() {
               variant={ButtonVariants.primary}
               styles={["w-full sm:w-auto mx-w-full ml-0"]}
             >
-              <div className="text-center w-full">Connect Wallet</div>
+              Connect Wallet
             </Button>
             {props.web3Error !== undefined && (
               <div>

@@ -63,13 +63,13 @@ function Project() {
       }
     }
 
-    if (props.id && props.projects.length > 0) {
+    if (props.currentProject !== undefined && props.id !== undefined) {
       fetchTimeStamp(props.projects, props.id);
     } else {
       // If user reloads Show projects will not exist
       dispatch(loadProjects());
     }
-  }, [props.id, props.projects, global, dispatch]);
+  }, [props.id, props.currentProject, global, dispatch]);
 
   if (props.currentProject === undefined && props.ipfsInitializationError) {
     return <>Error initializing IPFS. Reload the page and try again.</>;
@@ -109,12 +109,10 @@ function Project() {
                   variant={ButtonVariants.outline}
                   styles={["w-full sm:w-auto mx-w-full ml-0"]}
                 >
-                  <div className="flex justify-center w-full">
-                    <div className="m-1">
-                      <Pencil color={colors["secondary-text"]} />
-                    </div>
-                    Edit
-                  </div>
+                  <i className="icon mt-1">
+                    <Pencil color={colors["secondary-text"]} />
+                  </i>
+                  &nbsp; Edit
                 </Button>
               </Link>
             )}
@@ -148,10 +146,6 @@ function Project() {
 
             <p className="text-xs text-primary-text mb-1">Description</p>
             <p className="mb-12">{props.currentProject.description}</p>
-            <p className="text-xs text-primary-text mb-1">Project Roadmap</p>
-            <p className="mb-12">{props.currentProject.roadmap}</p>
-            <p className="text-xs text-primary-text mb-1">Project Roadmap</p>
-            <p className="mb-12">{props.currentProject.challenges}</p>
           </div>
         </>
       )}

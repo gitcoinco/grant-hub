@@ -1,14 +1,18 @@
 import { useRef, useState } from "react";
 import colors from "../../styles/colors";
+import { Metadata } from "../../types";
+import { getProjectImage } from "../../utils/components";
 import CloudUpload from "../icons/CloudUpload";
 import Toast from "./Toast";
 
 export default function ImageInput({
   label,
+  currentProject,
   imgHandler,
 }: {
   label: string;
-  imgHandler: (event: Buffer) => void;
+  currentProject?: Metadata;
+  imgHandler: (file: Blob) => void;
 }) {
   const fileInput = useRef<HTMLInputElement>(null);
   const [tempImg, setTempImg] = useState("");
@@ -61,15 +65,21 @@ export default function ImageInput({
 
       const reader = new FileReader();
       reader.onloadend = () => {
-        const bufferResult = reader.result as ArrayBuffer;
-        if (bufferResult) {
-          const buf = window.Buffer.from(bufferResult);
-          imgHandler(buf);
+        const res = reader.result;
+        if (res) {
+          // const  = window.Buffer.from(bufferResult);
+          imgHandler(files[0]);
         }
       };
 
       reader.readAsArrayBuffer(files[0]);
     }
+  };
+
+  const currentImg = () => {
+    if (tempImg) return tempImg;
+    if (!currentProject) return "";
+    return getProjectImage(false, currentProject);
   };
 
   const onButtonClick = () => {
@@ -81,9 +91,7 @@ export default function ImageInput({
   return (
     <>
       <div className="mt-6 w-11/12">
-        <label className="block text-xs mb-2" htmlFor={label}>
-          {label}
-        </label>
+        <label htmlFor={label}>{label}</label>
         <div className="flex">
           <input
             ref={fileInput}
@@ -109,7 +117,9 @@ export default function ImageInput({
             </button>
           )}
           <div className="w-1/4">
-            {tempImg && <img src={tempImg} alt="Project Logo Preview" />}
+            {currentImg().length > 0 && (
+              <img src={currentImg()} alt="Project Logo Preview" />
+            )}
           </div>
         </div>
       </div>

@@ -43,7 +43,7 @@ function Layout(ownProps: Props) {
         {!props.web3Error && props.web3Initialized && props.chainID && children}
         {props.web3Error && <p>{props.web3Error}</p>}
       </main>
-      <Toast show={show} onClose={() => showToast(false)}>
+      <Toast fadeOut show={show} onClose={() => showToast(false)}>
         <>
           <div className="w-6 mt-1 mr-2">
             <Globe color={colors["quaternary-text"]} />
@@ -52,7 +52,7 @@ function Layout(ownProps: Props) {
             <p className="font-semibold text-quaternary-text">
               Wallet Connected!
             </p>
-            <p className="text-quaternary-text">Welcome to your Project Hub.</p>
+            <p className="text-quaternary-text">Welcome to your Grant Hub.</p>
           </div>
         </>
       </Toast>

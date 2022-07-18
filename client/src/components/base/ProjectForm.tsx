@@ -1,59 +1,72 @@
 import { useEffect, useState } from "react";
 import { shallowEqual, useSelector, useDispatch } from "react-redux";
+import { ValidationError } from "yup";
+import { useNavigate } from "react-router-dom";
 import { TextArea, TextInput, WebsiteInput } from "../grants/inputs";
 import ImageInput from "./ImageInput";
 import { RootState } from "../../reducers";
 import { fetchGrantData } from "../../actions/grantsMetadata";
 import Button, { ButtonVariants } from "./Button";
-import { saveFileToIPFS, resetFileStatus, FileTypes } from "../../actions/ipfs";
-import { publishGrant, resetTXStatus } from "../../actions/newGrant";
+import { resetFileStatus } from "../../actions/ipfs";
+import { publishGrant, resetStatus } from "../../actions/newGrant";
+import { validateProjectForm } from "./formValidation";
+import { Status } from "../../reducers/newGrant";
 import Toast from "./Toast";
 import TXLoading from "./TXLoading";
+import ExitModal from "./ExitModal";
+import { slugs } from "../../routes";
 
-function ProjectForm({ currentGrantId }: { currentGrantId?: string }) {
+const initialFormValues = {
+  title: "",
+  description: "",
+  website: "",
+};
+
+const validation = {
+  message: "",
+  valid: false,
+};
+
+function ProjectForm({ currentProjectId }: { currentProjectId?: string }) {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+
   const props = useSelector((state: RootState) => {
-    const grantMetadata = state.grantsMetadata[Number(currentGrantId)];
+    const grantMetadata = state.grantsMetadata[Number(currentProjectId)];
     return {
-      id: currentGrantId,
+      id: currentProjectId,
       loading: grantMetadata ? grantMetadata.loading : false,
-      currentGrant: grantMetadata?.metadata,
+      currentProject: grantMetadata?.metadata,
       ipfsInitialized: state.ipfs.initialized,
       ipfsInitializationError: state.ipfs.initializationError,
       savingFile: state.ipfs.ipfsSavingFile,
       projectFile: state.ipfs.projectFileSavedCID,
       projectImg: state.ipfs.projectImgSavedCID,
-      txStatus: state.newGrant.txStatus,
+      status: state.newGrant.status,
+      error: state.newGrant.error,
     };
   }, shallowEqual);
 
-  // if currentGrantId is undefined, the form is empty so it's not valid
-  const [validated, setValidated] = useState(currentGrantId !== undefined);
-  const [formInputs, setFormInputs] = useState({
-    title: "",
-    description: "",
-    website: "",
-    challenges: "",
-    roadmap: "",
-  });
-
+  const [formValidation, setFormValidation] = useState(validation);
+  const [submitted, setSubmitted] = useState(false);
+  const [formInputs, setFormInputs] = useState(initialFormValues);
   const [show, showToast] = useState(false);
+  const [modalOpen, toggleModal] = useState(false);
 
-  const resetStatus = () => {
-    dispatch(resetTXStatus());
+  const localResetStatus = () => {
+    setSubmitted(false);
+    setFormValidation(validation);
+    dispatch(resetStatus());
     dispatch(resetFileStatus());
   };
-  const [projectImg, setProjectImg] = useState<Buffer | undefined>();
+  const [projectImg, setProjectImg] = useState<Blob | undefined>();
 
   const publishProject = async () => {
-    resetStatus();
+    setSubmitted(true);
+    if (!formValidation.valid) return;
+    localResetStatus();
     showToast(true);
-    if (projectImg) {
-      await dispatch(saveFileToIPFS(projectImg, FileTypes.IMG));
-    }
-
-    await dispatch(saveFileToIPFS(formInputs, FileTypes.PROJECT));
-    dispatch(publishGrant(currentGrantId));
+    await dispatch(publishGrant(currentProjectId, formInputs, projectImg));
   };
 
   const handleInput = (
@@ -65,55 +78,72 @@ function ProjectForm({ currentGrantId }: { currentGrantId?: string }) {
     setFormInputs({ ...formInputs, [e.target.name]: value });
   };
 
+  useEffect(() => {
+    if (props.status === Status.Completed) {
+      setTimeout(() => navigate(slugs.grants), 1500);
+    }
+  }, [props.status]);
+
   // TODO: feels like this could be extracted to a component
   useEffect(() => {
     // called twice
     // 1 - when it loads or id changes (it checks if it's cached in local storage)
     // 2 - when ipfs is initialized (it fetches it if not loaded yet)
-    if (currentGrantId !== undefined && props.currentGrant === undefined) {
-      dispatch(fetchGrantData(Number(currentGrantId)));
+    if (currentProjectId !== undefined && props.currentProject === undefined) {
+      dispatch(fetchGrantData(Number(currentProjectId)));
     }
 
-    const { currentGrant } = props;
+    const { currentProject } = props;
 
-    if (currentGrant) {
+    if (currentProject) {
       setFormInputs({
-        title: currentGrant.title,
-        description: currentGrant.description,
-        website: currentGrant.website,
-        challenges: currentGrant.challenges,
-        roadmap: currentGrant.roadmap,
+        title: currentProject.title,
+        description: currentProject.description,
+        website: currentProject.website,
       });
     }
-  }, [dispatch, props.ipfsInitialized, currentGrantId, props.currentGrant]);
+  }, [dispatch, props.ipfsInitialized, currentProjectId, props.currentProject]);
 
+  const validate = async () => {
+    try {
+      await validateProjectForm(formInputs);
+      setFormValidation({
+        message: "",
+        valid: true,
+      });
+    } catch (e) {
+      const error = e as ValidationError;
+      setFormValidation({
+        message: error.message,
+        valid: false,
+      });
+    }
+  };
   // perform validation after the fields state is updated
   useEffect(() => {
-    const validValues = Object.values(formInputs).filter((input) => {
-      if (typeof input === "string") {
-        return input.length > 0;
-      }
-
-      return false;
-    });
-
-    setValidated(validValues.length === Object.keys(formInputs).length);
+    validate();
   }, [formInputs]);
 
   // eslint-disable-next-line
   useEffect(() => {
     return () => {
-      resetStatus();
+      localResetStatus();
     };
   }, []);
 
-  if (props.currentGrant === undefined && props.ipfsInitializationError) {
+  useEffect(() => {
+    if (props.status === Status.Completed) {
+      setFormInputs(initialFormValues);
+    }
+  }, [props.status]);
+
+  if (props.currentProject === undefined && props.ipfsInitializationError) {
     return <>Error initializing IPFS. Reload the page and try again.</>;
   }
 
   if (
-    currentGrantId !== undefined &&
-    props.currentGrant === undefined &&
+    currentProjectId !== undefined &&
+    props.currentProject === undefined &&
     !props.ipfsInitialized
   ) {
     return <>Initializing ipfs...</>;
@@ -121,10 +151,10 @@ function ProjectForm({ currentGrantId }: { currentGrantId?: string }) {
 
   if (
     // if it's undefined we don't have anything to load
-    currentGrantId !== undefined &&
-    props.currentGrant === undefined &&
+    currentProjectId !== undefined &&
+    props.currentProject === undefined &&
     props.loading &&
-    props.currentGrant === undefined
+    props.currentProject === undefined
   ) {
     return <>Loading grant data from IPFS... </>;
   }
@@ -137,42 +167,45 @@ function ProjectForm({ currentGrantId }: { currentGrantId?: string }) {
           name="title"
           placeholder="What's the project name?"
           value={formInputs.title}
-          changeHandler={(e) => handleInput(e)}
+          changeHandler={handleInput}
         />
         <WebsiteInput
           label="Project Website"
           name="website"
           value={formInputs.website}
-          changeHandler={(e) => handleInput(e)}
+          changeHandler={handleInput}
         />
         <ImageInput
           label="Project Logo"
-          imgHandler={(buffer: Buffer) => setProjectImg(buffer)}
+          currentProject={props.currentProject}
+          imgHandler={(buffer: Blob) => setProjectImg(buffer)}
         />
         <TextArea
           label="Project Description"
           name="description"
           placeholder="What is the project about and what kind of impact does it aim to have?"
           value={formInputs.description}
-          changeHandler={(e) => handleInput(e)}
+          changeHandler={handleInput}
         />
-        <TextArea
-          label="Project Roadmap"
-          name="roadmap"
-          placeholder="What are the dependencies and project goals? What are the timelines per milestone or deliverable?"
-          value={formInputs.roadmap}
-          changeHandler={(e) => handleInput(e)}
-        />
-        <TextArea
-          label="Project Challenges"
-          name="challenges"
-          placeholder="What are some of the risks you see ahead? How do you plan to prepare?"
-          value={formInputs.challenges}
-          changeHandler={(e) => handleInput(e)}
-        />
+        {!formValidation.valid && submitted && (
+          <p className="text-danger-text w-full text-center font-semibold my-2">
+            {formValidation.message}
+          </p>
+        )}
         <div className="flex w-full justify-end mt-6">
           <Button
-            disabled={!validated || !props.ipfsInitialized}
+            disabled={
+              !props.ipfsInitialized || (!formValidation.valid && submitted)
+            }
+            variant={ButtonVariants.outline}
+            onClick={() => toggleModal(true)}
+          >
+            Cancel
+          </Button>
+          <Button
+            disabled={
+              !props.ipfsInitialized || (!formValidation.valid && submitted)
+            }
             variant={ButtonVariants.primary}
             onClick={publishProject}
           >
@@ -182,11 +215,13 @@ function ProjectForm({ currentGrantId }: { currentGrantId?: string }) {
       </form>
       <Toast
         show={show}
+        fadeOut={props.status === Status.Completed}
         onClose={() => showToast(false)}
-        error={props.txStatus === "error"}
+        error={props.status === Status.Error}
       >
-        <TXLoading status={props.txStatus} />
+        <TXLoading status={props.status} error={props.error} />
       </Toast>
+      <ExitModal modalOpen={modalOpen} toggleModal={toggleModal} />
     </div>
   );
 }
