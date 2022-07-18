@@ -72,3 +72,33 @@ export interface Round {
   applicationMetaPtr: MetaPtr;
   applicationMetadata: RoundApplicationMetadata;
 }
+
+export interface GrantApplication {
+  /**
+   * The round contract address applied to
+   */
+  round: string;
+  /**
+   * Recipient wallet address of grantee
+   */
+  recipient: string;
+  /**
+   * Project information
+   */
+  project: {
+    lastUpdated: Number; // unix timestamp in milliseconds
+    id: string;
+    title: string;
+    description: string;
+    website: string;
+    bannerImg?: string;
+    logoImg: string;
+    metaPtr: MetaPtr;
+  };
+  /** List of answers to questions */
+  answers: Array<{
+    questionId: Number;
+    question: string;
+    answer: string;
+  }>;
+}
