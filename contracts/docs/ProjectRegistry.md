@@ -10,23 +10,6 @@
 
 ## Methods
 
-### OWNERS_LIST_SENTINEL
-
-```solidity
-function OWNERS_LIST_SENTINEL() external view returns (address)
-```
-
-
-
-
-
-
-#### Returns
-
-| Name | Type | Description |
-|---|---|---|
-| _0 | address | undefined |
-
 ### addProjectOwner
 
 ```solidity
@@ -47,7 +30,7 @@ Associate a new owner with a project
 ### createProject
 
 ```solidity
-function createProject(address recipient, MetaPtr metadata) external nonpayable
+function createProject(MetaPtr metadata) external nonpayable
 ```
 
 
@@ -58,7 +41,6 @@ function createProject(address recipient, MetaPtr metadata) external nonpayable
 
 | Name | Type | Description |
 |---|---|---|
-| recipient | address | undefined |
 | metadata | MetaPtr | undefined |
 
 ### getProjectOwners
@@ -119,7 +101,7 @@ Retrieve count of existing project owners
 ### projects
 
 ```solidity
-function projects(uint96) external view returns (uint96 id, address recipient, struct MetaPtr metadata)
+function projects(uint96) external view returns (uint96 id, struct MetaPtr metadata)
 ```
 
 
@@ -137,7 +119,6 @@ function projects(uint96) external view returns (uint96 id, address recipient, s
 | Name | Type | Description |
 |---|---|---|
 | id | uint96 | undefined |
-| recipient | address | undefined |
 | metadata | MetaPtr | undefined |
 
 ### projectsCount
