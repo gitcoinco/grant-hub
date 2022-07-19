@@ -113,6 +113,7 @@ export default function Form({
           name="project-select"
           label="Select a project you would like to apply for funding:"
           options={projectOptions ?? []}
+          disabled={preview}
           changeHandler={projectSelected}
         />
         <p className="text-xs mt-4 mb-1">
