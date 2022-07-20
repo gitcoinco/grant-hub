@@ -100,8 +100,10 @@ export default function ImageInput({
         if (validateDimensions(img, dimensions)) {
           setValidation({
             error: true,
-            msg: `Image must be ${dimensions.width}px X ${dimensions.height}px`,
+            msg: `Image must be ${dimensions.width}px x ${dimensions.height}px`,
           });
+          setTempImg("");
+          return;
         }
 
         if (res) {
@@ -150,7 +152,10 @@ export default function ImageInput({
             >
               <CloudUpload color={colors["secondary-text"]} />
               <p>Click to Upload or drag and drop</p>
-              <p>PNG or JPG (Recommended: 1044x600px)</p>
+              <p>
+                PNG or JPG (Required:{" "}
+                {`${dimensions.width}px x ${dimensions.height}px`})
+              </p>
             </button>
           )}
           <div className="w-1/4">
@@ -162,6 +167,8 @@ export default function ImageInput({
       </div>
       <Toast
         show={validation.error}
+        error
+        fadeOut
         onClose={() =>
           setValidation({
             error: false,
