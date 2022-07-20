@@ -29,8 +29,6 @@ function Project() {
       loading: grantMetadata ? grantMetadata.loading : false,
       currentProject: grantMetadata?.metadata,
       projects: state.projects.projects,
-      ipfsInitialized: state.ipfs.initialized,
-      ipfsInitializationError: state.ipfs.initializationError,
     };
   }, shallowEqual);
 
@@ -41,7 +39,7 @@ function Project() {
     if (params.id !== undefined && props.currentProject === undefined) {
       dispatch(fetchGrantData(Number(params.id)));
     }
-  }, [dispatch, props.ipfsInitialized, params.id, props.currentProject]);
+  }, [dispatch, params.id, props.currentProject]);
 
   useEffect(() => {
     async function fetchTimeStamp(projects: ProjectEvent[], projectId: string) {
@@ -70,14 +68,6 @@ function Project() {
       dispatch(loadProjects());
     }
   }, [props.id, props.currentProject, global, dispatch]);
-
-  if (props.currentProject === undefined && props.ipfsInitializationError) {
-    return <>Error initializing IPFS. Reload the page and try again.</>;
-  }
-
-  if (props.currentProject === undefined && !props.ipfsInitialized) {
-    return <>Initializing ipfs...</>;
-  }
 
   if (
     props.currentProject === undefined &&

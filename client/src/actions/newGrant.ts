@@ -53,16 +53,27 @@ export const grantCreated = ({
   owner,
 });
 
+type Images = {
+  bannerImg?: Blob;
+  logoImg?: Blob;
+};
+
 export const publishGrant =
-  (grantId: string | undefined, _content: any, image: Blob | undefined) =>
+  (grantId: string | undefined, _content: any, images: Images) =>
   async (dispatch: Dispatch, getState: () => RootState) => {
     const content = _content;
     const pinataClient = new PinataClient();
 
-    if (image !== undefined) {
+    if (images.bannerImg !== undefined) {
       dispatch(grantStatus(Status.UploadingImage, undefined));
-      const resp = await pinataClient.pinFile(image);
-      content.projectImg = resp.IpfsHash;
+      const resp = await pinataClient.pinFile(images.bannerImg);
+      content.bannerImg = resp.IpfsHash;
+    }
+
+    if (images.logoImg !== undefined) {
+      dispatch(grantStatus(Status.UploadingImage, undefined));
+      const resp = await pinataClient.pinFile(images.logoImg);
+      content.bannerImg = resp.IpfsHash;
     }
 
     dispatch(grantStatus(Status.UploadingJSON, undefined));

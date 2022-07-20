@@ -21,7 +21,6 @@ function Card({ projectId }: { projectId: number }) {
       id: projectId,
       loading,
       currentProject: project,
-      ipfsInitialized: state.ipfs.initialized,
       projectImg,
     };
   }, shallowEqual);
@@ -33,7 +32,7 @@ function Card({ projectId }: { projectId: number }) {
     if (projectId !== undefined && props.currentProject === undefined) {
       dispatch(fetchGrantData(projectId));
     }
-  }, [dispatch, props.ipfsInitialized, projectId, props.currentProject]);
+  }, [dispatch, projectId, props.currentProject]);
 
   return (
     <div className="max-w-sm rounded overflow-hidden shadow-lg my-6">
