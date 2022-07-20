@@ -5,18 +5,42 @@ import { getProjectImage } from "../../utils/components";
 import CloudUpload from "../icons/CloudUpload";
 import Toast from "./Toast";
 
+type Dimensions = {
+  width: number;
+  height: number;
+};
+
+const validateDimensions = (
+  image: HTMLImageElement,
+  dimensions: Dimensions
+) => {
+  const { naturalHeight, naturalWidth } = image;
+
+  return (
+    naturalHeight !== dimensions.height && naturalWidth !== dimensions.width
+  );
+};
+
 export default function ImageInput({
   label,
+  dimensions,
   currentProject,
   imgHandler,
 }: {
   label: string;
+  dimensions: {
+    width: number;
+    height: number;
+  };
   currentProject?: Metadata;
   imgHandler: (file: Blob) => void;
 }) {
   const fileInput = useRef<HTMLInputElement>(null);
   const [tempImg, setTempImg] = useState("");
-  const [show, showToast] = useState(false);
+  const [validation, setValidation] = useState({
+    error: false,
+    msg: "",
+  });
 
   const handleDragEnter = (e: React.DragEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -44,35 +68,48 @@ export default function ImageInput({
   ) => {
     e.preventDefault();
     e.stopPropagation();
+
     const files = getFiles(e);
     if (files) {
       if (files.length === 0) {
         return;
       }
-
+      const file = files[0];
       // ensure image is < 2mb
-      if (files[0].size > 2000000) {
-        showToast(true);
+      if (file > 2000000) {
+        setValidation({
+          error: true,
+          msg: "Image must be less than 2mb",
+        });
         return;
       }
       // remove validation message
-      showToast(false);
+      setValidation({
+        error: false,
+        msg: "",
+      });
 
       const img: HTMLImageElement = document.createElement("img");
-      img.src = URL.createObjectURL(files[0]);
+      img.src = URL.createObjectURL(file);
 
-      setTempImg(URL.createObjectURL(files[0]));
+      setTempImg(URL.createObjectURL(file));
 
       const reader = new FileReader();
       reader.onloadend = () => {
         const res = reader.result;
+        if (validateDimensions(img, dimensions)) {
+          setValidation({
+            error: true,
+            msg: `Image must be ${dimensions.width}px X ${dimensions.height}px`,
+          });
+        }
+
         if (res) {
-          // const  = window.Buffer.from(bufferResult);
-          imgHandler(files[0]);
+          imgHandler(file);
         }
       };
 
-      reader.readAsArrayBuffer(files[0]);
+      reader.readAsArrayBuffer(file);
     }
   };
 
@@ -123,9 +160,17 @@ export default function ImageInput({
           </div>
         </div>
       </div>
-      <Toast show={show} onClose={() => showToast(false)} error>
+      <Toast
+        show={validation.error}
+        onClose={() =>
+          setValidation({
+            error: false,
+            msg: "",
+          })
+        }
+      >
         <p className="font-semibold text-quaternary-text mr-2 mt-1">
-          Image must be less than 2mb
+          {validation.msg}
         </p>
       </Toast>
     </>

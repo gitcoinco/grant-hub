@@ -177,6 +177,10 @@ function ProjectForm({ currentProjectId }: { currentProjectId?: string }) {
         />
         <ImageInput
           label="Project Logo"
+          dimensions={{
+            width: 1500,
+            height: 500,
+          }}
           currentProject={props.currentProject}
           imgHandler={(buffer: Blob) => setProjectImg(buffer)}
         />
