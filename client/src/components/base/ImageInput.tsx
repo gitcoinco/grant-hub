@@ -25,6 +25,7 @@ export default function ImageInput({
   label,
   dimensions,
   currentProject,
+  circle,
   imgHandler,
 }: {
   label: string;
@@ -33,6 +34,7 @@ export default function ImageInput({
     height: number;
   };
   currentProject?: Metadata;
+  circle?: Boolean;
   imgHandler: (file: Blob) => void;
 }) {
   const fileInput = useRef<HTMLInputElement>(null);
@@ -129,7 +131,7 @@ export default function ImageInput({
 
   return (
     <>
-      <div className="mt-6 w-11/12">
+      <div className="mt-6 w-full">
         <label htmlFor={label}>{label}</label>
         <div className="flex">
           <input
@@ -142,7 +144,7 @@ export default function ImageInput({
           />
           {fileInput && (
             <button
-              className="w-full border border-dashed rounded flex flex-col py-6 items-center mr-2"
+              className="w-2/3 border border-dashed rounded flex flex-col py-6 items-center mr-2"
               type="button"
               onClick={onButtonClick}
               onDrop={(e) => saveImage(e)}
@@ -158,9 +160,13 @@ export default function ImageInput({
               </p>
             </button>
           )}
-          <div className="w-1/4">
+          <div className="w-1/3">
             {currentImg().length > 0 && (
-              <img src={currentImg()} alt="Project Logo Preview" />
+              <img
+                className={`max-h-28 ${circle && "rounded-full"}`}
+                src={currentImg()}
+                alt="Project Logo Preview"
+              />
             )}
           </div>
         </div>
