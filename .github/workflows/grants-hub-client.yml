@@ -19,7 +19,6 @@ jobs:
           REACT_APP_PINATA_GATEWAY: ${{ secrets.REACT_APP_PINATA_GATEWAY }}
         run: |
           cd client
-          yarn cache clean
           yarn install
           yarn lint
           yarn test
