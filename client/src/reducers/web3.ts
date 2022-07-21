@@ -5,11 +5,13 @@ import {
   WEB3_ERROR,
   WEB3_CHAIN_ID_LOADED,
   WEB3_ACCOUNT_LOADED,
+  WEB3_WRONG_NETWORK_ERROR,
 } from "../actions/web3";
 
 export interface Web3State {
   initializing: boolean;
   initialized: boolean;
+  networkSwitchRequired: boolean;
   chainID: number | undefined;
   error: string | undefined;
   account: string | undefined;
@@ -18,6 +20,7 @@ export interface Web3State {
 const initialState: Web3State = {
   initializing: false,
   initialized: false,
+  networkSwitchRequired: false,
   chainID: undefined,
   error: undefined,
   account: undefined,
@@ -51,6 +54,14 @@ export const web3Reducer = (
         ...state,
         initializing: false,
         error: action.error,
+      };
+    }
+
+    case WEB3_WRONG_NETWORK_ERROR: {
+      return {
+        ...state,
+        initializing: false,
+        networkSwitchRequired: true,
       };
     }
 

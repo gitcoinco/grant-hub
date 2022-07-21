@@ -2,10 +2,9 @@ import { ethers } from "ethers";
 import { Dispatch } from "redux";
 import { global } from "../global";
 import { RootState } from "../reducers";
-import { chains } from "../contracts/deployments";
+import { chains, rpcEndpointInfo } from "../contracts/deployments";
 
 const chainIds = Object.keys(chains);
-const chainNames = Object.values(chains);
 
 enum Web3Type {
   Generic,
@@ -30,6 +29,11 @@ export interface Web3ErrorAction {
   error: string;
 }
 
+export const WEB3_WRONG_NETWORK_ERROR = "WEB3_WRONG_NETWORK_ERROR";
+export interface Web3WrongNetworkErrorAction {
+  type: typeof WEB3_WRONG_NETWORK_ERROR;
+}
+
 export const WEB3_CHAIN_ID_LOADED = "WEB3_CHAIN_ID_LOADED";
 export interface Web3ChainIDLoadedAction {
   type: typeof WEB3_CHAIN_ID_LOADED;
@@ -46,6 +50,7 @@ export type Web3Actions =
   | Web3InitializingAction
   | Web3InitializedAction
   | Web3ErrorAction
+  | Web3WrongNetworkErrorAction
   | Web3ChainIDLoadedAction
   | Web3AccountLoadedAction;
 
@@ -68,6 +73,10 @@ export const web3Error = (error: string): Web3Actions => ({
   error,
 });
 
+export const web3WrongNetworkError = (): Web3Actions => ({
+  type: WEB3_WRONG_NETWORK_ERROR,
+});
+
 export const web3AccountLoaded = (account: string): Web3Actions => ({
   type: WEB3_ACCOUNT_LOADED,
   account,
@@ -88,13 +97,7 @@ const loadWeb3Data = () => (dispatch: Dispatch) => {
   global.web3Provider = new ethers.providers.Web3Provider(window.ethereum);
   global.web3Provider!.getNetwork().then(({ chainId }) => {
     if (!chainIds.includes(String(chainId))) {
-      dispatch(
-        web3Error(
-          `wrong network, please connect to one of the following networks: ${chainNames.join(
-            ", "
-          )}`
-        )
-      );
+      dispatch(web3WrongNetworkError());
       return;
     }
 
@@ -133,6 +136,7 @@ export const initializeWeb3 = (requestAccess = true) => {
 
           // FIXME: fix dispatch<any>
           window.ethereum.on("chainChanged", () => window.location.reload());
+          window.ethereum.on("accountsChanged", () => window.location.reload());
           dispatch<any>(loadWeb3Data());
         })
         .catch((err: string) => {
@@ -144,3 +148,47 @@ export const initializeWeb3 = (requestAccess = true) => {
   }
   return notWeb3Browser();
 };
+
+const addNetworkToWallet = (chainId: number) => async (dispatch: Dispatch) => {
+  global.web3Provider = new ethers.providers.Web3Provider(window.ethereum);
+  try {
+    if (!global.web3Provider.provider.request) {
+      // FIXME: handle this
+      return;
+    }
+    await global.web3Provider.provider.request({
+      method: "wallet_addEthereumChain",
+      params: [rpcEndpointInfo[chainId]],
+    });
+    dispatch<any>(switchNetwork(chainId));
+    // dispatch<any>(loadWeb3Data());
+  } catch (error: any) {
+    // FIXME: handle error
+    dispatch(web3Error("Unable to switch network"));
+  }
+};
+
+export const switchNetwork =
+  (chainId: number) => async (dispatch: Dispatch) => {
+    global.web3Provider = new ethers.providers.Web3Provider(window.ethereum);
+    try {
+      if (!global.web3Provider.provider.request) {
+        // FIXME: handle this
+        return;
+      }
+      await global.web3Provider.provider.request({
+        method: "wallet_switchEthereumChain",
+        params: [{ chainId: ethers.utils.hexValue(chainId) }],
+      });
+      // FIXME: fix dispatch<any>
+      dispatch<any>(loadWeb3Data());
+    } catch (error: any) {
+      if (error.code === 4902) {
+        // This means that the chain is missing from MetaMark
+        dispatch<any>(addNetworkToWallet(chainId));
+        return;
+      }
+      // FIXME: handle error
+      dispatch(web3Error("Unable to switch network"));
+    }
+  };

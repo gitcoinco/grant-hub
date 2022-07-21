@@ -1,23 +1,28 @@
 import React, { useEffect, useState } from "react";
-import { shallowEqual, useSelector } from "react-redux";
+import { shallowEqual, useSelector, useDispatch } from "react-redux";
+import { Button } from "@chakra-ui/react";
 import { RootState } from "../reducers";
 import Landing from "./grants/Landing";
 import Header from "./Header";
 import Toast from "./base/Toast";
 import Globe from "./icons/Globe";
 import colors from "../styles/colors";
+import { chains } from "../contracts/deployments";
+import { switchNetwork } from "../actions/web3";
 
 interface Props {
   children: JSX.Element;
 }
 
 function Layout(ownProps: Props) {
+  const dispatch = useDispatch();
   const [show, showToast] = useState(false);
   const props = useSelector(
     (state: RootState) => ({
       web3Initializing: state.web3.initializing,
       web3Initialized: state.web3.initialized,
       web3Error: state.web3.error,
+      networkSwitchRequired: state.web3.networkSwitchRequired,
       chainID: state.web3.chainID,
       account: state.web3.account,
       ipfsInitializing: state.ipfs.initializing,
@@ -42,6 +47,27 @@ function Layout(ownProps: Props) {
       <main className="container mx-auto dark:bg-primary-background grow">
         {!props.web3Error && props.web3Initialized && props.chainID && children}
         {props.web3Error && <p>{props.web3Error}</p>}
+        {props.networkSwitchRequired && (
+          <>
+            <p>
+              Wrong network, please connect to one of the following networks:
+            </p>
+            <ul>
+              {Object.entries(chains).map((chain) => (
+                <li key={chain[0]}>
+                  <Button
+                    className="bg-transparent mx-4 outline-none focus:outline-none"
+                    onClick={() =>
+                      dispatch(switchNetwork(parseInt(chain[0], 10)))
+                    }
+                  >
+                    {chain[1]}
+                  </Button>
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
       </main>
       <Toast fadeOut show={show} onClose={() => showToast(false)}>
         <>
