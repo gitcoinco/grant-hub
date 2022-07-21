@@ -60,7 +60,6 @@ function ProjectForm({ currentProjectId }: { currentProjectId?: string }) {
     if (!formValidation.valid) return;
     localResetStatus();
     showToast(true);
-    console.log({ bannerImg });
     await dispatch(
       publishGrant(currentProjectId, formInputs, {
         bannerImg,

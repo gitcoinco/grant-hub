@@ -5,6 +5,7 @@ import { RootState } from "../reducers";
 import ProjectRegistryABI from "../contracts/abis/ProjectRegistry.json";
 import { addressesByChainID } from "../contracts/deployments";
 import { NewGrant, Status } from "../reducers/newGrant";
+import { Images } from "../types";
 import PinataClient from "../services/pinata";
 
 export const NEW_GRANT_STATUS = "NEW_GRANT_STATUS";
@@ -53,27 +54,20 @@ export const grantCreated = ({
   owner,
 });
 
-type Images = {
-  bannerImg?: Blob;
-  logoImg?: Blob;
-};
-
 export const publishGrant =
   (grantId: string | undefined, _content: any, images: Images) =>
   async (dispatch: Dispatch, getState: () => RootState) => {
     const content = _content;
     const pinataClient = new PinataClient();
-
+    dispatch(grantStatus(Status.UploadingImages, undefined));
     if (images.bannerImg !== undefined) {
-      dispatch(grantStatus(Status.UploadingImage, undefined));
       const resp = await pinataClient.pinFile(images.bannerImg);
       content.bannerImg = resp.IpfsHash;
     }
 
     if (images.logoImg !== undefined) {
-      dispatch(grantStatus(Status.UploadingImage, undefined));
       const resp = await pinataClient.pinFile(images.logoImg);
-      content.bannerImg = resp.IpfsHash;
+      content.logoImg = resp.IpfsHash;
     }
 
     dispatch(grantStatus(Status.UploadingJSON, undefined));

@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import colors from "../../styles/colors";
 import { Metadata } from "../../types";
-import { getProjectImage } from "../../utils/components";
+import { getProjectImage, ImgTypes } from "../../utils/components";
 import CloudUpload from "../icons/CloudUpload";
 import Toast from "./Toast";
 
@@ -120,7 +120,7 @@ export default function ImageInput({
   const currentImg = () => {
     if (tempImg) return tempImg;
     if (!currentProject) return "";
-    return getProjectImage(false, currentProject);
+    return getProjectImage(false, ImgTypes.bannerImg, currentProject);
   };
 
   const onButtonClick = () => {

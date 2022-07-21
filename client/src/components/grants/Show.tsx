@@ -10,7 +10,7 @@ import Pencil from "../icons/Pencil";
 import colors from "../../styles/colors";
 import LinkIcon from "../icons/LinkIcon";
 import Arrow from "../icons/Arrow";
-import { getProjectImage } from "../../utils/components";
+import { getProjectImage, ImgTypes } from "../../utils/components";
 import { ProjectEvent } from "../../types";
 import { loadProjects } from "../../actions/projects";
 import Calendar from "../icons/Calendar";
@@ -110,7 +110,11 @@ function Project() {
           <div className="w-full md:w-2/3 mb-40">
             <img
               className="w-full mb-4  h-32 object-contain"
-              src={getProjectImage(props.loading, props.currentProject)}
+              src={getProjectImage(
+                props.loading,
+                ImgTypes.bannerImg,
+                props.currentProject
+              )}
               onError={(e) => {
                 e.currentTarget.onerror = null;
                 e.currentTarget.src = "./assets/card-img.png";
