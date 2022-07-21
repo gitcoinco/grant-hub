@@ -46,8 +46,8 @@ function Card({ projectId }: { projectId: number }) {
           }}
           alt="project banner"
         />
-        <div className="py-4 relative text-center">
-          <div className="flex w-full justify-center absolute -top-6">
+        <div className="p-6 relative text-start">
+          <div className="flex w-full justify-start absolute -top-6">
             <div className="rounded-full h-12 w-12 bg-quaternary-text border border-tertiary-text flex justify-center items-center">
               <img
                 className="rounded-full"
@@ -63,8 +63,8 @@ function Card({ projectId }: { projectId: number }) {
           {props.loading ? (
             <TextLoading />
           ) : (
-            <div className="px-6 pt-4">
-              <div className="font-bold text-xl mb-2">
+            <div className="pt-4">
+              <div className="font-semi-bold text-xl mb-2">
                 {props.currentProject?.title}
               </div>
               <p className="text-gray-700 text-base h-20">
