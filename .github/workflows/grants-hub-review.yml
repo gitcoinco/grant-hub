@@ -16,6 +16,7 @@ jobs:
       - name: Install, Lint, and Test 🔧
         run: |
           cd client
+          yarn cache clean
           yarn install
           yarn lint
           yarn test
