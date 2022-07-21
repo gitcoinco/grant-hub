@@ -106,11 +106,11 @@ function Project() {
             {props.id && (
               <Link
                 to={editPath(props.id)}
-                className="w-full sm:w-auto mx-w-full ml-0"
+                className="sm:w-auto mx-w-full ml-0"
               >
                 <Button
                   variant={ButtonVariants.outline}
-                  styles={["w-full sm:w-auto mx-w-full ml-0"]}
+                  styles={["sm:w-auto mx-w-full ml-0"]}
                 >
                   <i className="icon mt-1">
                     <Pencil color={colors["secondary-text"]} />
