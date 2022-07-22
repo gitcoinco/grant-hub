@@ -78,7 +78,7 @@ export default function ImageInput({
       }
       const file = files[0];
       // ensure image is < 2mb
-      if (file > 2000000) {
+      if (file.size > 2000000) {
         setValidation({
           error: true,
           msg: "Image must be less than 2mb",
