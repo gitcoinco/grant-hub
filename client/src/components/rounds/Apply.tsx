@@ -9,9 +9,8 @@ import Button, { ButtonVariants } from "../base/Button";
 import ExitModal from "../base/ExitModal";
 import Cross from "../icons/Cross";
 import colors from "../../styles/colors";
+import { formatDate } from "../../utils/components";
 
-const formatDate = (unixTS: number) =>
-  new Date(unixTS).toLocaleDateString(undefined);
 function Apply() {
   const params = useParams();
   const dispatch = useDispatch();
