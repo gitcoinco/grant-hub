@@ -16,6 +16,11 @@ export interface Metadata {
   logoImg?: string;
 }
 
+export type ChangeHandlers =
+  | React.ChangeEvent<HTMLInputElement>
+  | React.ChangeEvent<HTMLTextAreaElement>
+  | React.ChangeEvent<HTMLSelectElement>;
+
 // Inputs
 export type InputProps = {
   label: string;
@@ -23,18 +28,8 @@ export type InputProps = {
   info?: string;
   value?: string | number;
   placeholder?: string;
-  changeHandler: (
-    event:
-      | React.ChangeEvent<HTMLInputElement>
-      | React.ChangeEvent<HTMLTextAreaElement>
-  ) => void;
-};
-
-export type RadioInputProps = {
-  name: string;
-  value: string;
-  currentValue?: string;
-  changeHandler: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  disabled?: boolean;
+  changeHandler: (event: ChangeHandlers) => void;
 };
 
 export interface ProjectEvent {
@@ -78,3 +73,8 @@ export interface Round {
   applicationMetaPtr: MetaPtr;
   applicationMetadata: RoundApplicationMetadata;
 }
+
+export type ProjectOptions = {
+  id: number;
+  title?: string;
+};

@@ -14,6 +14,7 @@ import Toast from "./Toast";
 import TXLoading from "./TXLoading";
 import ExitModal from "./ExitModal";
 import { slugs } from "../../routes";
+import { ChangeHandlers } from "../../types";
 
 const initialFormValues = {
   title: "",
@@ -68,11 +69,7 @@ function ProjectForm({ currentProjectId }: { currentProjectId?: string }) {
     );
   };
 
-  const handleInput = (
-    e:
-      | React.ChangeEvent<HTMLInputElement>
-      | React.ChangeEvent<HTMLTextAreaElement>
-  ) => {
+  const handleInput = (e: ChangeHandlers) => {
     const { value } = e.target;
     setFormInputs({ ...formInputs, [e.target.name]: value });
   };
