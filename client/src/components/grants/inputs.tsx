@@ -1,4 +1,4 @@
-import { InputProps, ProjectOptions } from "../../types";
+import { InputProps, ProjectOption } from "../../types";
 
 export function TextInput({
   label,
@@ -55,7 +55,6 @@ export function WebsiteInput({
           value={value ?? ""}
           placeholder="https://gitcoin.co/"
           disabled={disabled}
-          onChange={changeHandler}
           onChange={removeWhiteSpace}
         />
       </div>
@@ -89,7 +88,7 @@ export function TextArea({
 }
 
 type SelectInputProps = InputProps & {
-  options: ProjectOptions[];
+  options: ProjectOption[];
 };
 
 export function Select({
@@ -111,7 +110,7 @@ export function Select({
         onChange={(e) => changeHandler(e)}
       >
         {options.map((option) => (
-          <option key={option.id}>{option.title}</option>
+          <option key={`key-${option.id}`}>{option.title}</option>
         ))}
       </select>
     </div>
