@@ -12,6 +12,7 @@ import colors from "../../styles/colors";
 
 const formatDate = (unixTS: number) =>
   new Date(unixTS).toLocaleDateString(undefined);
+
 function Apply() {
   const params = useParams();
   const dispatch = useDispatch();
@@ -22,7 +23,7 @@ function Apply() {
   const props = useSelector((state: RootState) => {
     const { id } = params;
     const roundState = state.rounds[id!];
-    const status = roundState ? roundState.status : Status.Empty;
+    const status = roundState ? roundState.status : Status.Undefined;
     const error = roundState ? roundState.error : undefined;
     const round = roundState ? roundState.round : undefined;
     return {

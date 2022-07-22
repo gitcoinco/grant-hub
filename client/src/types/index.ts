@@ -68,7 +68,7 @@ export interface Round {
   applicationMetadata: RoundApplicationMetadata;
 }
 
-export type ProjectOptions = {
-  id: number;
+export type ProjectOption = {
+  id: number | undefined;
   title?: string;
 };
