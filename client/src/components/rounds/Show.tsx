@@ -7,6 +7,7 @@ import { loadRound, unloadRounds } from "../../actions/rounds";
 import { Status } from "../../reducers/rounds";
 import { formatDate } from "../../utils/components";
 import Button, { ButtonVariants } from "../base/Button";
+import { loadProgram } from "../../actions/program";
 
 function Round() {
   const params = useParams();
@@ -15,13 +16,17 @@ function Round() {
   const props = useSelector((state: RootState) => {
     const { roundId, programId } = params;
     const roundState = state.rounds[roundId!];
+    const programState = state.programs[programId!];
     const status = roundState ? roundState.status : Status.Empty;
-    const error = roundState ? roundState.error : undefined;
+
+    const error =
+      roundState && programState && roundState.error && programState.error;
     const round = roundState ? roundState.round : undefined;
     return {
       roundId,
       programId,
       roundState,
+      programState,
       status,
       error,
       round,
@@ -32,6 +37,10 @@ function Round() {
     if (props.roundId !== undefined) {
       dispatch(unloadRounds());
       dispatch(loadRound(props.roundId));
+    }
+    if (props.programId !== undefined) {
+      dispatch(unloadRounds());
+      dispatch(loadProgram(props.programId));
     }
   }, [dispatch, props.roundId]);
 
@@ -50,18 +59,18 @@ function Round() {
   return (
     <div className="min-h-full absolute flex flex-col justify-center items-center w-full">
       <div className="flex flex-col justify-center items-center text-left grow">
-        <div className="text-left w-full sm:w-1/2 ">
-          <h2 className="text-center">Optimism</h2>
+        <div className="text-left w-full">
+          <h2 className="text-center">{props.programState.program?.name}</h2>
           <h4 className="text-center">{props.round.roundMetadata.name}</h4>
 
-          <div className="p-8">
+          <div className="p-8 min-w-1/3">
             {/* Need Info from RM */}
-            <p className="my-4">
+            {/* <p className="my-4">
               Get your project funded through Optimism Public Goods Funding
               Round 1!
-            </p>
+            </p> */}
             {/* Need Info from RM */}
-            <p className="my-4">Matching Funds Available: $fundssss</p>
+            {/* <p className="my-4">Matching Funds Available: $fundssss</p> */}
             <p className="mt-4 mb-12">
               Date: {formatDate(props.round.applicationsStartTime)} -{" "}
               {formatDate(props.round.applicationsEndTime)}
