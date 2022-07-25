@@ -9,6 +9,7 @@ import { ProjectsState, projectsReducer } from "./projects";
 import { NewGrantState, newGrantReducer } from "./newGrant";
 import { GrantsMetadataState, grantsMetadataReducer } from "./grantsMetadata";
 import { RoundsState, roundsReducer } from "./rounds";
+import { ProgramState, programReducer } from "./program";
 
 export interface RootState {
   router: ReduxRouterState;
@@ -17,6 +18,7 @@ export interface RootState {
   newGrant: NewGrantState;
   grantsMetadata: GrantsMetadataState;
   rounds: RoundsState;
+  programs: ProgramState;
 }
 
 export const createRootReducer = () =>
@@ -27,4 +29,5 @@ export const createRootReducer = () =>
     newGrant: newGrantReducer,
     grantsMetadata: grantsMetadataReducer,
     rounds: roundsReducer,
+    programs: programReducer,
   });

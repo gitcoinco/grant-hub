@@ -78,3 +78,7 @@ export type ProjectOptions = {
   id: number;
   title?: string;
 };
+
+export type ProgramMetadata = {
+  name: string;
+};
