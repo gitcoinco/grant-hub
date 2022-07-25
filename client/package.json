@@ -4,7 +4,6 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@apollo/client": "^3.6.9",
     "@chakra-ui/react": "^2.1.2",
     "@craco/craco": "^6.4.3",
     "@emotion/react": "^11",
