@@ -1,7 +1,7 @@
 import {
   PROGRAM_LOADING,
   PROGRAM_LOADED,
-  // PROGRAM_UNLOADED,
+  PROGRAM_UNLOADED,
   PROGRAM_LOADING_ERROR,
   ProgramActions,
 } from "../actions/program";
@@ -66,6 +66,9 @@ export const programReducer = (
           status: Status.Error,
         },
       };
+    }
+    case PROGRAM_UNLOADED: {
+      return initialState;
     }
     default:
       return state;
