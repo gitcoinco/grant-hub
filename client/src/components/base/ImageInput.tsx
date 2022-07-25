@@ -95,7 +95,6 @@ export default function ImageInput({
       reader.onload = () => {
         const img: HTMLImageElement = document.createElement("img");
         img.src = URL.createObjectURL(file);
-        const res = reader.result;
         img.onload = () => {
           if (!validateDimensions(img, dimensions)) {
             setValidation({
@@ -103,16 +102,18 @@ export default function ImageInput({
               msg: `Image must be ${dimensions.width}px x ${dimensions.height}px`,
             });
             setTempImg(undefined);
+          } else {
+            setValidation({
+              error: false,
+              msg: "",
+            });
+            imgHandler(file);
+            setTempImg(URL.createObjectURL(file));
           }
         };
-
-        if (res) {
-          imgHandler(file);
-        }
       };
 
       reader.readAsDataURL(file);
-      setTempImg(URL.createObjectURL(file));
     }
   };
 
