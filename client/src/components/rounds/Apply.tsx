@@ -19,13 +19,14 @@ function Apply() {
   const [modalOpen, toggleModal] = useState(false);
 
   const props = useSelector((state: RootState) => {
-    const { id } = params;
-    const roundState = state.rounds[id!];
+    const { roundId, programId } = params;
+    const roundState = state.rounds[roundId!];
     const status = roundState ? roundState.status : Status.Empty;
     const error = roundState ? roundState.error : undefined;
     const round = roundState ? roundState.round : undefined;
     return {
-      id,
+      roundId,
+      programId,
       roundState,
       status,
       error,
@@ -35,10 +36,14 @@ function Apply() {
   }, shallowEqual);
 
   useEffect(() => {
-    if (props.id !== undefined && props.round === undefined) {
-      navigate(roundPath(props.id));
+    if (
+      props.roundId !== undefined &&
+      props.programId !== undefined &&
+      props.round === undefined
+    ) {
+      navigate(roundPath(props.programId, props.roundId));
     }
-  }, [dispatch, props.id, props.round]);
+  }, [dispatch, props.roundId, props.round]);
 
   if (props.status === Status.Error) {
     return <div>Error: {props.error}</div>;

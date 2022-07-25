@@ -13,13 +13,14 @@ function Round() {
   const dispatch = useDispatch();
 
   const props = useSelector((state: RootState) => {
-    const { id } = params;
-    const roundState = state.rounds[id!];
+    const { roundId, programId } = params;
+    const roundState = state.rounds[roundId!];
     const status = roundState ? roundState.status : Status.Empty;
     const error = roundState ? roundState.error : undefined;
     const round = roundState ? roundState.round : undefined;
     return {
-      id,
+      roundId,
+      programId,
       roundState,
       status,
       error,
@@ -28,11 +29,11 @@ function Round() {
   }, shallowEqual);
 
   useEffect(() => {
-    if (props.id !== undefined) {
+    if (props.roundId !== undefined) {
       dispatch(unloadRounds());
-      dispatch(loadRound(props.id));
+      dispatch(loadRound(props.roundId));
     }
-  }, [dispatch, props.id]);
+  }, [dispatch, props.roundId]);
 
   if (props.status === Status.Error) {
     return <div>Error: {props.error}</div>;
@@ -65,7 +66,7 @@ function Round() {
               Date: {formatDate(props.round.applicationsStartTime)} -{" "}
               {formatDate(props.round.applicationsEndTime)}
             </p>
-            <Link to={roundApplicationPath(params.id!)}>
+            <Link to={roundApplicationPath(params.programId!, params.roundId!)}>
               <Button
                 styles={["w-full justify-center"]}
                 variant={ButtonVariants.primary}
