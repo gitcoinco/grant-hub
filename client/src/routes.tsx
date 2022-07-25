@@ -4,8 +4,8 @@ export const slugs = {
   grant: `/grants/:id`,
   edit: `/grants/:id/edit`,
   newGrant: `/grants/new`,
-  round: `/round/:roundId`,
-  roundApplication: `/round/:roundId/apply`,
+  round: `/program/:programId/round/:roundId`,
+  roundApplication: `/program/:programId/round/:roundId/apply`,
 };
 
 export const rootPath = () => slugs.root;
