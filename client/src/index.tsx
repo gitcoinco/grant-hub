@@ -1,35 +1,60 @@
-import "./browserPatches";
-import ReactDOM from "react-dom/client";
-import { Route, Routes } from "react-router";
-import thunkMiddleware from "redux-thunk";
-import { Provider } from "react-redux";
-import { extendTheme, ChakraProvider } from "@chakra-ui/react";
-import {
-  createStore,
-  applyMiddleware,
-  Middleware,
-  MiddlewareAPI,
-  Dispatch,
-} from "redux";
+import { ChakraProvider, extendTheme } from "@chakra-ui/react";
 import {
   createRouterMiddleware,
   ReduxRouter,
 } from "@lagunovsky/redux-react-router";
-import { createRootReducer } from "./reducers";
+import ReactDOM from "react-dom/client";
+import { Provider } from "react-redux";
+import { Route, Routes } from "react-router";
+import {
+  applyMiddleware,
+  createStore,
+  Dispatch,
+  Middleware,
+  MiddlewareAPI,
+} from "redux";
+import thunkMiddleware from "redux-thunk";
+// wallet connect WAGMI
+import {
+  chain,
+  configureChains,
+  createClient,
+  defaultChains,
+  WagmiConfig,
+} from "wagmi";
+import { InjectedConnector } from "wagmi/connectors/injected";
+import { MetaMaskConnector } from "wagmi/connectors/metaMask";
+import { WalletConnectConnector } from "wagmi/connectors/walletConnect";
+import { publicProvider } from "wagmi/providers/public";
+import "./browserPatches";
 import ErrorBoundary from "./components/ErrorBoundary";
-import "./styles/index.css";
-import Layout from "./components/Layout";
-import reportWebVitals from "./reportWebVitals";
-import history from "./history";
-import { slugs } from "./routes";
-import ProjectsList from "./components/grants/List";
-import Project from "./components/grants/Show";
-import NewProject from "./components/grants/New";
 import EditProject from "./components/grants/Edit";
-import RoundShow from "./components/rounds/Show";
-import RoundApply from "./components/rounds/Apply";
 import Landing from "./components/grants/Landing";
+import ProjectsList from "./components/grants/List";
+import NewProject from "./components/grants/New";
+import Project from "./components/grants/Show";
+import Layout from "./components/Layout";
+import RoundApply from "./components/rounds/Apply";
+import RoundShow from "./components/rounds/Show";
+import history from "./history";
+import { createRootReducer } from "./reducers";
+import reportWebVitals from "./reportWebVitals";
+import { slugs } from "./routes";
+import "./styles/index.css";
+
+// import { alchemyProvider } from 'wagmi/providers/alchemy';
+// import { infuraProvider } from "wagmi/providers/infura";
+
 import { initializeWeb3 } from "./actions/web3";
+
+// const alchemyId = process.env.ALCHEMY_ID;
+// const infuraId = process.env.INFURA_ID;
+
+// Configure chains & providers with the Alchemy provider.
+const { chains, provider, webSocketProvider } = configureChains(defaultChains, [
+  // alchemyProvider({ alchemyId }),
+  publicProvider(),
+]);
 
 const logger: Middleware =
   ({ getState }: MiddlewareAPI) =>
@@ -50,6 +75,7 @@ if (process.env.NODE_ENV !== "production" || urlParams.get("debug") !== null) {
   middlewares = [...middlewares, logger];
 }
 
+// setup redux store
 const store = createStore(createRootReducer(), applyMiddleware(...middlewares));
 store.dispatch<any>(initializeWeb3(false));
 
@@ -68,23 +94,49 @@ const colors = {
 
 const theme = extendTheme({ colors });
 
+// Set up client for wagmi
+const client = createClient({
+  autoConnect: true,
+  connectors: [
+    new MetaMaskConnector({ chains }),
+    new WalletConnectConnector({
+      chains: [chain.optimism, chain.optimismKovan, chain.goerli],
+      options: {
+        qrcode: true,
+        rpc: process.env.OP_MAINNET_RPC_URL,
+      },
+    }),
+    new InjectedConnector({
+      chains: [chain.optimism, chain.optimismKovan, chain.goerli],
+      options: {
+        name: "Injected",
+        shimDisconnect: true,
+      },
+    }),
+  ],
+  provider,
+  webSocketProvider,
+});
+
 root.render(
   // <React.StrictMode>
   <ErrorBoundary>
     <ChakraProvider theme={theme} resetCSS={false}>
       <Provider store={store}>
         <ReduxRouter history={history} store={store}>
-          <Layout>
-            <Routes>
-              <Route path={slugs.root} element={<Landing />} />
-              <Route path={slugs.grants} element={<ProjectsList />} />
-              <Route path={slugs.grant} element={<Project />} />
-              <Route path={slugs.newGrant} element={<NewProject />} />
-              <Route path={slugs.edit} element={<EditProject />} />
-              <Route path={slugs.round} element={<RoundShow />} />
-              <Route path={slugs.roundApplication} element={<RoundApply />} />
-            </Routes>
-          </Layout>
+          <WagmiConfig client={client}>
+            <Layout>
+              <Routes>
+                <Route path={slugs.root} element={<Landing />} />
+                <Route path={slugs.grants} element={<ProjectsList />} />
+                <Route path={slugs.grant} element={<Project />} />
+                <Route path={slugs.newGrant} element={<NewProject />} />
+                <Route path={slugs.edit} element={<EditProject />} />
+                <Route path={slugs.round} element={<RoundShow />} />
+                <Route path={slugs.roundApplication} element={<RoundApply />} />
+              </Routes>
+            </Layout>
+          </WagmiConfig>
         </ReduxRouter>
       </Provider>
     </ChakraProvider>

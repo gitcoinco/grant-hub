@@ -1,8 +1,8 @@
 import { ethers } from "ethers";
 import { Dispatch } from "redux";
+import { chains } from "../contracts/deployments";
 import { global } from "../global";
 import { RootState } from "../reducers";
-import { chains } from "../contracts/deployments";
 
 const chainIds = Object.keys(chains);
 const chainNames = Object.values(chains);
@@ -123,6 +123,8 @@ export const initializeWeb3 = (requestAccess = true) => {
 
       dispatch(web3Initializing());
       const method = requestAccess ? "eth_requestAccounts" : "eth_accounts";
+
+      // "wallet_switchEthereumChain"
 
       window.ethereum
         .request({ method })

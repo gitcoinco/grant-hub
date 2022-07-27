@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { shallowEqual, useSelector } from "react-redux";
 import { RootState } from "../reducers";
+import colors from "../styles/colors";
+import Toast from "./base/Toast";
 import Landing from "./grants/Landing";
 import Header from "./Header";
-import Toast from "./base/Toast";
 import Globe from "./icons/Globe";
-import colors from "../styles/colors";
 
 interface Props {
   children: JSX.Element;
