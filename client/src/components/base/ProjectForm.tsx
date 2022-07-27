@@ -15,6 +15,7 @@ import TXLoading from "./TXLoading";
 import ExitModal from "./ExitModal";
 import { slugs } from "../../routes";
 import { ChangeHandlers } from "../../types";
+import Github from "../providers/Github";
 
 const initialFormValues = {
   title: "",
@@ -152,6 +153,7 @@ function ProjectForm({ currentProjectId }: { currentProjectId?: string }) {
           value={formInputs.title}
           changeHandler={handleInput}
         />
+        <Github />
         <WebsiteInput
           label="Project Website"
           name="website"
