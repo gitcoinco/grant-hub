@@ -1,7 +1,6 @@
 // --- Methods
 import { useEffect, useState } from "react";
-import { debounce } from "ts-debounce";
-import { BroadcastChannel } from "broadcast-channel";
+// import { debounce } from "ts-debounce";
 import { shallowEqual, useSelector } from "react-redux";
 import { global } from "../../global";
 // --- Identity tools
@@ -69,7 +68,7 @@ export default function Github() {
     setGHID(ghID);
 
     // eslint-disable-next-line max-len
-    const githubUrl = `https://github.com/login/oauth/authorize?client_id=${process.env.NEXT_PUBLIC_PASSPORT_GITHUB_CLIENT_ID}&redirect_uri=${process.env.NEXT_PUBLIC_PASSPORT_GITHUB_CALLBACK}&state=${GHID}`;
+    const githubUrl = `https://github.com/login/oauth/authorize?client_id=${process.env.REACT_APP_PUBLIC_GITHUB_CLIENT_ID}&redirect_uri=${process.env.REACT_APP_PUBLIC_GITHUB_CALLBACK}&state=${ghID}`;
     openGithubOAuthUrl(githubUrl);
   }
 
@@ -81,7 +80,7 @@ export default function Github() {
     // when receiving github oauth response from a spawned child run fetchVerifiableCredential
     if (e.target === "github") {
       // pull data from message
-      const queryCode = e.data.code;
+      const { code } = e.data;
 
       if (GHID !== e.data.state) {
         setLoading(false);
@@ -91,13 +90,13 @@ export default function Github() {
       // fetch and store credential
       setLoading(true);
       fetchVerifiableCredential(
-        process.env.NEXT_PUBLIC_PASSPORT_IAM_URL || "",
+        process.env.REACT_APP_PASSPORT_IAM_URL || "",
         {
           type: providerId,
           version: "0.0.0",
           address: props.account || "",
           proofs: {
-            code: queryCode, // provided by github as query params in the redirect
+            code, // provided by github as query params in the redirect
           },
         },
         signer as { signMessage: (message: string) => Promise<string> }
@@ -123,7 +122,9 @@ export default function Github() {
     // open the channel
     const channel = new BroadcastChannel("github_oauth_channel");
     // event handler will listen for messages from the child (debounced to avoid multiple submissions)
-    channel.onmessage = debounce(listenForRedirect, 300);
+    channel.onmessage = (event: MessageEvent) => {
+      listenForRedirect(event.data);
+    };
 
     return () => {
       channel.close();
