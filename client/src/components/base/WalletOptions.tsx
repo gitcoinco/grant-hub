@@ -11,6 +11,7 @@ const WalletOptions = ({}: WalletOptionsProps): JSX.Element => {
       {connectors.map((connector) => {
         return (
           <Button
+            styles={[]}
             variant={ButtonVariants.primary}
             disabled={!connector.ready}
             key={connector.id}

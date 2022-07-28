@@ -75,7 +75,9 @@ function Landing() {
       />
       <BaseModal
         isOpen={openConnectModal}
-        onClose={() => {}}
+        onClose={() => {
+          setOpenConnectModal(!openConnectModal);
+        }}
         children={<WalletOptions />}
         title="Connect Wallet"
         footer={<></>}
