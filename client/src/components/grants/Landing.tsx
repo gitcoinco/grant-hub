@@ -6,6 +6,7 @@ import { slugs } from "../../routes";
 import { BaseModal } from "../base/BaseModal";
 import Button, { ButtonVariants } from "../base/Button";
 import WalletOptions from "../base/WalletOptions";
+import { useAccount } from "wagmi";
 
 function Landing() {
   const navigate = useNavigate();
@@ -16,10 +17,17 @@ function Landing() {
     account: state.web3.account,
   }));
   const [openConnectModal, setOpenConnectModal] = useState(false);
+  const { address, isConnecting, isDisconnected } = useAccount();
 
   const connectHandler = () => {
     // dispatch(initializeWeb3());
-    setOpenConnectModal(!openConnectModal);
+    if (isDisconnected) {
+      setOpenConnectModal(!openConnectModal);
+    }
+    if (isConnecting) {
+      console.log("Connecting your wallet now, please wait...");
+    }
+    console.log(`Your already connected with ${address}`);
   };
 
   useEffect(() => {
