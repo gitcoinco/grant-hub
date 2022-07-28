@@ -5,6 +5,7 @@ import Button, { ButtonVariants } from "../base/Button";
 import { RootState } from "../../reducers";
 import { initializeWeb3 } from "../../actions/web3";
 import { slugs } from "../../routes";
+import CallbackModal from "../base/CallbackModal";
 
 function Landing() {
   const navigate = useNavigate();
@@ -43,6 +44,27 @@ function Landing() {
           matching from Gitcoin, partner DAO, or independent grant program
           rounds.
         </p>
+        <CallbackModal
+          modalOpen
+          toggleModal={() => true}
+          confirmText="Switch to Optimism"
+          confirmHandler={() => {
+            console.log("SWITCH!!");
+          }}
+          headerImageUri="https://via.placeholder.com/380"
+        >
+          <>
+            <h5 className="font-semibold mb-2 text-2xl">
+              Switch to the Optimism network
+            </h5>
+            <p className="mb-4 ">
+              Gitcoin Grant Hub is running on the Optimism network, a layer 2
+              solution on Ethereum, which means transactions are cheaper and
+              faster!
+            </p>
+          </>
+        </CallbackModal>
+
         {!props.web3Initialized && (
           <div className="mt-8">
             <Button
