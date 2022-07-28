@@ -15,17 +15,16 @@ import {
 } from "redux";
 import thunkMiddleware from "redux-thunk";
 // wallet connect WAGMI
-import {
-  chain,
-  configureChains,
-  createClient,
-  defaultChains,
-  WagmiConfig,
-} from "wagmi";
+import { chain, configureChains, createClient, WagmiConfig } from "wagmi";
 import { InjectedConnector } from "wagmi/connectors/injected";
 import { MetaMaskConnector } from "wagmi/connectors/metaMask";
 import { WalletConnectConnector } from "wagmi/connectors/walletConnect";
+
+// providers
+import { alchemyProvider } from "wagmi/providers/alchemy";
+import { infuraProvider } from "wagmi/providers/infura";
 import { publicProvider } from "wagmi/providers/public";
+
 import "./browserPatches";
 import ErrorBoundary from "./components/ErrorBoundary";
 import EditProject from "./components/grants/Edit";
@@ -42,19 +41,22 @@ import reportWebVitals from "./reportWebVitals";
 import { slugs } from "./routes";
 import "./styles/index.css";
 
-// import { alchemyProvider } from 'wagmi/providers/alchemy';
-// import { infuraProvider } from "wagmi/providers/infura";
-
+// initialize wallet
 import { initializeWeb3 } from "./actions/web3";
 
-// const alchemyId = process.env.ALCHEMY_ID;
-// const infuraId = process.env.INFURA_ID;
+// RPC keys
+const alchemyId = process.env.ALCHEMY_ID;
+const infuraId = process.env.INFURA_ID;
 
 // Configure chains & providers with the Alchemy provider.
-const { chains, provider, webSocketProvider } = configureChains(defaultChains, [
-  // alchemyProvider({ alchemyId }),
-  publicProvider(),
-]);
+const { chains, provider, webSocketProvider } = configureChains(
+  [chain.optimism, chain.goerli, chain.optimismKovan],
+  [
+    alchemyProvider({ apiKey: alchemyId, priority: 1 }),
+    infuraProvider({ apiKey: infuraId, priority: 2 }),
+    publicProvider({ priority: 0, stallTimeout: 1000 }),
+  ]
+);
 
 const logger: Middleware =
   ({ getState }: MiddlewareAPI) =>

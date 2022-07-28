@@ -78,11 +78,11 @@ export const notWeb3Browser = (): Web3Actions => ({
   error: "not a web3 browser",
 });
 
-declare global {
-  interface Window {
-    ethereum: any;
-  }
-}
+// declare global {
+//   interface Window {
+//     ethereum: any;
+//   }
+// }
 
 const loadWeb3Data = () => (dispatch: Dispatch) => {
   global.web3Provider = new ethers.providers.Web3Provider(window.ethereum);

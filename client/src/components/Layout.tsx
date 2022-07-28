@@ -13,6 +13,7 @@ interface Props {
 
 function Layout(ownProps: Props) {
   const [show, showToast] = useState(false);
+
   const props = useSelector(
     (state: RootState) => ({
       web3Initializing: state.web3.initializing,
