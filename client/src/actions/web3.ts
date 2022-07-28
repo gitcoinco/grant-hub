@@ -78,6 +78,7 @@ export const notWeb3Browser = (): Web3Actions => ({
   error: "not a web3 browser",
 });
 
+// Moved to react-app-env.d.ts
 // declare global {
 //   interface Window {
 //     ethereum: any;
@@ -111,6 +112,7 @@ const loadAccountData = (account: string) => (dispatch: Dispatch) => {
 };
 
 export const initializeWeb3 = (requestAccess = true) => {
+  console.log("Initializing wallet...");
   if (window.ethereum) {
     return (dispatch: Dispatch, getState: () => RootState) => {
       const state = getState();
@@ -123,28 +125,26 @@ export const initializeWeb3 = (requestAccess = true) => {
 
       dispatch(web3Initializing());
       const method = requestAccess ? "eth_requestAccounts" : "eth_accounts";
-
       // "wallet_switchEthereumChain"
 
-      window.ethereum
-        .request({ method })
-        .then((accounts: Array<string>) => {
-          if (accounts.length > 0) {
-            dispatch<any>(loadAccountData(accounts[0]));
-          }
-
-          // FIXME: fix dispatch<any>
-          window.ethereum.on("chainChanged", () => window.location.reload());
-          window.ethereum.on("accountsChanged", () => {
-            window.location.reload();
-          });
-          dispatch<any>(loadWeb3Data());
-        })
-        .catch((err: string) => {
-          // FIXME: handle error
-          console.log("error", err);
-          dispatch(web3Error("Unable to connect web3 account"));
-        });
+      // window.ethereum
+      //   .request({ method })
+      //   .then((accounts: Array<string>) => {
+      //     if (accounts.length > 0) {
+      //       dispatch<any>(loadAccountData(accounts[0]));
+      //     }
+      //     // FIXME: fix dispatch<any>
+      //     window.ethereum.on("chainChanged", () => window.location.reload());
+      //     window.ethereum.on("accountsChanged", () => {
+      //       window.location.reload();
+      //     });
+      //     dispatch<any>(loadWeb3Data());
+      //   })
+      //   .catch((err: string) => {
+      //     // FIXME: handle error
+      //     console.log("error", err);
+      //     dispatch(web3Error("Unable to connect web3 account"));
+      //   });
     };
   }
   return notWeb3Browser();

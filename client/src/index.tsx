@@ -69,9 +69,9 @@ const logger: Middleware =
   };
 
 const routerMiddleware = createRouterMiddleware(history);
-
 let middlewares: Middleware[] = [thunkMiddleware, routerMiddleware];
 
+// add logger to middleware if not in production
 const urlParams = new URLSearchParams(window.location.search);
 if (process.env.NODE_ENV !== "production" || urlParams.get("debug") !== null) {
   middlewares = [...middlewares, logger];

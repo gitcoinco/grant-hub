@@ -1,13 +1,17 @@
 import { useConnect } from "wagmi";
+import Button, { ButtonVariants } from "../base/Button";
 
-const WalletOptions = () => {
+export type WalletOptionsProps = {};
+
+const WalletOptions = ({}: WalletOptionsProps): JSX.Element => {
   const { connect, connectors, error, isLoading, pendingConnector } =
     useConnect();
   return (
     <div>
       {connectors.map((connector) => {
         return (
-          <button
+          <Button
+            variant={ButtonVariants.primary}
             disabled={!connector.ready}
             key={connector.id}
             onClick={() => {
@@ -19,7 +23,7 @@ const WalletOptions = () => {
             {isLoading &&
               connector.id === pendingConnector?.id &&
               " (connecting)"}
-          </button>
+          </Button>
         );
       })}
 

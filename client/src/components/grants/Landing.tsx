@@ -1,22 +1,25 @@
-import { useEffect } from "react";
-import { useSelector } from "react-redux";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { RootState } from "../../reducers";
-import Button, { ButtonVariants } from "../base/Button";
-// import { initializeWeb3 } from "../../actions/web3";
 import { slugs } from "../../routes";
+import { BaseModal } from "../base/BaseModal";
+import Button, { ButtonVariants } from "../base/Button";
+import WalletOptions from "../base/WalletOptions";
 
 function Landing() {
   const navigate = useNavigate();
-  // const dispatch = useDispatch();
+  const dispatch = useDispatch();
   const props = useSelector((state: RootState) => ({
     web3Initialized: state.web3.initialized,
     web3Error: state.web3.error,
     account: state.web3.account,
   }));
+  const [openConnectModal, setOpenConnectModal] = useState(false);
 
   const connectHandler = () => {
     // dispatch(initializeWeb3());
+    setOpenConnectModal(!openConnectModal);
   };
 
   useEffect(() => {
@@ -69,6 +72,13 @@ function Landing() {
         className="h-1/2 w-full inline-block md:hidden"
         src="./assets/mobile-landing-background.svg"
         alt="Jungle Background"
+      />
+      <BaseModal
+        isOpen={openConnectModal}
+        onClose={() => {}}
+        children={<WalletOptions />}
+        title="Connect Wallet"
+        footer={<></>}
       />
     </div>
   );
