@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { useAccount } from "wagmi";
 import { RootState } from "../../reducers";
 import { slugs } from "../../routes";
 import { BaseModal } from "../base/BaseModal";
 import Button, { ButtonVariants } from "../base/Button";
 import WalletOptions from "../base/WalletOptions";
-import { useAccount } from "wagmi";
 
 function Landing() {
   const navigate = useNavigate();
@@ -17,17 +17,17 @@ function Landing() {
     account: state.web3.account,
   }));
   const [openConnectModal, setOpenConnectModal] = useState(false);
-  const { address, isConnecting, isDisconnected } = useAccount();
+  const { address, isConnecting, isConnected, isDisconnected, status } =
+    useAccount();
 
   const connectHandler = () => {
     // dispatch(initializeWeb3());
     if (isDisconnected) {
+      console.log("Connecting your wallet now, please stand by ser ...");
       setOpenConnectModal(!openConnectModal);
+    } else {
+      console.log(`Your already connected with ${address}`);
     }
-    if (isConnecting) {
-      console.log("Connecting your wallet now, please wait...");
-    }
-    console.log(`Your already connected with ${address}`);
   };
 
   useEffect(() => {
@@ -86,7 +86,9 @@ function Landing() {
         onClose={() => {
           setOpenConnectModal(!openConnectModal);
         }}
-        children={<WalletOptions />}
+        children={
+          <WalletOptions address={address} isDisconnected={isDisconnected} />
+        }
         title="Connect Wallet"
         footer={<></>}
       />
