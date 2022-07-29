@@ -68,7 +68,10 @@ export const web3Error = (error: string): Web3Actions => ({
   error,
 });
 
-export const web3AccountLoaded = (account: string): Web3Actions => ({
+export const web3AccountLoaded = (
+  account: string,
+  payload: {}
+): Web3Actions => ({
   type: WEB3_ACCOUNT_LOADED,
   account,
 });
@@ -108,7 +111,7 @@ const loadAccountData = (account: string) => (dispatch: Dispatch) => {
     ? Web3Type.Status
     : Web3Type.Generic;
   dispatch(web3Initialized(t));
-  dispatch(web3AccountLoaded(account));
+  dispatch(web3AccountLoaded(account, {}));
 };
 
 export const initializeWeb3 = (requestAccess = true) => {
@@ -127,24 +130,24 @@ export const initializeWeb3 = (requestAccess = true) => {
       const method = requestAccess ? "eth_requestAccounts" : "eth_accounts";
       // "wallet_switchEthereumChain"
 
-      // window.ethereum
-      //   .request({ method })
-      //   .then((accounts: Array<string>) => {
-      //     if (accounts.length > 0) {
-      //       dispatch<any>(loadAccountData(accounts[0]));
-      //     }
-      //     // FIXME: fix dispatch<any>
-      //     window.ethereum.on("chainChanged", () => window.location.reload());
-      //     window.ethereum.on("accountsChanged", () => {
-      //       window.location.reload();
-      //     });
-      //     dispatch<any>(loadWeb3Data());
-      //   })
-      //   .catch((err: string) => {
-      //     // FIXME: handle error
-      //     console.log("error", err);
-      //     dispatch(web3Error("Unable to connect web3 account"));
-      //   });
+      window.ethereum
+        .request({ method })
+        .then((accounts: Array<string>) => {
+          if (accounts.length > 0) {
+            dispatch<any>(loadAccountData(accounts[0]));
+          }
+          // FIXME: fix dispatch<any>
+          window.ethereum.on("chainChanged", () => window.location.reload());
+          window.ethereum.on("accountsChanged", () => {
+            window.location.reload();
+          });
+          dispatch<any>(loadWeb3Data());
+        })
+        .catch((err: string) => {
+          // FIXME: handle error
+          console.log("error", err);
+          dispatch(web3Error("Unable to connect web3 account"));
+        });
     };
   }
   return notWeb3Browser();

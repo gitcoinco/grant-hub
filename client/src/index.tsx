@@ -105,7 +105,12 @@ const client = createClient({
       chains: [chain.optimism, chain.optimismKovan, chain.goerli],
       options: {
         qrcode: true,
-        rpc: process.env.OP_MAINNET_RPC_URL,
+        rpc: {
+          1: "https://eth-mainnet.alchemyapi.io/v2/oKxs-03sij-U_N0iOlrSsZFr29-IqbuF",
+          10: "https://mainnet.optimism.io",
+          69: "https://kovan.optimism.io",
+          420: "https://goerli.optimism.io",
+        }
       },
     }),
     new InjectedConnector({

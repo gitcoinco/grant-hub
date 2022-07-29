@@ -1,10 +1,10 @@
 import {
   Web3Actions,
-  WEB3_INITIALIZING,
-  WEB3_INITIALIZED,
-  WEB3_ERROR,
-  WEB3_CHAIN_ID_LOADED,
   WEB3_ACCOUNT_LOADED,
+  WEB3_CHAIN_ID_LOADED,
+  WEB3_ERROR,
+  WEB3_INITIALIZED,
+  WEB3_INITIALIZING,
 } from "../actions/web3";
 
 export interface Web3State {
@@ -67,7 +67,7 @@ export const web3Reducer = (
         account: action.account,
       };
     }
+    default:
+      return state;
   }
-
-  return state;
 };

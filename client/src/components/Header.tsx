@@ -1,19 +1,19 @@
 import React from "react";
+import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { shallowEqual, useSelector, useDispatch } from "react-redux";
+import { useDisconnect } from "wagmi";
 import { RootState } from "../reducers";
-import { initializeWeb3 } from "../actions/web3";
 import { grantsPath, newGrantPath } from "../routes";
-import Button, { ButtonVariants } from "./base/Button";
-import Plus from "./icons/Plus";
 import colors from "../styles/colors";
 import { shortAddress } from "../utils/wallet";
-import { ChainLogos, Blockchain } from "./icons/Blockchain";
+import Button, { ButtonVariants } from "./base/Button";
+import { Blockchain, ChainLogos } from "./icons/Blockchain";
 import Hamburger from "./icons/Hamburger";
+import Plus from "./icons/Plus";
 
 export default function Header() {
   const [navbarOpen, setNavbarOpen] = React.useState(false);
-
+  const { disconnect } = useDisconnect();
   const dispatch = useDispatch();
   const props = useSelector(
     (state: RootState) => ({
@@ -25,9 +25,10 @@ export default function Header() {
     shallowEqual
   );
 
-  const connectHandler = (e: React.MouseEvent) => {
-    e.preventDefault();
-    dispatch(initializeWeb3());
+  const connectHandler = () => {
+    // e.preventDefault();
+    // dispatch(initializeWeb3());
+    console.log("Account clicked");
   };
 
   return (
@@ -69,15 +70,14 @@ export default function Header() {
                 New Project
               </Button>
             </Link>
-            <Button
-              variant={ButtonVariants.outline}
-              onClick={() => connectHandler}
-            >
+            <div className="cursor-pointer" onClick={() => connectHandler()}>
               <i className="icon">
                 <Blockchain chain={ChainLogos.ETH} />
               </i>
               {props.account ? shortAddress(props.account) : "Connect Wallet"}
-            </Button>
+            </div>
+            <br />
+            <button onClick={() => disconnect()}>Log Out</button>
           </div>
         </div>
       </div>

@@ -1,5 +1,6 @@
-import { shallowEqual, useSelector } from "react-redux";
+import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { useConnect } from "wagmi";
+import { initializeWeb3 } from "../../actions/web3";
 import { RootState } from "../../reducers";
 import Button, { ButtonVariants } from "./Button";
 
@@ -12,6 +13,7 @@ const WalletOptions = ({
   address,
   isDisconnected,
 }: WalletOptionsProps): JSX.Element => {
+  const dispatch = useDispatch();
   const { connect, connectors, error, isLoading, pendingConnector, status } =
     useConnect();
 
@@ -45,6 +47,7 @@ const WalletOptions = ({
               key={connector.id}
               onClick={() => {
                 connect({ connector });
+                // dispatch(initializeWeb3());
               }}
             >
               {connector.name}
