@@ -2,18 +2,20 @@ import React from "react";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { useDisconnect } from "wagmi";
+import { web3AccountDisconnected } from "../actions/web3";
 import { RootState } from "../reducers";
 import { grantsPath, newGrantPath } from "../routes";
 import colors from "../styles/colors";
 import { shortAddress } from "../utils/wallet";
 import Button, { ButtonVariants } from "./base/Button";
+import WalletDisplay from "./base/WalletDisplay";
 import { Blockchain, ChainLogos } from "./icons/Blockchain";
 import Hamburger from "./icons/Hamburger";
 import Plus from "./icons/Plus";
 
 export default function Header() {
   const [navbarOpen, setNavbarOpen] = React.useState(false);
-  const { disconnect } = useDisconnect();
+  const disconnect = useDisconnect();
   const dispatch = useDispatch();
   const props = useSelector(
     (state: RootState) => ({
@@ -61,7 +63,10 @@ export default function Header() {
           }`}
           id="example-navbar-danger"
         >
-          <div className="flex flex-col lg:flex-row list-none lg:ml-auto">
+          <div>l
+            <WalletDisplay />
+          </div>
+          {/* <div className="flex flex-col lg:flex-row list-none lg:ml-auto">
             <Link to={newGrantPath()}>
               <Button variant={ButtonVariants.primary}>
                 <i className="icon">
@@ -77,8 +82,11 @@ export default function Header() {
               {props.account ? shortAddress(props.account) : "Connect Wallet"}
             </div>
             <br />
-            <button onClick={() => disconnect()}>Log Out</button>
-          </div>
+            <button onClick={() => {
+              //disconnect;
+              dispatch({ type: "WEB3_ACCOUNT_DISCONNECTED"});
+            }}>Log Out</button>
+          </div> */}
         </div>
       </div>
     </header>

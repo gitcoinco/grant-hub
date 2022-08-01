@@ -36,6 +36,12 @@ export interface Web3ChainIDLoadedAction {
   chainID: number;
 }
 
+export const WEB3_ACCOUNT_DISCONNECTED = "WEB3_ACCOUNT_DISCONNECTED";
+export interface web3AccountDisconnectedAction {
+  type: typeof WEB3_ACCOUNT_DISCONNECTED;
+  account: string;
+}
+
 export const WEB3_ACCOUNT_LOADED = "WEB3_ACCOUNT_LOADED";
 export interface Web3AccountLoadedAction {
   type: typeof WEB3_ACCOUNT_LOADED;
@@ -47,6 +53,7 @@ export type Web3Actions =
   | Web3InitializedAction
   | Web3ErrorAction
   | Web3ChainIDLoadedAction
+  | web3AccountDisconnectedAction
   | Web3AccountLoadedAction;
 
 export const web3Initializing = (): Web3Actions => ({
@@ -73,6 +80,14 @@ export const web3AccountLoaded = (
   payload: {}
 ): Web3Actions => ({
   type: WEB3_ACCOUNT_LOADED,
+  account,
+});
+
+export const web3AccountDisconnected = (
+  account: string,
+  payload: {}
+): Web3Actions => ({
+  type: WEB3_ACCOUNT_DISCONNECTED,
   account,
 });
 

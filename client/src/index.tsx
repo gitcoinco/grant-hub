@@ -14,17 +14,8 @@ import {
   MiddlewareAPI,
 } from "redux";
 import thunkMiddleware from "redux-thunk";
-// wallet connect WAGMI
-import { chain, configureChains, createClient, WagmiConfig } from "wagmi";
-import { InjectedConnector } from "wagmi/connectors/injected";
-import { MetaMaskConnector } from "wagmi/connectors/metaMask";
-import { WalletConnectConnector } from "wagmi/connectors/walletConnect";
-
-// providers
-import { alchemyProvider } from "wagmi/providers/alchemy";
-import { infuraProvider } from "wagmi/providers/infura";
-import { publicProvider } from "wagmi/providers/public";
-
+// WAGMI
+import { WagmiConfig } from "wagmi";
 import "./browserPatches";
 import ErrorBoundary from "./components/ErrorBoundary";
 import EditProject from "./components/grants/Edit";
@@ -40,23 +31,10 @@ import { createRootReducer } from "./reducers";
 import reportWebVitals from "./reportWebVitals";
 import { slugs } from "./routes";
 import "./styles/index.css";
+import { client } from "./utils/wagmi";
 
 // initialize wallet
 import { initializeWeb3 } from "./actions/web3";
-
-// RPC keys
-const alchemyId = process.env.ALCHEMY_ID;
-const infuraId = process.env.INFURA_ID;
-
-// Configure chains & providers with the Alchemy provider.
-const { chains, provider, webSocketProvider } = configureChains(
-  [chain.optimism, chain.goerli, chain.optimismKovan],
-  [
-    alchemyProvider({ apiKey: alchemyId, priority: 1 }),
-    infuraProvider({ apiKey: infuraId, priority: 2 }),
-    publicProvider({ priority: 0, stallTimeout: 1000 }),
-  ]
-);
 
 const logger: Middleware =
   ({ getState }: MiddlewareAPI) =>
@@ -95,35 +73,6 @@ const colors = {
 };
 
 const theme = extendTheme({ colors });
-
-// Set up client for wagmi
-const client = createClient({
-  autoConnect: true,
-  connectors: [
-    new MetaMaskConnector({ chains }),
-    new WalletConnectConnector({
-      chains: [chain.optimism, chain.optimismKovan, chain.goerli],
-      options: {
-        qrcode: true,
-        rpc: {
-          1: "https://eth-mainnet.alchemyapi.io/v2/oKxs-03sij-U_N0iOlrSsZFr29-IqbuF",
-          10: "https://mainnet.optimism.io",
-          69: "https://kovan.optimism.io",
-          420: "https://goerli.optimism.io",
-        }
-      },
-    }),
-    new InjectedConnector({
-      chains: [chain.optimism, chain.optimismKovan, chain.goerli],
-      options: {
-        name: "Injected",
-        shimDisconnect: true,
-      },
-    }),
-  ],
-  provider,
-  webSocketProvider,
-});
 
 root.render(
   // <React.StrictMode>

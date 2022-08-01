@@ -1,12 +1,10 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { useAccount } from "wagmi";
+import { useAccount, useEnsName, useNetwork } from "wagmi";
 import { RootState } from "../../reducers";
 import { slugs } from "../../routes";
-import { BaseModal } from "../base/BaseModal";
-import Button, { ButtonVariants } from "../base/Button";
-import WalletOptions from "../base/WalletOptions";
+import WalletConnectionButton from "../base/WalletConnectButton";
 
 function Landing() {
   const navigate = useNavigate();
@@ -19,6 +17,8 @@ function Landing() {
   const [openConnectModal, setOpenConnectModal] = useState(false);
   const { address, isConnecting, isConnected, isDisconnected, status } =
     useAccount();
+  const { data: ensName } = useEnsName({ address });
+  const { chain } = useNetwork();
 
   const connectHandler = () => {
     // dispatch(initializeWeb3());
@@ -54,21 +54,24 @@ function Landing() {
           matching from Gitcoin, partner DAO, or independent grant program
           rounds.
         </p>
-        {!props.web3Initialized && (
+        {!isConnecting ? (
           <div className="mt-8">
-            <Button
+            {/* <Button
               onClick={() => connectHandler()}
               variant={ButtonVariants.primary}
               styles={["w-full sm:w-auto mx-w-full ml-0"]}
             >
               Connect Wallet
-            </Button>
+            </Button> */}
+            <WalletConnectionButton />
             {props.web3Error !== undefined && (
               <div>
                 <div>{props.web3Error}</div>
               </div>
             )}
           </div>
+        ) : (
+          <div></div>
         )}
       </div>
       <img
@@ -81,7 +84,7 @@ function Landing() {
         src="./assets/mobile-landing-background.svg"
         alt="Jungle Background"
       />
-      <BaseModal
+      {/* <BaseModal
         isOpen={openConnectModal}
         onClose={() => {
           setOpenConnectModal(!openConnectModal);
@@ -91,7 +94,7 @@ function Landing() {
         }
         title="Connect Wallet"
         footer={<></>}
-      />
+      /> */}
     </div>
   );
 }
