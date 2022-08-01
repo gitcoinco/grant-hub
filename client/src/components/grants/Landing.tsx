@@ -56,13 +56,6 @@ function Landing() {
         </p>
         {!isConnecting ? (
           <div className="mt-8">
-            {/* <Button
-              onClick={() => connectHandler()}
-              variant={ButtonVariants.primary}
-              styles={["w-full sm:w-auto mx-w-full ml-0"]}
-            >
-              Connect Wallet
-            </Button> */}
             <WalletConnectionButton />
             {props.web3Error !== undefined && (
               <div>

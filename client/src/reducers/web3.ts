@@ -1,5 +1,6 @@
 import {
   Web3Actions,
+  WEB3_ACCOUNT_DISCONNECTED,
   WEB3_ACCOUNT_LOADED,
   WEB3_CHAIN_ID_LOADED,
   WEB3_ERROR,
@@ -58,6 +59,15 @@ export const web3Reducer = (
       return {
         ...state,
         chainID: action.chainID,
+      };
+    }
+
+    case WEB3_ACCOUNT_DISCONNECTED: {
+      return {
+        ...state,
+        account: action.account,
+        initialized: false,
+        initializing: false,
       };
     }
 

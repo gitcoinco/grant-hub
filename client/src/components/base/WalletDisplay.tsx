@@ -1,9 +1,9 @@
 import { Dialog, Menu, Transition } from "@headlessui/react";
 import { ChevronDownIcon, XIcon } from "@heroicons/react/solid";
 import { Fragment, useState } from "react";
-import { useDisconnect, useSwitchNetwork } from "wagmi";
+import { chain, useAccount, useDisconnect, useSwitchNetwork } from "wagmi";
 
-import { useWallet } from "./Auth";
+// import { useWallet } from "./Auth";
 import { Button } from "./styles";
 
 function classNames(...classes: string[]) {
@@ -12,9 +12,8 @@ function classNames(...classes: string[]) {
 
 export default function WalletDisplay() {
   const [open, setOpen] = useState(false);
-
-  const { address, chain } = useWallet();
-
+  // const { address, chain } = useWallet();
+  const { address } = useAccount();
   const { chains, error, isLoading, pendingChainId, switchNetwork } =
     useSwitchNetwork();
   const { disconnect } = useDisconnect();
@@ -116,7 +115,7 @@ export default function WalletDisplay() {
                       <Button
                         type="button"
                         className="inline-flex justify-center w-full sm:text-sm mt-4"
-                        disabled={!switchNetwork || x.id === chain.id}
+                        disabled={!switchNetwork}
                         key={x.id}
                         onClick={() => switchNetwork?.(x.id)}
                       >
