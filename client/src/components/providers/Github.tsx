@@ -2,11 +2,13 @@
 import { useEffect, useState } from "react";
 // import { debounce } from "ts-debounce";
 import { shallowEqual, useSelector } from "react-redux";
+import { VerifiableCredential } from "@gitcoinco/passport-sdk-types";
 import { global } from "../../global";
 // --- Identity tools
 import { ProviderID } from "./types";
 import { fetchVerifiableCredential } from "./identity";
 import { RootState } from "../../reducers";
+import Button, { ButtonVariants } from "../base/Button";
 
 // --- Components
 // import { Card } from "../Card";
@@ -16,7 +18,7 @@ import { RootState } from "../../reducers";
 // import { UserContext } from "../../context/userContext";
 
 // Each provider is recognised by its ID
-const providerId: ProviderID = "Github";
+const providerId: ProviderID = "GithubOrg";
 
 function generateUID(length: number) {
   return window
@@ -29,7 +31,13 @@ function generateUID(length: number) {
     .substring(0, length);
 }
 
-export default function Github() {
+export default function Github({
+  org,
+  verificationComplete,
+}: {
+  org: string;
+  verificationComplete: (event: VerifiableCredential | Error) => void;
+}) {
   const props = useSelector(
     (state: RootState) => ({
       account: state.web3.account,
@@ -37,10 +45,8 @@ export default function Github() {
     shallowEqual
   );
   const signer = global.web3Provider?.getSigner();
-  // const { handleAddStamp, allProvidersState } = useContext(CeramicContext);
-  const [isLoading, setLoading] = useState(false);
   const [GHID, setGHID] = useState("");
-  console.log({ isLoading });
+  const [complete, setComplete] = useState(false);
 
   // Open Github authUrl in centered window
   function openGithubOAuthUrl(url: string): void {
@@ -83,18 +89,17 @@ export default function Github() {
       const { code } = e.data;
 
       if (GHID !== e.data.state) {
-        setLoading(false);
         return;
       }
 
       // fetch and store credential
-      setLoading(true);
       fetchVerifiableCredential(
         process.env.REACT_APP_PASSPORT_IAM_URL || "",
         {
           type: providerId,
           version: "0.0.0",
           address: props.account || "",
+          org,
           proofs: {
             code, // provided by github as query params in the redirect
           },
@@ -102,17 +107,11 @@ export default function Github() {
         signer as { signMessage: (message: string) => Promise<string> }
       )
         .then(async (verified: { credential: any }): Promise<void> => {
-          console.log({ verified });
-          // await handleAddStamp({
-          //   provider: providerId,
-          //   credential: verified.credential,
-          // });
+          setComplete(true);
+          verificationComplete(verified.credential);
         })
         .catch((error) => {
-          throw error;
-        })
-        .finally(() => {
-          setLoading(false);
+          verificationComplete(error);
         });
     }
   }
@@ -130,14 +129,22 @@ export default function Github() {
       channel.close();
     };
   });
-
+  if (complete) {
+    return (
+      <div className="flex ml-8">
+        <img src="./icons/shield.svg" alt="Shield Logo" className="h-6 mr-2" />
+        <p className="text-green-text font-normal">Verified</p>
+      </div>
+    );
+  }
   return (
-    <button
-      type="button"
-      className="verify-btn"
-      onClick={handleFetchGithubOAuth}
+    <Button
+      disabled={org?.length === 0}
+      styles={["ml-8"]}
+      variant={ButtonVariants.secondary}
+      onClick={() => handleFetchGithubOAuth()}
     >
-      Connect account
-    </button>
+      Verify
+    </Button>
   );
 }
