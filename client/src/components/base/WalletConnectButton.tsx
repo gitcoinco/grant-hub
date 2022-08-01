@@ -1,9 +1,9 @@
-import { Fragment, useState } from "react"
-import { useConnect } from "wagmi"
-import { Dialog, Transition } from "@headlessui/react"
-import { XIcon } from "@heroicons/react/solid"
-import { Button } from "./styles"
-
+import { Dialog, Transition } from "@headlessui/react";
+import { XIcon } from "@heroicons/react/solid";
+import { Fragment, useState } from "react";
+import { useDispatch } from "react-redux";
+import { useConnect } from "wagmi";
+import { Button } from "./styles";
 
 interface ButtonProps {
   text?: string;
@@ -12,20 +12,16 @@ interface ButtonProps {
 
 export default function WalletConnectionButton({
   text = "Connect Wallet",
-  className = "bg-violet-400 mt-8 py-4 px-8 rounded text-white"
+  className = "bg-violet-400 mt-8 py-4 px-8 rounded text-white",
 }: ButtonProps) {
-
-  const [open, setOpen] = useState(false)
-
-  const { connect, connectors, error, isLoading, pendingConnector } = useConnect()
+  const [open, setOpen] = useState(false);
+  const dispatch = useDispatch();
+  const { connect, connectors, error, isLoading, pendingConnector } =
+    useConnect();
 
   return (
     <>
-      <button
-        type="button"
-        className={className}
-        onClick={() => setOpen(true)}
-      >
+      <button type="button" className={className} onClick={() => setOpen(true)}>
         {text}
       </button>
       <Transition.Root show={open} as={Fragment}>
@@ -71,7 +67,10 @@ export default function WalletConnectionButton({
                         className="inline-flex justify-center w-full sm:text-sm mt-4"
                         disabled={!connector.ready}
                         key={connector.id}
-                        onClick={() => connect({ connector })}
+                        onClick={() => {
+                          connect({ connector });
+                          dispatch({ type: "WEB3_ACCOUNT_LOADED" });
+                        }}
                       >
                         {connector.name}
                         {!connector.ready && " (unsupported)"}
@@ -81,7 +80,11 @@ export default function WalletConnectionButton({
                       </Button>
                     ))}
 
-                    {error && <div className="text-sm text-red-600 my-4">{error.message}</div>}
+                    {error && (
+                      <div className="text-sm text-red-600 my-4">
+                        {error.message}
+                      </div>
+                    )}
 
                     <div className="py-4">
                       <p className="text-sm">
@@ -91,7 +94,9 @@ export default function WalletConnectionButton({
                           target="_blank"
                           rel="noreferrer noopener"
                           className="text-grey-500 font-bold ml-2"
-                        >Learn more</a>
+                        >
+                          Learn more
+                        </a>
                       </p>
                     </div>
                   </div>
@@ -102,5 +107,5 @@ export default function WalletConnectionButton({
         </Dialog>
       </Transition.Root>
     </>
-  )
+  );
 }

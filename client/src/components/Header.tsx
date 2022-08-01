@@ -63,10 +63,7 @@ export default function Header() {
           }`}
           id="example-navbar-danger"
         >
-          <div>l
-            <WalletDisplay />
-          </div>
-          {/* <div className="flex flex-col lg:flex-row list-none lg:ml-auto">
+          <div className="flex flex-col lg:flex-row list-none lg:ml-auto">
             <Link to={newGrantPath()}>
               <Button variant={ButtonVariants.primary}>
                 <i className="icon">
@@ -75,7 +72,8 @@ export default function Header() {
                 New Project
               </Button>
             </Link>
-            <div className="cursor-pointer" onClick={() => connectHandler()}>
+            <WalletDisplay />
+            {/* <div className="cursor-pointer" onClick={() => connectHandler()}>
               <i className="icon">
                 <Blockchain chain={ChainLogos.ETH} />
               </i>
@@ -85,8 +83,8 @@ export default function Header() {
             <button onClick={() => {
               //disconnect;
               dispatch({ type: "WEB3_ACCOUNT_DISCONNECTED"});
-            }}>Log Out</button>
-          </div> */}
+            }}>Log Out</button> */}
+          </div>
         </div>
       </div>
     </header>

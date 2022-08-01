@@ -1,9 +1,9 @@
 import { Dialog, Menu, Transition } from "@headlessui/react";
 import { ChevronDownIcon, XIcon } from "@heroicons/react/solid";
 import { Fragment, useState } from "react";
-import { chain, useAccount, useDisconnect, useSwitchNetwork } from "wagmi";
-
-// import { useWallet } from "./Auth";
+import { useSelector } from "react-redux";
+import { useAccount, useDisconnect, useSwitchNetwork } from "wagmi";
+import { RootState } from "../../reducers";
 import { Button } from "./styles";
 
 function classNames(...classes: string[]) {
@@ -18,6 +18,14 @@ export default function WalletDisplay() {
     useSwitchNetwork();
   const { disconnect } = useDisconnect();
 
+  const props = useSelector((state: RootState) => ({
+    web3Initializing: state.web3.initializing,
+    web3Initalized: state.web3.initialized,
+    web3Error: state.web3.error,
+    chainID: state.web3.chainID,
+    account: state.web3.account,
+  }));
+
   return (
     <div className="relative z-0 inline-flex shadow-sm rounded-md">
       <Button
@@ -25,7 +33,7 @@ export default function WalletDisplay() {
         $variant="outline"
         className="relative inline-flex items-center px-4 py-0 rounded-l-md text-sm w-[150px] bg-grey-500 text-white"
       >
-        <span className="truncate">{address}</span>
+        <span className="truncate">{props.account}</span>
       </Button>
       <Menu as="div" className="-ml-px relative block">
         <Menu.Button className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-grey-100 text-sm text-white focus:z-10">
