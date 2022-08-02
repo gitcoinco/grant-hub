@@ -48,13 +48,13 @@ export default function VerificationForm({
           verificationComplete={setGHVerification}
         />
       </div>
-      <TextInput
+      {/* <TextInput
         label="Project Name"
         name="twitter"
         placeholder="What's the project name?"
         value={formInputs.twitter}
         changeHandler={handleInput}
-      />
+      /> */}
       <div className="flex w-full justify-end mt-6">
         <Button
           variant={ButtonVariants.outline}
