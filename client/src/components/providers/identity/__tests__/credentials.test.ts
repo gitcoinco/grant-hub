@@ -2,7 +2,6 @@
 import axios from "axios";
 import { DIDKitLib, VerifiableCredential } from "@gitcoinco/passport-sdk-types";
 import {
-  clearAxiosMocks,
   MOCK_CHALLENGE_CREDENTIAL,
   MOCK_VERIFY_RESPONSE_BODY,
 } from "../__mocks__/axios";
@@ -48,7 +47,6 @@ describe("Fetch Credentials", () => {
         .fn()
         .mockImplementation(() => Promise.resolve(MOCK_SIGNATURE)),
     };
-    clearAxiosMocks();
   });
 
   it("can fetch a challenge credential", async () => {

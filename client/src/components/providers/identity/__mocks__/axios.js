@@ -18,7 +18,8 @@ const MOCK_VERIFY_RESPONSE_BODY = {
   },
 };
 
-const post = jest.fn(async (url, data) => {
+// eslint-disable-next-line no-undef
+const post = jest.fn(async (url) => {
   if (url.endsWith("/challenge")) {
     return {
       data: MOCK_CHALLENGE_RESPONSE_BODY,
@@ -34,15 +35,9 @@ const post = jest.fn(async (url, data) => {
   throw Error("This endpoint is not set up!");
 });
 
-const clearAxiosMocks = () => {
-  post.mockClear();
-};
-
 module.exports = {
   post,
-
   /* Mock values and helpers */
-  clearAxiosMocks,
   MOCK_CHALLENGE_VALUE,
   MOCK_CHALLENGE_CREDENTIAL,
   MOCK_CHALLENGE_RESPONSE_BODY,
