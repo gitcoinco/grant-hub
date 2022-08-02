@@ -1,7 +1,6 @@
 /* eslint-disable import/prefer-default-export */
 // This just disables default export as this utils file will be intended to return multiple utils
 import { getAddress } from "@ethersproject/address";
-import { useAccount } from "wagmi";
 
 export function shortAddress(address: string): string {
   try {
@@ -14,16 +13,3 @@ export function shortAddress(address: string): string {
     return "Invalid Address";
   }
 }
-
-export const getUserAddress = (): string | undefined => {
-  const { address } = useAccount({
-    onConnect({ address }) {
-      return address;
-    },
-    onDisconnect() {
-      return undefined;
-    },
-  });
-
-  return address ? address : undefined;
-};

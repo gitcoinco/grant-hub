@@ -86,7 +86,7 @@ export const web3Reducer = (
       return {
         ...state,
         ens: action.ens,
-      }
+      };
     }
     default:
       return state;

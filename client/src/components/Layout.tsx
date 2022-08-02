@@ -14,9 +14,9 @@ interface Props {
 
 function Layout(ownProps: Props) {
   const [show, showToast] = useState(false);
-  const { address, isConnected, isConnecting } = useAccount();
-  const { data: ensName } = useEnsName({ address });
-  const { chain } = useNetwork();
+  const { address } = useAccount();
+  // const { data: ensName } = useEnsName({ address });
+  // const { chain } = useNetwork();
 
   const props = useSelector(
     (state: RootState) => ({
@@ -25,6 +25,7 @@ function Layout(ownProps: Props) {
       web3Error: state.web3.error,
       chainID: state.web3.chainID,
       account: state.web3.account,
+      ens: state.web3.ens,
     }),
     shallowEqual
   );

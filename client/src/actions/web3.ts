@@ -90,12 +90,10 @@ export const web3AccountLoaded = (
   account,
 });
 
-export const ensLoaded = (
-  ens: string,
-): Web3Actions => ({
+export const ensLoaded = (ens: string): Web3Actions => ({
   type: ENS_NAME_LOADED,
   ens,
-})
+});
 
 export const web3AccountDisconnected = (
   account: string,
@@ -146,7 +144,7 @@ export const loadAccountData = (account: string) => (dispatch: Dispatch) => {
 
 export const loadEnsData = (ens: string) => (dispatch: Dispatch) => {
   dispatch(ensLoaded(ens));
-}
+};
 
 export const initializeWeb3 = () => {
   console.log("Initializing wallet...");

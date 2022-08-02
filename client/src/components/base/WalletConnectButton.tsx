@@ -34,7 +34,7 @@ export default function WalletConnectionButton({
   }));
   const { address, isConnected } = useAccount({
     onConnect({ address }) {
-      dispatch<any>(loadAccountData(address ? address : ""));
+      dispatch<any>(loadAccountData(address || ""));
       // dispatch({ type: "WEB3_ACCOUNT_LOADED", account: address });
     },
   });

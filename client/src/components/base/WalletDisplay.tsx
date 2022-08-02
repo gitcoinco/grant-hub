@@ -17,14 +17,14 @@ export default function WalletDisplay() {
   const { chains, error, isLoading, pendingChainId, switchNetwork } =
     useSwitchNetwork();
   const { disconnect } = useDisconnect({
-    onSuccess(data) {
+    onSuccess() {
       dispatch({
         type: "WEB3_ACCOUNT_DISCONNECTED",
         account: undefined,
       });
     },
     onError(error) {
-      dispatch({ type: "WEB3_ERROR", error: error });
+      dispatch({ type: "WEB3_ERROR", error });
     },
   });
 
@@ -36,11 +36,11 @@ export default function WalletDisplay() {
     account: state.web3.account,
     ens: state.web3.ens,
   }));
-  const { data: ensName, isError } = useEnsName({
+  const { data: ensName } = useEnsName({
     address: props.account,
     chainId: 1,
-    onSuccess(data) {
-      //dispatch({ type: "ENS_NAME_LOADED", ens: ensName });
+    onSuccess() {
+      // dispatch({ type: "ENS_NAME_LOADED", ens: ensName });
       console.log("ensName", ensName);
     },
   });
