@@ -3,11 +3,7 @@ import { XIcon } from "@heroicons/react/solid";
 import { Fragment, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Connector, useAccount, useConnect, useEnsName } from "wagmi";
-import {
-  initializeWeb3,
-  loadAccountData,
-  loadEnsData,
-} from "../../actions/web3";
+import { initializeWeb3, loadAccountData } from "../../actions/web3";
 import { RootState } from "../../reducers";
 import { Button } from "./styles";
 
@@ -32,13 +28,13 @@ export default function WalletConnectionButton({
     account: state.web3.account,
     ens: state.web3.ens,
   }));
-  const { address, isConnected } = useAccount({
+  useAccount({
     onConnect({ address }) {
       dispatch<any>(loadAccountData(address || ""));
       // dispatch({ type: "WEB3_ACCOUNT_LOADED", account: address });
     },
   });
-  const { data: ensName, isError } = useEnsName({
+  const { data: ensName } = useEnsName({
     address: props.account,
     chainId: 1,
     onSuccess(data) {
@@ -82,7 +78,7 @@ export default function WalletConnectionButton({
                 leaveFrom="opacity-100 translate-y-0 sm:scale-100"
                 leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
               >
-                <Dialog.Panel className="relative bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:max-w-sm sm:w-full sm:p-6">
+                <Dialog.Panel className="relative bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all">
                   <div className="hidden sm:block absolute top-0 right-0 py-4 pr-4">
                     <button
                       type="button"
@@ -120,7 +116,7 @@ export default function WalletConnectionButton({
 
                     <div className="py-4">
                       <p className="text-sm">
-                        <span>Don't have a wallet?</span>
+                        <span>Don&apost have a wallet?</span>
                         <a
                           href="https://ethereum.org/en/wallets"
                           target="_blank"

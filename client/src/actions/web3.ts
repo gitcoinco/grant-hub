@@ -37,19 +37,19 @@ export interface Web3ChainIDLoadedAction {
 }
 
 export const WEB3_ACCOUNT_DISCONNECTED = "WEB3_ACCOUNT_DISCONNECTED";
-export interface web3AccountDisconnectedAction {
+export interface Web3AccountDisconnectedAction {
   type: typeof WEB3_ACCOUNT_DISCONNECTED;
   account: string;
 }
 
 export const WEB3_ACCOUNT_LOADED = "WEB3_ACCOUNT_LOADED";
-export interface web3AccountLoadedAction {
+export interface Web3AccountLoadedAction {
   type: typeof WEB3_ACCOUNT_LOADED;
   account: string;
 }
 
 export const ENS_NAME_LOADED = "ENS_NAME_LOADED";
-export interface ensLoadedAction {
+export interface EnsLoadedAction {
   type: typeof ENS_NAME_LOADED;
   ens: string;
 }
@@ -59,9 +59,9 @@ export type Web3Actions =
   | Web3InitializedAction
   | Web3ErrorAction
   | Web3ChainIDLoadedAction
-  | web3AccountDisconnectedAction
-  | web3AccountLoadedAction
-  | ensLoadedAction;
+  | Web3AccountDisconnectedAction
+  | Web3AccountLoadedAction
+  | EnsLoadedAction;
 
 export const web3Initializing = (): Web3Actions => ({
   type: WEB3_INITIALIZING,
@@ -82,10 +82,7 @@ export const web3Error = (error: string): Web3Actions => ({
   error,
 });
 
-export const web3AccountLoaded = (
-  account: string,
-  payload: {}
-): Web3Actions => ({
+export const web3AccountLoaded = (account: string): Web3Actions => ({
   type: WEB3_ACCOUNT_LOADED,
   account,
 });
@@ -95,10 +92,7 @@ export const ensLoaded = (ens: string): Web3Actions => ({
   ens,
 });
 
-export const web3AccountDisconnected = (
-  account: string,
-  payload: {}
-): Web3Actions => ({
+export const web3AccountDisconnected = (account: string): Web3Actions => ({
   type: WEB3_ACCOUNT_DISCONNECTED,
   account,
 });
@@ -139,7 +133,7 @@ export const loadAccountData = (account: string) => (dispatch: Dispatch) => {
     ? Web3Type.Status
     : Web3Type.Generic;
   dispatch(web3Initialized(t));
-  dispatch(web3AccountLoaded(account, {}));
+  dispatch(web3AccountLoaded(account));
 };
 
 export const loadEnsData = (ens: string) => (dispatch: Dispatch) => {
