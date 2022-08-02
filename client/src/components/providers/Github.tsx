@@ -5,7 +5,7 @@ import { shallowEqual, useSelector } from "react-redux";
 import { VerifiableCredential } from "@gitcoinco/passport-sdk-types";
 import { global } from "../../global";
 // --- Identity tools
-import { ProviderID } from "./types";
+import { ProviderID } from "../../types";
 import { fetchVerifiableCredential } from "./identity";
 import { RootState } from "../../reducers";
 import Button, { ButtonVariants } from "../base/Button";
@@ -47,6 +47,7 @@ export default function Github({
   const signer = global.web3Provider?.getSigner();
   const [GHID, setGHID] = useState("");
   const [complete, setComplete] = useState(false);
+  const [verificationError, setVerificationError] = useState(false);
 
   // Open Github authUrl in centered window
   function openGithubOAuthUrl(url: string): void {
@@ -110,8 +111,8 @@ export default function Github({
           setComplete(true);
           verificationComplete(verified.credential);
         })
-        .catch((error) => {
-          verificationComplete(error);
+        .catch(() => {
+          setVerificationError(true);
         });
     }
   }
@@ -129,6 +130,7 @@ export default function Github({
       channel.close();
     };
   });
+
   if (complete) {
     return (
       <div className="flex ml-8">
@@ -138,13 +140,20 @@ export default function Github({
     );
   }
   return (
-    <Button
-      disabled={org?.length === 0}
-      styles={["ml-8"]}
-      variant={ButtonVariants.secondary}
-      onClick={() => handleFetchGithubOAuth()}
-    >
-      Verify
-    </Button>
+    <div>
+      <Button
+        disabled={org?.length === 0}
+        styles={["ml-8 w-auto"]}
+        variant={ButtonVariants.secondary}
+        onClick={() => handleFetchGithubOAuth()}
+      >
+        {verificationError ? "Try again" : "Verify"}
+      </Button>
+      {verificationError && (
+        <p className="text-danger-text ml-8">
+          There was an error verifying your Github Organization
+        </p>
+      )}
+    </div>
   );
 }
