@@ -8,23 +8,52 @@ import Globe from "../icons/Globe";
 import Button, { ButtonVariants } from "../base/Button";
 import Card from "./Card";
 import colors from "../../styles/colors";
-import { ProjectEvent } from "../../types";
 import { Status } from "../../reducers/projects";
+import {
+  useFetchedProjects,
+  useFetchedSubgraphStatus,
+} from "../../services/graphqlClient";
 
 function ProjectsList() {
   const dispatch = useDispatch();
   const props = useSelector(
     (state: RootState) => ({
       loading: state.projects.status === Status.Loading,
-      projects: state.projects.projects,
       chainID: state.web3.chainID,
     }),
     shallowEqual
   );
 
+  const subgraphStatus = useFetchedSubgraphStatus();
+  const projectsQueryResult = useFetchedProjects();
+
   useEffect(() => {
     dispatch(loadProjects());
   }, [dispatch]);
+
+  useEffect(() => {
+    if (!subgraphStatus.available) {
+      console.warn("Subgraph is NOT available!!", subgraphStatus);
+      // TODO: this should be fine on loading, but we should record metrics
+      return;
+    }
+    if (!subgraphStatus.healthy) {
+      console.error("Subgraph is NOT healthy!!", subgraphStatus);
+      // TODO: show error, log metrics, etc.
+      return;
+    }
+    if (subgraphStatus.syncedBlock !== subgraphStatus.headBlock) {
+      // This is most likely fine, but we should record a metric.
+      console.info(
+        "Subgraph is not fully synced. It is behind by:",
+        subgraphStatus.headBlock! - subgraphStatus.syncedBlock!
+      );
+    }
+  }, [subgraphStatus]);
+
+  useEffect(() => {
+    console.log("projectsQueryResult:", projectsQueryResult);
+  }, [projectsQueryResult]);
 
   return (
     <div className="flex flex-col flex-grow h-full mx-4 sm:mx-0">
@@ -39,10 +68,15 @@ function ProjectsList() {
             </p>
           </div>
           <div className="grow">
-            {props.projects.length ? (
+            {projectsQueryResult.projects &&
+            projectsQueryResult.projects.length ? (
               <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
-                {props.projects.map((event: ProjectEvent) => (
-                  <Card projectId={event.id} key={event.id} />
+                {projectsQueryResult.projects.map((project) => (
+                  <Card
+                    projectId={Number(project.id)}
+                    metaPtr={project.metaPtr}
+                    key={project.id}
+                  />
                 ))}
               </div>
             ) : (

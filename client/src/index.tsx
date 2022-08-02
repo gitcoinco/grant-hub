@@ -15,6 +15,8 @@ import {
   createRouterMiddleware,
   ReduxRouter,
 } from "@lagunovsky/redux-react-router";
+import { ApolloProvider } from "@apollo/client/react";
+import { optimismKovanClient } from "./services/graphqlClient";
 import { createRootReducer } from "./reducers";
 import ErrorBoundary from "./components/ErrorBoundary";
 import "./styles/index.css";
@@ -72,23 +74,26 @@ root.render(
   // <React.StrictMode>
   <ErrorBoundary>
     <ChakraProvider theme={theme} resetCSS={false}>
-      <Provider store={store}>
-        <ReduxRouter history={history} store={store}>
-          <Layout>
-            <Routes>
-              <Route path={slugs.root} element={<Landing />} />
-              <Route path={slugs.grants} element={<ProjectsList />} />
-              <Route path={slugs.grant} element={<Project />} />
-              <Route path={slugs.newGrant} element={<NewProject />} />
-              <Route path={slugs.edit} element={<EditProject />} />
-              <Route path={slugs.round} element={<RoundShow />} />
-              <Route path={slugs.roundApplication} element={<RoundApply />} />
-            </Routes>
-          </Layout>
-        </ReduxRouter>
-      </Provider>
+      <ApolloProvider client={optimismKovanClient}>
+        <Provider store={store}>
+          <ReduxRouter history={history} store={store}>
+            <Layout>
+              <Routes>
+                <Route path={slugs.root} element={<Landing />} />
+                <Route path={slugs.grants} element={<ProjectsList />} />
+                <Route path={slugs.grant} element={<Project />} />
+                <Route path={slugs.newGrant} element={<NewProject />} />
+                <Route path={slugs.edit} element={<EditProject />} />
+                <Route path={slugs.round} element={<RoundShow />} />
+                <Route path={slugs.roundApplication} element={<RoundApply />} />
+              </Routes>
+            </Layout>
+          </ReduxRouter>
+        </Provider>
+      </ApolloProvider>
     </ChakraProvider>
   </ErrorBoundary>
+
   // </React.StrictMode>
 );
 
