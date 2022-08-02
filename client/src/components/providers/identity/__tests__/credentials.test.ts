@@ -52,7 +52,7 @@ describe("Fetch Credentials", () => {
   });
 
   it("can fetch a challenge credential", async () => {
-    mockedAxios.post.mockImplementationOnce(async (url, config) => ({
+    mockedAxios.post.mockImplementationOnce(async () => ({
       data: { credential: MOCK_CHALLENGE_CREDENTIAL },
     }));
     const { challenge: actualChallenge } = await fetchChallengeCredential(
@@ -70,7 +70,7 @@ describe("Fetch Credentials", () => {
   });
 
   it("can fetch a verifiable credential", async () => {
-    mockedAxios.post.mockImplementation(async (url, config) => {
+    mockedAxios.post.mockImplementation(async (url) => {
       if (url.includes("challenge")) {
         return {
           data: { credential: MOCK_CHALLENGE_CREDENTIAL },
@@ -82,6 +82,10 @@ describe("Fetch Credentials", () => {
           data: MOCK_VERIFY_RESPONSE_BODY,
         };
       }
+
+      return {
+        status: 404,
+      };
     });
 
     const { credential, record, signature, challenge } =
