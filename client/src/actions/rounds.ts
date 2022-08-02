@@ -11,6 +11,7 @@ import {
 } from "../types";
 import PinataClient from "../services/pinata";
 import { Status } from "../reducers/rounds";
+import { keysToCamel } from "../utils/snakeToCamel";
 
 const projectQuestion = {
   question: "Select a project you would like to apply for funding:",
@@ -225,7 +226,7 @@ export const loadRound = (address: string) => async (dispatch: Dispatch) => {
   let recipientQuestionId;
   try {
     const resp = await pinataClient.fetchText(applicationMetaPtr.pointer);
-    applicationMetadata = JSON.parse(resp);
+    applicationMetadata = keysToCamel(JSON.parse(resp));
 
     projectQuestionId = applicationMetadata.applicationSchema.length;
     applicationMetadata.applicationSchema.unshift({
