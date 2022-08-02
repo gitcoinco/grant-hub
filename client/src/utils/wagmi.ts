@@ -9,7 +9,7 @@ import { MetaMaskConnector } from "wagmi/connectors/metaMask";
 import { WalletConnectConnector } from "wagmi/connectors/walletConnect";
 
 // RPC keys
-const alchemyId = process.env.ALCHEMY_ID;
+// const alchemyId = process.env.ALCHEMY_ID;
 const infuraId = process.env.INFURA_ID;
 
 const { chains, provider, webSocketProvider } = configureChains(

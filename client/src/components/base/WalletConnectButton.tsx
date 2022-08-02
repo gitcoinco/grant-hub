@@ -2,7 +2,7 @@ import { Dialog, Transition } from "@headlessui/react";
 import { XIcon } from "@heroicons/react/solid";
 import { Fragment, useState } from "react";
 import { useDispatch } from "react-redux";
-import { useConnect } from "wagmi";
+import { useAccount, useConnect } from "wagmi";
 import { Button } from "./styles";
 
 interface ButtonProps {
@@ -18,6 +18,7 @@ export default function WalletConnectionButton({
   const dispatch = useDispatch();
   const { connect, connectors, error, isLoading, pendingConnector } =
     useConnect();
+	const { address } = useAccount();
 
   return (
     <>
@@ -69,7 +70,7 @@ export default function WalletConnectionButton({
                         key={connector.id}
                         onClick={() => {
                           connect({ connector });
-                          dispatch({ type: "WEB3_ACCOUNT_LOADED" });
+                          dispatch({ type: "WEB3_ACCOUNT_LOADED", account: address });
                         }}
                       >
                         {connector.name}

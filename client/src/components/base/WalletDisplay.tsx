@@ -1,7 +1,7 @@
 import { Dialog, Menu, Transition } from "@headlessui/react";
 import { ChevronDownIcon, XIcon } from "@heroicons/react/solid";
 import { Fragment, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useAccount, useDisconnect, useSwitchNetwork } from "wagmi";
 import { RootState } from "../../reducers";
 import { Button } from "./styles";
@@ -16,7 +16,8 @@ export default function WalletDisplay() {
   const { address } = useAccount();
   const { chains, error, isLoading, pendingChainId, switchNetwork } =
     useSwitchNetwork();
-  const { disconnect } = useDisconnect();
+  const disconnect = useDisconnect();
+  const dispatch = useDispatch();
 
   const props = useSelector((state: RootState) => ({
     web3Initializing: state.web3.initializing,
@@ -33,7 +34,7 @@ export default function WalletDisplay() {
         $variant="outline"
         className="relative inline-flex items-center px-4 py-0 rounded-l-md text-sm w-[150px] bg-grey-500 text-white"
       >
-        <span className="truncate">{props.account}</span>
+        <span className="truncate text-black">{props.account}</span>
       </Button>
       <Menu as="div" className="-ml-px relative block">
         <Menu.Button className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-grey-100 text-sm text-white focus:z-10">
@@ -71,7 +72,10 @@ export default function WalletDisplay() {
                       active ? "bg-gray-100 text-gray-900" : "text-gray-700",
                       "block px-4 py-2 text-sm w-full text-left"
                     )}
-                    onClick={() => disconnect()}
+                    onClick={() => { 
+                      disconnect;
+                      dispatch({ type: "WEB3_ACCOUNT_DISCONNECTED", account: address });
+                    }}
                   >
                     Disconnect
                   </button>
