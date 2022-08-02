@@ -1,4 +1,5 @@
 import {
+  ENS_NAME_LOADED,
   Web3Actions,
   WEB3_ACCOUNT_DISCONNECTED,
   WEB3_ACCOUNT_LOADED,
@@ -6,7 +7,6 @@ import {
   WEB3_ERROR,
   WEB3_INITIALIZED,
   WEB3_INITIALIZING,
-  ENS_NAME_LOADED,
 } from "../actions/web3";
 
 export interface Web3State {
