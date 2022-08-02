@@ -21,6 +21,8 @@ const DIDKit: DIDKitLib = mockDIDKit as unknown as DIDKitLib;
 
 jest.mock("axios");
 
+const mockedAxios = axios as jest.Mocked<typeof axios>;
+
 describe("Fetch Credentials", () => {
   const IAM_URL = "iam.example";
   const payload: GHOrgRequestPayload = {
@@ -31,10 +33,8 @@ describe("Fetch Credentials", () => {
   };
 
   const MOCK_SIGNATURE = "Signed Message";
-  const MOCK_SIGNER = {
-    signMessage: jest
-      .fn()
-      .mockImplementation(() => Promise.resolve(MOCK_SIGNATURE)),
+  let MOCK_SIGNER: {
+    signMessage: jest.Mock<any, any>;
   };
 
   const IAM_CHALLENGE_ENDPOINT = `${IAM_URL}/v${payload.version}/challenge`;
@@ -43,11 +43,18 @@ describe("Fetch Credentials", () => {
   };
 
   beforeEach(() => {
-    MOCK_SIGNER.signMessage.mockClear();
+    MOCK_SIGNER = {
+      signMessage: jest
+        .fn()
+        .mockImplementation(() => Promise.resolve(MOCK_SIGNATURE)),
+    };
     clearAxiosMocks();
   });
 
   it("can fetch a challenge credential", async () => {
+    mockedAxios.post.mockImplementationOnce(async (url, config) => ({
+      data: { credential: MOCK_CHALLENGE_CREDENTIAL },
+    }));
     const { challenge: actualChallenge } = await fetchChallengeCredential(
       IAM_URL,
       payload
@@ -63,6 +70,20 @@ describe("Fetch Credentials", () => {
   });
 
   it("can fetch a verifiable credential", async () => {
+    mockedAxios.post.mockImplementation(async (url, config) => {
+      if (url.includes("challenge")) {
+        return {
+          data: { credential: MOCK_CHALLENGE_CREDENTIAL },
+        };
+      }
+
+      if (url.includes("verify")) {
+        return {
+          data: MOCK_VERIFY_RESPONSE_BODY,
+        };
+      }
+    });
+
     const { credential, record, signature, challenge } =
       await fetchVerifiableCredential(IAM_URL, payload, MOCK_SIGNER);
 
