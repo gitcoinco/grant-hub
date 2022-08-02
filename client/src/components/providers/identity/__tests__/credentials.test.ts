@@ -1,50 +1,33 @@
-// ---- Test subject
-
-// ---- base64 encoding
-// import * as base64 from "@ethersproject/base64";
-
-// ---- crypto lib for hashing
-// import { createHash } from "crypto";
-
 // ---- Mocked values and helpers
 import axios from "axios";
+import { DIDKitLib, VerifiableCredential } from "@gitcoinco/passport-sdk-types";
 import {
-  DIDKitLib,
-  RequestPayload,
-  VerifiableCredential,
-} from "@gitcoinco/passport-sdk-types";
-import {
-  MOCK_CHALLENGE_CREDENTIAL,
-  MOCK_CHALLENGE_VALUE,
-  MOCK_VERIFY_RESPONSE_BODY,
   clearAxiosMocks,
+  MOCK_CHALLENGE_CREDENTIAL,
+  MOCK_VERIFY_RESPONSE_BODY,
 } from "../__mocks__/axios";
 import * as mockDIDKit from "../__mocks__/didkit";
 
 // ---- Types
 import {
-  issueChallengeCredential,
-  issueHashedCredential,
   verifyCredential,
-  fetchChallengeCredential,
   fetchVerifiableCredential,
-  objToSortedArray,
+  GHOrgRequestPayload,
+  fetchChallengeCredential,
 } from "../credentials";
 
 // ---- Set up DIDKit mock
 const DIDKit: DIDKitLib = mockDIDKit as unknown as DIDKitLib;
 
-// this would need to be a valid key but we've mocked out didkit (and no verifications are made)
-const key = "SAMPLE_KEY";
-
 jest.mock("axios");
 
 describe("Fetch Credentials", () => {
   const IAM_URL = "iam.example";
-  const payload: RequestPayload = {
+  const payload: GHOrgRequestPayload = {
     address: "0x0",
     type: "Simple",
     version: "Test-Case-1",
+    org: "gitcoinco",
   };
 
   const MOCK_SIGNATURE = "Signed Message";
@@ -59,21 +42,12 @@ describe("Fetch Credentials", () => {
     payload: { address: payload.address, type: payload.type },
   };
 
-  const IAM_VERIFY_ENDPOINT = `${IAM_URL}/v${payload.version}/verify`;
-  const expectedVerifyRequestBody = {
-    payload: {
-      ...payload,
-      proofs: { signature: MOCK_SIGNATURE },
-    },
-    challenge: MOCK_CHALLENGE_CREDENTIAL,
-  };
-
   beforeEach(() => {
     MOCK_SIGNER.signMessage.mockClear();
     clearAxiosMocks();
   });
 
-  it.skip("can fetch a challenge credential", async () => {
+  it("can fetch a challenge credential", async () => {
     const { challenge: actualChallenge } = await fetchChallengeCredential(
       IAM_URL,
       payload
@@ -88,7 +62,7 @@ describe("Fetch Credentials", () => {
     expect(actualChallenge).toEqual(MOCK_CHALLENGE_CREDENTIAL);
   });
 
-  it.skip("can fetch a verifiable credential", async () => {
+  it("can fetch a verifiable credential", async () => {
     const { credential, record, signature, challenge } =
       await fetchVerifiableCredential(IAM_URL, payload, MOCK_SIGNER);
 
@@ -99,14 +73,8 @@ describe("Fetch Credentials", () => {
       IAM_CHALLENGE_ENDPOINT,
       expectedChallengeRequestBody
     );
-    expect(axios.post).toHaveBeenNthCalledWith(
-      2,
-      IAM_VERIFY_ENDPOINT,
-      expectedVerifyRequestBody
-    );
 
     expect(MOCK_SIGNER.signMessage).toHaveBeenCalled();
-    expect(MOCK_SIGNER.signMessage).toHaveBeenCalledWith(MOCK_CHALLENGE_VALUE);
 
     // we expect to get back the mocked response
     expect(signature).toEqual(MOCK_SIGNATURE);
@@ -121,18 +89,6 @@ describe("Fetch Credentials", () => {
     ).rejects.toThrow("Unable to sign message without a signer");
 
     expect(axios.post).not.toBeCalled();
-  });
-
-  it.skip("will throw if signer rejects request for signature", async () => {
-    // if the user rejects the signing then the signer will throw an error...
-    MOCK_SIGNER.signMessage.mockImplementation(async () => {
-      throw new Error("Unable to sign");
-    });
-
-    await expect(
-      fetchVerifiableCredential(IAM_URL, payload, MOCK_SIGNER)
-    ).rejects.toThrow("Unable to sign");
-    expect(MOCK_SIGNER.signMessage).toHaveBeenCalled();
   });
 
   it("will not attempt to sign if not provided a challenge in the challenge credential", async () => {
@@ -160,112 +116,9 @@ describe("Fetch Credentials", () => {
   });
 });
 
-describe("Generate Credentials", () => {
-  beforeEach(() => {
-    mockDIDKit.clearDidkitMocks();
-  });
-
-  it.skip("can generate a challenge credential", async () => {
-    const record = {
-      type: "Simple",
-      address: "0x0",
-      version: "Test-Case-1",
-      challenge: "randomChallengeString",
-    };
-
-    // details of this credential are created by issueChallengeCredential - but the proof is added by DIDKit (which is mocked)
-    const { credential } = await issueChallengeCredential(DIDKit, key, record);
-
-    // expect to have called issueCredential
-    expect(DIDKit.issueCredential).toHaveBeenCalled();
-    // expect the structure/details added by issueChallengeCredential to be correct
-    expect(credential.credentialSubject.id).toEqual(
-      `did:pkh:eip155:1:${record.address}`
-    );
-    expect(credential.credentialSubject.provider).toEqual(
-      `challenge-${record.type}`
-    );
-    expect(credential.credentialSubject.challenge).toEqual(record.challenge);
-    expect(credential.credentialSubject.address).toEqual(record.address);
-    expect(typeof credential.proof).toEqual("object");
-  });
-
-  // it("can convert an object to an sorted array for deterministic hashing", async () => {
-  //   const record = {
-  //     type: "Simple",
-  //     address: "0x0",
-  //     version: "Test-Case-1",
-  //     email: "my_own@email.com",
-  //   };
-
-  //   expect(objToSortedArray(record)).toEqual([
-  //     ["address", "0x0"],
-  //     ["email", "my_own@email.com"],
-  //     ["type", "Simple"],
-  //     ["version", "Test-Case-1"],
-  //   ]);
-  // }),
-  //   it("can generate a credential containing hash", async () => {
-  //     const record = {
-  //       type: "Simple",
-  //       version: "Test-Case-1",
-  //       address: "0x0",
-  //     };
-
-  //     const expectedHash: string = `v0.0.0:${base64.encode(
-  //       createHash("sha256")
-  //         .update(key)
-  //         .update(JSON.stringify(objToSortedArray(record)))
-  //         .digest()
-  //     )}`;
-  //     // details of this credential are created by issueHashedCredential - but the proof is added by DIDKit (which is mocked)
-  //     const { credential } = await issueHashedCredential(
-  //       DIDKit,
-  //       key,
-  //       "0x0",
-  //       record
-  //     );
-  //     // expect to have called issueCredential
-  //     expect(DIDKit.issueCredential).toHaveBeenCalled();
-  //     // expect the structure/details added by issueHashedCredential to be correct
-  //     expect(credential.credentialSubject.id).toEqual(
-  //       `did:pkh:eip155:1:${record.address}`
-  //     );
-  //     expect(credential.credentialSubject.provider).toEqual(`${record.type}`);
-  //     expect(typeof credential.credentialSubject.hash).toEqual("string");
-  //     expect(credential.credentialSubject.hash).toEqual(expectedHash);
-  //     expect(typeof credential.proof).toEqual("object");
-  //   });
-});
-
 describe("Verify Credentials", () => {
   beforeEach(() => {
     mockDIDKit.clearDidkitMocks();
-  });
-
-  it.skip("can verify a credential", async () => {
-    const record = {
-      type: "Simple",
-      version: "Test-Case-1",
-      address: "0x0",
-    };
-
-    // we are creating this VC so that we know that we have a valid VC in this context to test against (never expired)
-    const { credential: credentialToVerify } = await issueHashedCredential(
-      DIDKit,
-      key,
-      "0x0",
-      record
-    );
-
-    // all verifications will pass as the DIDKit response is mocked
-    expect(await verifyCredential(DIDKit, credentialToVerify)).toEqual(true);
-    // expect to have called verifyCredential
-    expect(DIDKit.verifyCredential).toHaveBeenCalled();
-    expect(DIDKit.verifyCredential).toHaveBeenCalledWith(
-      JSON.stringify(credentialToVerify),
-      expect.anything()
-    );
   });
 
   it("cannot verify a valid but expired credential", async () => {

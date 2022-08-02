@@ -130,3 +130,5 @@ export interface RoundApplication {
     answer: string;
   }>;
 }
+
+export type ProviderID = "Twitter" | "GithubOrg";
