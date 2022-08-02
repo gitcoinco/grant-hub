@@ -84,17 +84,17 @@ const getProjectById = async (
 const getMetadata = async (
   projectId: number,
   project: any,
-  cacheKey: string
+  cacheKey: string,
+  bypassCache: boolean = false
 ) => {
   const storage = new LocalStorage();
   let metadata: Metadata;
 
-  if (storage.supported) {
+  if (!bypassCache && storage.supported) {
     const item = storage.get(cacheKey);
     if (item !== null) {
       try {
         metadata = JSON.parse(item);
-
         const ret = {
           ...metadata,
           protocol: project.metadata.protocol,
@@ -121,7 +121,6 @@ const getMetadata = async (
     console.error(e);
     return null;
   }
-
   try {
     metadata = JSON.parse(content);
   } catch (e) {
@@ -129,7 +128,6 @@ const getMetadata = async (
     console.error(e);
     return null;
   }
-
   const ret = {
     ...metadata,
     protocol: project.metadata.protocol,
@@ -141,7 +139,8 @@ const getMetadata = async (
 };
 
 export const fetchGrantData =
-  (id: number) => async (dispatch: Dispatch, getState: () => RootState) => {
+  (id: number, bypassCache: boolean = false) =>
+  async (dispatch: Dispatch, getState: () => RootState) => {
     dispatch(grantMetadataLoadingURI(id));
     const state = getState();
     const { chainID } = state.web3;
@@ -167,7 +166,7 @@ export const fetchGrantData =
     dispatch(grantMetadataLoading(id));
 
     const cacheKey = `project-${id}-${project.metadata.protocol}-${project.metadata.pointer}`;
-    const item = await getMetadata(id, project, cacheKey);
+    const item = await getMetadata(id, project, cacheKey, bypassCache);
 
     if (item === null) {
       console.log("item is null");
