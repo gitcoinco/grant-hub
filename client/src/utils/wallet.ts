@@ -15,10 +15,15 @@ export function shortAddress(address: string): string {
   }
 }
 
-export const getUserAddress = () => {
-  const { address, isConnected } = useAccount();
+export const getUserAddress = (): string | undefined => {
+  const { address } = useAccount({
+    onConnect({ address }) {
+      return address;
+    },
+    onDisconnect() {
+      return undefined;
+    },
+  });
 
-  if (isConnected) return address;
-
-  return undefined;
+  return address ? address : undefined;
 };

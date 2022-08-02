@@ -31,10 +31,7 @@ import { createRootReducer } from "./reducers";
 import reportWebVitals from "./reportWebVitals";
 import { slugs } from "./routes";
 import "./styles/index.css";
-import { client } from "./utils/wagmi";
-
-// initialize wallet
-import { initializeWeb3 } from "./actions/web3";
+import client from "./utils/wagmi";
 
 const logger: Middleware =
   ({ getState }: MiddlewareAPI) =>
@@ -57,7 +54,7 @@ if (process.env.NODE_ENV !== "production" || urlParams.get("debug") !== null) {
 
 // setup redux store
 const store = createStore(createRootReducer(), applyMiddleware(...middlewares));
-store.dispatch<any>(initializeWeb3(false));
+// store.dispatch<any>(initializeWeb3(false));
 
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement

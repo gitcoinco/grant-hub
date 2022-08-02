@@ -17,8 +17,8 @@ const { chains, provider, webSocketProvider } = configureChains(
   [infuraProvider({ apiKey: infuraId }), publicProvider()]
 );
 
-export const client = createClient({
-  autoConnect: true,
+const client = createClient({
+  autoConnect: false,
   connectors: [
     new MetaMaskConnector({ chains }),
     new CoinbaseWalletConnector({
@@ -65,3 +65,5 @@ export const client = createClient({
   provider,
   webSocketProvider,
 });
+
+export default client;

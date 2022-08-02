@@ -1,37 +1,14 @@
 import React from "react";
-import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { useDisconnect } from "wagmi";
-import { web3AccountDisconnected } from "../actions/web3";
-import { RootState } from "../reducers";
 import { grantsPath, newGrantPath } from "../routes";
 import colors from "../styles/colors";
-import { shortAddress } from "../utils/wallet";
 import Button, { ButtonVariants } from "./base/Button";
 import WalletDisplay from "./base/WalletDisplay";
-import { Blockchain, ChainLogos } from "./icons/Blockchain";
 import Hamburger from "./icons/Hamburger";
 import Plus from "./icons/Plus";
 
 export default function Header() {
   const [navbarOpen, setNavbarOpen] = React.useState(false);
-  const disconnect = useDisconnect();
-  const dispatch = useDispatch();
-  const props = useSelector(
-    (state: RootState) => ({
-      web3Initialized: state.web3.initialized,
-      web3Error: state.web3.error,
-      chainID: state.web3.chainID,
-      account: state.web3.account,
-    }),
-    shallowEqual
-  );
-
-  const connectHandler = () => {
-    // e.preventDefault();
-    // dispatch(initializeWeb3());
-    console.log("Account clicked");
-  };
 
   return (
     <header className="flex items-center justify-between px-4 sm:px-2 mb-3 text-primary-text w-full border-0 sm:border-b container mx-auto h-1/8">
@@ -73,17 +50,6 @@ export default function Header() {
               </Button>
             </Link>
             <WalletDisplay />
-            {/* <div className="cursor-pointer" onClick={() => connectHandler()}>
-              <i className="icon">
-                <Blockchain chain={ChainLogos.ETH} />
-              </i>
-              {props.account ? shortAddress(props.account) : "Connect Wallet"}
-            </div>
-            <br />
-            <button onClick={() => {
-              //disconnect;
-              dispatch({ type: "WEB3_ACCOUNT_DISCONNECTED"});
-            }}>Log Out</button> */}
           </div>
         </div>
       </div>

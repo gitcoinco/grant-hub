@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { shallowEqual, useSelector } from "react-redux";
+import { useAccount, useEnsName, useNetwork } from "wagmi";
 import { RootState } from "../reducers";
 import colors from "../styles/colors";
 import Toast from "./base/Toast";
@@ -13,6 +14,9 @@ interface Props {
 
 function Layout(ownProps: Props) {
   const [show, showToast] = useState(false);
+  const { address, isConnected, isConnecting } = useAccount();
+  const { data: ensName } = useEnsName({ address });
+  const { chain } = useNetwork();
 
   const props = useSelector(
     (state: RootState) => ({

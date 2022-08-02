@@ -1,34 +1,33 @@
-import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useEffect } from "react";
+import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { useAccount, useEnsName, useNetwork } from "wagmi";
+import { useAccount } from "wagmi";
 import { RootState } from "../../reducers";
 import { slugs } from "../../routes";
 import WalletConnectionButton from "../base/WalletConnectButton";
 
 function Landing() {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
+  // const dispatch = useDispatch();
   const props = useSelector((state: RootState) => ({
     web3Initialized: state.web3.initialized,
     web3Error: state.web3.error,
     account: state.web3.account,
   }));
-  const [openConnectModal, setOpenConnectModal] = useState(false);
-  const { address, isConnecting, isConnected, isDisconnected, status } =
-    useAccount();
-  const { data: ensName } = useEnsName({ address });
-  const { chain } = useNetwork();
+  // const [openConnectModal, setOpenConnectModal] = useState(false);
+  const { isConnected } = useAccount();
+  // const { data: ensName } = useEnsName({ address });
+  // const { chain } = useNetwork();
 
-  const connectHandler = () => {
-    // dispatch(initializeWeb3());
-    if (isDisconnected) {
-      console.log("Connecting your wallet now, please stand by ser ...");
-      setOpenConnectModal(!openConnectModal);
-    } else {
-      console.log(`Your already connected with ${address}`);
-    }
-  };
+  // const connectHandler = () => {
+  //   // dispatch(initializeWeb3());
+  //   if (isDisconnected) {
+  //     console.log("Connecting your wallet now, please stand by ser ...");
+  //     setOpenConnectModal(!openConnectModal);
+  //   } else {
+  //     console.log(`Your already connected with ${address}`);
+  //   }
+  // };
 
   useEffect(() => {
     if (props.account) {
@@ -54,7 +53,7 @@ function Landing() {
           matching from Gitcoin, partner DAO, or independent grant program
           rounds.
         </p>
-        {!isConnecting ? (
+        {!isConnected ? (
           <div className="mt-8">
             <WalletConnectionButton />
             {props.web3Error !== undefined && (
@@ -64,7 +63,7 @@ function Landing() {
             )}
           </div>
         ) : (
-          <div></div>
+          <div>You Are Connected.. but something is wrong...</div>
         )}
       </div>
       <img

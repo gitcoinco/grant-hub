@@ -1,8 +1,14 @@
 import { Dialog, Transition } from "@headlessui/react";
 import { XIcon } from "@heroicons/react/solid";
 import { Fragment, useState } from "react";
-import { useDispatch } from "react-redux";
-import { useAccount, useConnect } from "wagmi";
+import { useDispatch, useSelector } from "react-redux";
+import { Connector, useAccount, useConnect, useEnsName } from "wagmi";
+import {
+  initializeWeb3,
+  loadAccountData,
+  loadEnsData,
+} from "../../actions/web3";
+import { RootState } from "../../reducers";
 import { Button } from "./styles";
 
 interface ButtonProps {
@@ -18,7 +24,33 @@ export default function WalletConnectionButton({
   const dispatch = useDispatch();
   const { connect, connectors, error, isLoading, pendingConnector } =
     useConnect();
-	const { address } = useAccount();
+  const props = useSelector((state: RootState) => ({
+    web3Initializing: state.web3.initializing,
+    web3Initalized: state.web3.initialized,
+    web3Error: state.web3.error,
+    chainID: state.web3.chainID,
+    account: state.web3.account,
+    ens: state.web3.ens,
+  }));
+  const { address, isConnected } = useAccount({
+    onConnect({ address }) {
+      dispatch<any>(loadAccountData(address ? address : ""));
+      // dispatch({ type: "WEB3_ACCOUNT_LOADED", account: address });
+    },
+  });
+  const { data: ensName, isError } = useEnsName({
+    address: props.account,
+    chainId: 1,
+    onSuccess(data) {
+      dispatch({ type: "ENS_NAME_LOADED", ens: data });
+      // dispatch<any>(loadEnsData(data ? data : ""));
+      console.log("ensName", ensName);
+    },
+  });
+  const connectHandler = (connector: Connector<any, any, any>) => {
+    connect({ connector });
+    dispatch<any>(initializeWeb3());
+  };
 
   return (
     <>
@@ -62,15 +94,14 @@ export default function WalletConnectionButton({
                     </button>
                   </div>
                   <div className="mt-4">
-                    {connectors.map((connector: any) => (
+                    {connectors.map((connector: Connector<any, any, any>) => (
                       <Button
                         type="button"
                         className="inline-flex justify-center w-full sm:text-sm mt-4"
                         disabled={!connector.ready}
                         key={connector.id}
                         onClick={() => {
-                          connect({ connector });
-                          dispatch({ type: "WEB3_ACCOUNT_LOADED", account: address });
+                          connectHandler(connector);
                         }}
                       >
                         {connector.name}

@@ -6,6 +6,7 @@ import {
   WEB3_ERROR,
   WEB3_INITIALIZED,
   WEB3_INITIALIZING,
+  ENS_NAME_LOADED,
 } from "../actions/web3";
 
 export interface Web3State {
@@ -14,6 +15,7 @@ export interface Web3State {
   chainID: number | undefined;
   error: string | undefined;
   account: string | undefined;
+  ens: string | undefined;
 }
 
 const initialState: Web3State = {
@@ -22,6 +24,7 @@ const initialState: Web3State = {
   chainID: undefined,
   error: undefined,
   account: undefined,
+  ens: undefined,
 };
 
 export const web3Reducer = (
@@ -68,6 +71,7 @@ export const web3Reducer = (
         account: action.account,
         initialized: false,
         initializing: false,
+        ens: undefined,
       };
     }
 
@@ -76,6 +80,13 @@ export const web3Reducer = (
         ...state,
         account: action.account,
       };
+    }
+
+    case ENS_NAME_LOADED: {
+      return {
+        ...state,
+        ens: action.ens,
+      }
     }
     default:
       return state;

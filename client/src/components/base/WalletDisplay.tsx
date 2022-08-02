@@ -2,8 +2,9 @@ import { Dialog, Menu, Transition } from "@headlessui/react";
 import { ChevronDownIcon, XIcon } from "@heroicons/react/solid";
 import { Fragment, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useAccount, useDisconnect, useSwitchNetwork } from "wagmi";
+import { useDisconnect, useEnsName, useSwitchNetwork } from "wagmi";
 import { RootState } from "../../reducers";
+import { shortAddress } from "../../utils/wallet";
 import { Button } from "./styles";
 
 function classNames(...classes: string[]) {
@@ -12,12 +13,20 @@ function classNames(...classes: string[]) {
 
 export default function WalletDisplay() {
   const [open, setOpen] = useState(false);
-  // const { address, chain } = useWallet();
-  const { address } = useAccount();
+  const dispatch = useDispatch();
   const { chains, error, isLoading, pendingChainId, switchNetwork } =
     useSwitchNetwork();
-  const disconnect = useDisconnect();
-  const dispatch = useDispatch();
+  const { disconnect } = useDisconnect({
+    onSuccess(data) {
+      dispatch({
+        type: "WEB3_ACCOUNT_DISCONNECTED",
+        account: undefined,
+      });
+    },
+    onError(error) {
+      dispatch({ type: "WEB3_ERROR", error: error });
+    },
+  });
 
   const props = useSelector((state: RootState) => ({
     web3Initializing: state.web3.initializing,
@@ -25,7 +34,16 @@ export default function WalletDisplay() {
     web3Error: state.web3.error,
     chainID: state.web3.chainID,
     account: state.web3.account,
+    ens: state.web3.ens,
   }));
+  const { data: ensName, isError } = useEnsName({
+    address: props.account,
+    chainId: 1,
+    onSuccess(data) {
+      //dispatch({ type: "ENS_NAME_LOADED", ens: ensName });
+      console.log("ensName", ensName);
+    },
+  });
 
   return (
     <div className="relative z-0 inline-flex shadow-sm rounded-md">
@@ -34,7 +52,9 @@ export default function WalletDisplay() {
         $variant="outline"
         className="relative inline-flex items-center px-4 py-0 rounded-l-md text-sm w-[150px] bg-grey-500 text-white"
       >
-        <span className="truncate text-black">{props.account}</span>
+        <span className="truncate text-black">
+          {props.account ? shortAddress(props.account) : "Connect Wallet"}
+        </span>
       </Button>
       <Menu as="div" className="-ml-px relative block">
         <Menu.Button className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-grey-100 text-sm text-white focus:z-10">
@@ -72,9 +92,8 @@ export default function WalletDisplay() {
                       active ? "bg-gray-100 text-gray-900" : "text-gray-700",
                       "block px-4 py-2 text-sm w-full text-left"
                     )}
-                    onClick={() => { 
-                      disconnect;
-                      dispatch({ type: "WEB3_ACCOUNT_DISCONNECTED", account: address });
+                    onClick={() => {
+                      disconnect();
                     }}
                   >
                     Disconnect
