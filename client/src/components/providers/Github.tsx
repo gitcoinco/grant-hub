@@ -10,13 +10,6 @@ import { fetchVerifiableCredential } from "./identity";
 import { RootState } from "../../reducers";
 import Button, { ButtonVariants } from "../base/Button";
 
-// --- Components
-// import { Card } from "../Card";
-
-// --- Context
-// import { CeramicContext } from "../../context/ceramicContext";
-// import { UserContext } from "../../context/userContext";
-
 // Each provider is recognised by its ID
 const providerId: ProviderID = "GithubOrg";
 
@@ -34,9 +27,11 @@ function generateUID(length: number) {
 export default function Github({
   org,
   verificationComplete,
+  verificationError,
 }: {
   org: string;
-  verificationComplete: (event: VerifiableCredential | Error) => void;
+  verificationComplete: (event: VerifiableCredential) => void;
+  verificationError: (providerError?: string) => void;
 }) {
   const props = useSelector(
     (state: RootState) => ({
@@ -47,7 +42,6 @@ export default function Github({
   const signer = global.web3Provider?.getSigner();
   const [GHID, setGHID] = useState("");
   const [complete, setComplete] = useState(false);
-  const [verificationError, setVerificationError] = useState(false);
 
   // Open Github authUrl in centered window
   function openGithubOAuthUrl(url: string): void {
@@ -110,9 +104,10 @@ export default function Github({
         .then(async (verified: { credential: any }): Promise<void> => {
           setComplete(true);
           verificationComplete(verified.credential);
+          verificationError();
         })
         .catch(() => {
-          setVerificationError(true);
+          verificationError("Github");
         });
     }
   }
@@ -147,13 +142,8 @@ export default function Github({
         variant={ButtonVariants.secondary}
         onClick={() => handleFetchGithubOAuth()}
       >
-        {verificationError ? "Try again" : "Verify"}
+        Verify
       </Button>
-      {verificationError && (
-        <p className="text-danger-text ml-8">
-          There was an error verifying your Github Organization
-        </p>
-      )}
     </div>
   );
 }
