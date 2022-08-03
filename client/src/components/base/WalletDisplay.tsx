@@ -2,8 +2,11 @@ import { Dialog, Menu, Transition } from "@headlessui/react";
 import { ChevronDownIcon, XIcon } from "@heroicons/react/solid";
 import { Fragment, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { useDisconnect, useEnsName, useSwitchNetwork } from "wagmi";
+import { web3ChainIDLoaded } from "../../actions/web3";
 import { RootState } from "../../reducers";
+import { slugs } from "../../routes";
 import { shortAddress } from "../../utils/wallet";
 import { Button } from "./styles";
 
@@ -14,13 +17,22 @@ function classNames(...classes: string[]) {
 export default function WalletDisplay() {
   const [open, setOpen] = useState(false);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const {
     chains,
     error: networkError,
     isLoading,
     pendingChainId,
     switchNetwork,
-  } = useSwitchNetwork();
+  } = useSwitchNetwork({
+    onSuccess(data) {
+      console.log("Success", data);
+      setOpen(false);
+      dispatch(web3ChainIDLoaded(data.id));
+      // todo: update state to navigate to
+      navigate(slugs.grants);
+    },
+  });
   const { disconnect } = useDisconnect({
     onSuccess() {
       dispatch({
@@ -80,6 +92,7 @@ export default function WalletDisplay() {
               <Menu.Item key="Switch Network">
                 {({ active }) => (
                   <button
+                    type="button"
                     className={classNames(
                       active ? "bg-gray-100 text-gray-900" : "text-gray-700",
                       "block px-4 py-2 text-sm w-full text-left"
@@ -93,6 +106,7 @@ export default function WalletDisplay() {
               <Menu.Item key="Disconnect">
                 {({ active }) => (
                   <button
+                    type="button"
                     className={classNames(
                       active ? "bg-gray-100 text-gray-900" : "text-gray-700",
                       "block px-4 py-2 text-sm w-full text-left"
@@ -135,7 +149,7 @@ export default function WalletDisplay() {
                 leaveFrom="opacity-100 translate-y-0 sm:scale-100"
                 leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
               >
-                <Dialog.Panel className="relative bg-white rounded-lg px-4 pt-5 pb-4 text-left shadow-xl transform transition-all sm:my-8 sm:max-w-sm sm:w-full sm:p-6">
+                <Dialog.Panel className="relative bg-white rounded-lg px-4 pt-5 pb-4 text-left shadow-xl transform transition-all">
                   <div className="hidden sm:block absolute top-0 right-0 py-4 pr-4">
                     <button
                       type="button"
