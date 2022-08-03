@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { useNetwork } from "wagmi";
 import { grantsPath, newGrantPath } from "../routes";
 import colors from "../styles/colors";
 import Button, { ButtonVariants } from "./base/Button";
@@ -9,6 +10,7 @@ import Plus from "./icons/Plus";
 
 export default function Header() {
   const [navbarOpen, setNavbarOpen] = React.useState(false);
+  const { chain } = useNetwork();
 
   return (
     <header className="flex items-center justify-between px-4 sm:px-2 mb-3 text-primary-text w-full border-0 sm:border-b container mx-auto h-1/8">
@@ -49,6 +51,7 @@ export default function Header() {
                 New Project
               </Button>
             </Link>
+            <div className="p-4 m-2">{chain?.name}</div>
             <WalletDisplay />
           </div>
         </div>
