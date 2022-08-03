@@ -1,50 +1,32 @@
-// --- Methods
 import { useEffect, useState } from "react";
-// import { debounce } from "ts-debounce";
 import { shallowEqual, useSelector } from "react-redux";
 import { VerifiableCredential } from "@gitcoinco/passport-sdk-types";
-import { global } from "../../global";
-// --- Identity tools
-import { ProviderID } from "../../types";
-import { fetchVerifiableCredential } from "./identity";
-import { RootState } from "../../reducers";
 import Button, { ButtonVariants } from "../base/Button";
+import { global } from "../../global";
+import { fetchVerifiableCredential } from "./identity/credentials";
+import { ProviderID } from "../../types";
+import { RootState } from "../../reducers";
 
-// Each provider is recognised by its ID
-const providerId: ProviderID = "GithubOrg";
+const providerId: ProviderID = "Twitter";
 
-function generateUID(length: number) {
-  return window
-    .btoa(
-      Array.from(window.crypto.getRandomValues(new Uint8Array(length * 2)))
-        .map((b) => String.fromCharCode(b))
-        .join("")
-    )
-    .replace(/[+/]/g, "")
-    .substring(0, length);
-}
-
-export default function Github({
-  org,
+export default function Twitter({
   verificationComplete,
   verificationError,
 }: {
-  org: string;
   verificationComplete: (event: VerifiableCredential) => void;
   verificationError: (providerError?: string) => void;
 }) {
+  const [complete, setComplete] = useState(false);
   const props = useSelector(
     (state: RootState) => ({
       account: state.web3.account,
     }),
     shallowEqual
   );
-  const signer = global.web3Provider?.getSigner();
-  const [GHID, setGHID] = useState("");
-  const [complete, setComplete] = useState(false);
 
-  // Open Github authUrl in centered window
-  function openGithubOAuthUrl(url: string): void {
+  const signer = global.web3Provider?.getSigner();
+  // Open Twitter authUrl in centered window
+  function openTwitterOAuthUrl(url: string): void {
     const width = 600;
     const height = 800;
     // eslint-disable-next-line no-restricted-globals
@@ -61,16 +43,28 @@ export default function Github({
     );
   }
 
-  // Fetch Github OAuth2 url from the IAM procedure
-  async function handleFetchGithubOAuth(): Promise<void> {
-    // Generate a new state string and store it in the compoenents state so that we can
-    // verify it later
-    const ghID = `github-${generateUID(10)}`;
-    setGHID(ghID);
-
-    // eslint-disable-next-line max-len
-    const githubUrl = `https://github.com/login/oauth/authorize?client_id=${process.env.REACT_APP_PUBLIC_GITHUB_CLIENT_ID}&redirect_uri=${process.env.REACT_APP_PUBLIC_GITHUB_CALLBACK}&state=${ghID}`;
-    openGithubOAuthUrl(githubUrl);
+  // Fetch Twitter OAuth2 url from the IAM procedure
+  async function handleFetchTwitterOAuth(): Promise<void> {
+    // Fetch data from external API
+    const res = await fetch(
+      `${process.env.REACT_APP_PASSPORT_PROCEDURE_URL?.replace(
+        /\/*?$/,
+        ""
+      )}/twitter/generateAuthUrl`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          callback: process.env.REACT_APP_PUBLIC_PASSPORT_TWITTER_CALLBACK,
+        }),
+      }
+    );
+    console.log({ res });
+    const data = await res.json();
+    // open new window for authUrl
+    openTwitterOAuthUrl(data.authUrl);
   }
 
   // Listener to watch for oauth redirect response on other windows (on the same host)
@@ -78,25 +72,21 @@ export default function Github({
     target: string;
     data: { code: string; state: string };
   }) {
-    // when receiving github oauth response from a spawned child run fetchVerifiableCredential
+    // when receiving twitter oauth response from a spawned child run fetchVerifiableCredential
     if (e.target === "twitter") {
       // pull data from message
-      const { code } = e.data;
+      const queryCode = e.data.code;
+      const queryState = e.data.state;
 
-      if (GHID !== e.data.state) {
-        return;
-      }
-
-      // fetch and store credential
       fetchVerifiableCredential(
         process.env.REACT_APP_PASSPORT_IAM_URL || "",
         {
           type: providerId,
           version: "0.0.0",
           address: props.account || "",
-          org,
           proofs: {
-            code, // provided by github as query params in the redirect
+            code: queryCode, // provided by twitter as query params in the redirect
+            sessionKey: queryState,
           },
         },
         signer as { signMessage: (message: string) => Promise<string> }
@@ -106,9 +96,10 @@ export default function Github({
           verificationComplete(verified.credential);
           verificationError();
         })
-        .catch(() => {
-          verificationError("Github");
-        });
+        .catch((error) => {
+          throw error;
+        })
+        .finally(() => {});
     }
   }
 
@@ -134,13 +125,13 @@ export default function Github({
       </div>
     );
   }
+
   return (
     <div>
       <Button
-        disabled={org?.length === 0}
         styles={["ml-8 w-auto"]}
         variant={ButtonVariants.secondary}
-        onClick={() => handleFetchGithubOAuth()}
+        onClick={() => handleFetchTwitterOAuth()}
       >
         Verify
       </Button>

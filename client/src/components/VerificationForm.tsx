@@ -4,6 +4,7 @@ import { ChangeHandlers } from "../types";
 import Button, { ButtonVariants } from "./base/Button";
 import { TextInput } from "./grants/inputs";
 import Github from "./providers/Github";
+import Twitter from "./providers/Twitter";
 
 const initialFormValues = {
   github: "",
@@ -43,6 +44,26 @@ export default function VerificationForm({
         />
         <Github
           org={formInputs.github}
+          verificationComplete={setGHVerification}
+          verificationError={(providerError) => setError(providerError)}
+        />
+      </div>
+      <hr className="my-4" />
+      <div className="flex items-center">
+        <img
+          className="h-12 mr-12"
+          src="./assets/twitter_logo.svg"
+          alt="Github Logo"
+        />
+        <TextInput
+          label="Project Name"
+          info="Connect your project’s Twitter account to verify (Optional)"
+          name="twitter"
+          placeholder="What's the project name?"
+          value={formInputs.github}
+          changeHandler={handleInput}
+        />
+        <Twitter
           verificationComplete={setGHVerification}
           verificationError={(providerError) => setError(providerError)}
         />
