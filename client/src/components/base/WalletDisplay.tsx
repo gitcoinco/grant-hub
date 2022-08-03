@@ -2,11 +2,11 @@ import { Dialog, Menu, Transition } from "@headlessui/react";
 import { ChevronDownIcon, XIcon } from "@heroicons/react/solid";
 import { Fragment, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 import { useDisconnect, useEnsName, useSwitchNetwork } from "wagmi";
 import { web3ChainIDLoaded } from "../../actions/web3";
 import { RootState } from "../../reducers";
-import { slugs } from "../../routes";
+// import { slugs } from "../../routes";
 import { shortAddress } from "../../utils/wallet";
 import { Button } from "./styles";
 
@@ -17,7 +17,7 @@ function classNames(...classes: string[]) {
 export default function WalletDisplay() {
   const [open, setOpen] = useState(false);
   const dispatch = useDispatch();
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const {
     chains,
     error: networkError,
@@ -29,8 +29,7 @@ export default function WalletDisplay() {
       console.log("Success", data);
       setOpen(false);
       dispatch(web3ChainIDLoaded(data.id));
-      // todo: update state to navigate to
-      navigate(slugs.grants);
+      window.location.reload();
     },
   });
   const { disconnect } = useDisconnect({
