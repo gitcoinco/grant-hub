@@ -86,7 +86,7 @@ export interface JWK {
 export interface RoundApplicationMetadata {
   lastUpdatedOn: number;
   publicKey: JWK;
-  applicationSchema: RoundApplicationQuestion[];
+  application_schema: RoundApplicationQuestion[];
   projectQuestionId?: number;
   recipientQuestionId?: number;
 }

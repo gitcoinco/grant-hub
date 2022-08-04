@@ -12,7 +12,7 @@ const roundApplicationMetadata: RoundApplicationMetadata = {
     // eslint-disable-next-line
     n: "rgnB-bjh4fDIf_BUgm6r3_ReNY1ASIZfxTnXeETwVIuvIEYtLriuUQ2MzsPZxY7plB-TkccUmjOUDTe3F_huLbqvMUpNyVqUlKgeLc77xdzL8Aq8rlPd8EFDQSJ2v1rPoEbfp9kRVK-aEfpqd6dHF5NxTMrLufbhp2M3nOthf5DL-V6mgGXkmYUllpmu2gRE5gFVp9wL2TruCalR_qIH_UP6x-AP09Ef6h2lIOsGjPQVbiIkPTK1iYx4deFEn3mtW_4Ih4kIKBKaSYz1HOO12uXQToS2grx7RH5LLnKWFEml2atf66pa-MmxUipYMFaRUOZIB4m2lGoNxqEqlnzFvmLfqgc0W7OPsrG5HdZOwvY4A-0WMMQwLNJLaHuPH8lcjjseImDrJPtaa0niYYJty6q_GuOC-pj_1e6JI7eX4wrboS2sYdWfxTyoOnW1hXFoeDfPzF1-DXhAKO8PTmuQw0wEg5fphWIon4oo5cQgYbuNEny3dpC8vMnmsHXkZNGXHDfmJ3GQ7rHYP5hvUtVhwycQKmhrAC8QtxWCUnrW6WMjHEr0GiOotmXuhh6AYKvZ820gwaXZXytDYCDy6WWAhaonY9MAB0xjEZyWZ9UG1KA2zyk42A4LNJiZdOTVx2s5x39-Zc1BZEjB95GWPrFHg_0O75SoPZC3IIblJI5Wsy0",
   },
-  applicationSchema: [
+  application_schema: [
     {
       id: 0,
       question: "Email",
@@ -121,7 +121,7 @@ describe("round application builder", () => {
       "0x000000000000000000000000000000000000beaf"
     );
     expect(application.answers.length).toEqual(
-      roundApplicationMetadata.applicationSchema.length - 2
+      roundApplicationMetadata.application_schema.length - 2
     );
   });
 });
