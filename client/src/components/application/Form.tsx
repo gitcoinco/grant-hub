@@ -47,7 +47,7 @@ export default function Form({
   const [formValidation, setFormValidation] = useState(validation);
   const [projectOptions, setProjectOptions] = useState<ProjectOption[]>();
 
-  const schema = roundApplication.application_schema;
+  const schema = roundApplication.applicationSchema;
 
   const handleInput = (e: ChangeHandlers) => {
     const { value } = e.target;

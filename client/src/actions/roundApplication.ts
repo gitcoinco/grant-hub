@@ -99,7 +99,7 @@ export const submitApplication =
     };
 
     // FIXME: this is temporarily until the round manager adds the encrypted field
-    roundApplicationMetadata.application_schema.forEach((question) => {
+    roundApplicationMetadata.applicationSchema.forEach((question) => {
       if (/email/i.test(question.question.toLowerCase())) {
         // eslint-disable-next-line
         question.encrypted = true;
