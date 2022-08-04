@@ -61,7 +61,6 @@ export default function Twitter({
         }),
       }
     );
-    console.log({ res });
     const data = await res.json();
     // open new window for authUrl
     openTwitterOAuthUrl(data.authUrl);
@@ -106,7 +105,7 @@ export default function Twitter({
   // attach and destroy a BroadcastChannel to handle the message
   useEffect(() => {
     // open the channel
-    const channel = new BroadcastChannel("github_oauth_channel");
+    const channel = new BroadcastChannel("twitter_oauth_channel");
     // event handler will listen for messages from the child (debounced to avoid multiple submissions)
     channel.onmessage = (event: MessageEvent) => {
       listenForRedirect(event.data);
