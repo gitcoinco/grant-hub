@@ -1,17 +1,8 @@
 import { Dispatch } from "redux";
-// import { RootState } from "../reducers";
-import { ethers, BigNumber } from "ethers";
-import RoundABI from "../contracts/abis/Round.json";
-import { global } from "../global";
-import {
-  Round,
-  MetaPtr,
-  RoundMetadata,
-  RoundApplicationMetadata,
-} from "../types";
+import { Round, RoundMetadata, RoundApplicationMetadata } from "../types";
 import PinataClient from "../services/pinata";
 import { Status } from "../reducers/rounds";
-import { keysToCamel } from "../utils/snakeToCamel";
+import { RoundResponse } from "../services/graphqlClient";
 
 const projectQuestion = {
   question: "Select a project you would like to apply for funding:",
@@ -76,195 +67,92 @@ const loadingError = (address: string, error: string): RoundsActions => ({
 
 export const unloadRounds = () => roundsUnloaded();
 
-export const loadRound = (address: string) => async (dispatch: Dispatch) => {
-  try {
-    // address validation
-    ethers.utils.getAddress(address);
-  } catch (e) {
-    dispatch(loadingError(address, "invalid address or address checksum"));
-    console.error(e);
-    return;
-  }
+export const loadRound =
+  (roundInfo: RoundResponse) => async (dispatch: Dispatch) => {
+    if (
+      !roundInfo ||
+      roundInfo.round.roundMetaPtr.pointer === undefined ||
+      roundInfo.round.applicationMetaPtr.pointer === undefined
+    ) {
+      // TODO: log error and metric
+      return;
+    }
+    const pinataClient = new PinataClient();
 
-  const signer = global.web3Provider!.getSigner();
-  const contract = new ethers.Contract(address, RoundABI, signer);
-  const pinataClient = new PinataClient();
-
-  dispatch({
-    type: ROUNDS_LOADING_ROUND,
-    address,
-    status: Status.LoadingApplicationsStartTime,
-  });
-
-  let applicationsStartTime;
-  try {
-    const ast: BigNumber = await contract.applicationsStartTime();
-    applicationsStartTime = ast.toNumber();
-  } catch (e) {
-    dispatch(loadingError(address, "error loading application start time"));
-    console.error(e);
-    return;
-  }
-
-  dispatch({
-    type: ROUNDS_LOADING_ROUND,
-    address,
-    status: Status.LoadingApplicationsEndTime,
-  });
-
-  let applicationsEndTime;
-  try {
-    const aet: BigNumber = await contract.applicationsEndTime();
-    applicationsEndTime = aet.toNumber();
-  } catch (e) {
-    dispatch(loadingError(address, "error loading application end time"));
-    console.error(e);
-    return;
-  }
-
-  dispatch({
-    type: ROUNDS_LOADING_ROUND,
-    address,
-    status: Status.LoadingRoundStartTime,
-  });
-
-  let roundStartTime;
-  try {
-    const rst: BigNumber = await contract.roundStartTime();
-    roundStartTime = rst.toNumber();
-  } catch (e) {
-    dispatch(loadingError(address, "error loading round start time"));
-    console.error(e);
-    return;
-  }
-
-  dispatch({
-    type: ROUNDS_LOADING_ROUND,
-    address,
-    status: Status.LoadingRoundEndTime,
-  });
-
-  let roundEndTime;
-  try {
-    const ret: BigNumber = await contract.roundEndTime();
-    roundEndTime = ret.toNumber();
-  } catch (e) {
-    dispatch(loadingError(address, "error loading round end time"));
-    console.error(e);
-    return;
-  }
-
-  dispatch({
-    type: ROUNDS_LOADING_ROUND,
-    address,
-    status: Status.LoadingToken,
-  });
-
-  let token;
-  try {
-    token = await contract.token();
-  } catch (e) {
-    dispatch(loadingError(address, "error loading round token"));
-    console.error(e);
-    return;
-  }
-
-  dispatch({
-    type: ROUNDS_LOADING_ROUND,
-    address,
-    status: Status.LoadingRoundMetaPtr,
-  });
-
-  let roundMetaPtr: MetaPtr;
-  try {
-    roundMetaPtr = await contract.roundMetaPtr();
-  } catch (e) {
-    dispatch(loadingError(address, "error loading round metaPtr"));
-    console.error(e);
-    return;
-  }
-
-  dispatch({
-    type: ROUNDS_LOADING_ROUND,
-    address,
-    status: Status.LoadingRoundMetadata,
-  });
-
-  let roundMetadata: RoundMetadata;
-  try {
-    const resp = await pinataClient.fetchText(roundMetaPtr.pointer);
-    roundMetadata = JSON.parse(resp);
-  } catch (e) {
-    dispatch(loadingError(address, "error loading round metadata"));
-    console.error(e);
-    return;
-  }
-
-  dispatch({
-    type: ROUNDS_LOADING_ROUND,
-    address,
-    status: Status.LoadingApplicationMetaPtr,
-  });
-
-  let applicationMetaPtr: MetaPtr;
-  try {
-    applicationMetaPtr = await contract.applicationMetaPtr();
-  } catch (e) {
-    dispatch(loadingError(address, "error loading application metaPtr"));
-    console.error(e);
-    return;
-  }
-
-  dispatch({
-    type: ROUNDS_LOADING_ROUND,
-    address,
-    status: Status.LoadingApplicationMetadata,
-  });
-
-  let applicationMetadata: RoundApplicationMetadata;
-  let projectQuestionId;
-  let recipientQuestionId;
-  try {
-    const resp = await pinataClient.fetchText(applicationMetaPtr.pointer);
-    applicationMetadata = keysToCamel(JSON.parse(resp));
-
-    projectQuestionId = applicationMetadata.applicationSchema.length;
-    applicationMetadata.applicationSchema.unshift({
-      ...projectQuestion,
-      id: projectQuestionId,
+    dispatch({
+      type: ROUNDS_LOADING_ROUND,
+      address: roundInfo.round.id,
+      status: Status.LoadingRoundMetadata,
     });
-    applicationMetadata.projectQuestionId = projectQuestionId;
 
-    recipientQuestionId = applicationMetadata.applicationSchema.length;
-    applicationMetadata.applicationSchema.push({
-      ...recipientAddressQuestion,
-      id: recipientQuestionId,
+    let roundMetadata: RoundMetadata;
+    try {
+      const resp = await pinataClient.fetchText(
+        roundInfo.round.roundMetaPtr.pointer
+      );
+      roundMetadata = JSON.parse(resp);
+    } catch (e) {
+      dispatch(
+        loadingError(roundInfo.round.id, "error loading round metadata")
+      );
+      console.error(e);
+      return;
+    }
+
+    dispatch({
+      type: ROUNDS_LOADING_ROUND,
+      address: roundInfo.round.id,
+      status: Status.LoadingApplicationMetadata,
     });
-    applicationMetadata.recipientQuestionId = recipientQuestionId;
-  } catch (e) {
-    dispatch(loadingError(address, "error loading application metadata"));
-    console.error(e);
-    return;
-  }
 
-  const round = {
-    address,
-    applicationsStartTime,
-    applicationsEndTime,
-    roundStartTime,
-    roundEndTime,
-    token,
-    roundMetaPtr: {
-      protocol: BigNumber.from(roundMetaPtr.protocol).toString(),
-      pointer: roundMetaPtr.pointer,
-    },
-    roundMetadata,
-    applicationMetaPtr: {
-      protocol: BigNumber.from(applicationMetaPtr.protocol).toString(),
-      pointer: applicationMetaPtr.pointer,
-    },
-    applicationMetadata,
+    let applicationMetadata: RoundApplicationMetadata;
+    let projectQuestionId;
+    let recipientQuestionId;
+    try {
+      const resp = await pinataClient.fetchText(
+        roundInfo.round.applicationMetaPtr.pointer
+      );
+      applicationMetadata = JSON.parse(resp);
+
+      projectQuestionId = applicationMetadata.applicationSchema.length;
+      applicationMetadata.applicationSchema.unshift({
+        ...projectQuestion,
+        id: projectQuestionId,
+      });
+      applicationMetadata.projectQuestionId = projectQuestionId;
+
+      recipientQuestionId = applicationMetadata.applicationSchema.length;
+      applicationMetadata.applicationSchema.push({
+        ...recipientAddressQuestion,
+        id: recipientQuestionId,
+      });
+      applicationMetadata.recipientQuestionId = recipientQuestionId;
+    } catch (e) {
+      dispatch(
+        loadingError(roundInfo.round.id, "error loading application metadata")
+      );
+      console.error(e);
+      return;
+    }
+
+    const round = {
+      address: roundInfo.round.id,
+      applicationsStartTime: Number(roundInfo.round.applicationsStartTime),
+      applicationsEndTime: Number(roundInfo.round.applicationsEndTime),
+      roundStartTime: Number(roundInfo.round.roundStartTime),
+      roundEndTime: Number(roundInfo.round.roundEndTime),
+      token: roundInfo.round.token,
+      roundMetaPtr: {
+        protocol: roundInfo.round.roundMetaPtr.protocol.toString(),
+        pointer: roundInfo.round.roundMetaPtr.pointer,
+      },
+      roundMetadata,
+      applicationMetaPtr: {
+        protocol: roundInfo.round.applicationMetaPtr.protocol.toString(),
+        pointer: roundInfo.round.applicationMetaPtr.pointer,
+      },
+      applicationMetadata,
+    };
+
+    dispatch(roundLoaded(roundInfo.round.id, round));
   };
-
-  dispatch(roundLoaded(address, round));
-};
