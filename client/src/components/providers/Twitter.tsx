@@ -7,7 +7,7 @@ import { fetchVerifiableCredential } from "./identity/credentials";
 import { ProviderID } from "../../types";
 import { RootState } from "../../reducers";
 
-const providerId: ProviderID = "Twitter";
+const providerId: ProviderID = "ClearTextTwitter";
 
 export default function Twitter({
   verificationComplete,
