@@ -1,8 +1,9 @@
-import React, { useEffect } from "react";
-import { Link } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useDatadogRum } from "react-datadog";
+import { Link, useNavigate } from "react-router-dom";
 import { shallowEqual, useSelector, useDispatch } from "react-redux";
 import { RootState } from "../../reducers";
-import { newGrantPath } from "../../routes";
+import { newGrantPath, slugs } from "../../routes";
 import { loadProjects } from "../../actions/projects";
 import Globe from "../icons/Globe";
 import Button, { ButtonVariants } from "../base/Button";
@@ -12,14 +13,25 @@ import { Status } from "../../reducers/projects";
 import {
   useFetchedProjects,
   useFetchedSubgraphStatus,
+  useFetchRoundByAddress,
 } from "../../services/graphqlClient";
+import useLocalStorage from "../../hooks/useLocalStorage";
+import CallbackModal from "../base/CallbackModal";
+import { loadRound } from "../../actions/rounds";
 
 function ProjectsList() {
+  const dataDog = useDatadogRum();
+  const navigate = useNavigate();
   const dispatch = useDispatch();
+  const [toggleModal, setToggleModal] = useState<boolean>(false);
+  const [roundToApply] = useLocalStorage("roundToApply", null);
+  const roundInfo = useFetchRoundByAddress(roundToApply);
+
   const props = useSelector(
     (state: RootState) => ({
       loading: state.projects.status === Status.Loading,
       chainID: state.web3.chainID,
+      rounds: state.rounds,
     }),
     shallowEqual
   );
@@ -28,18 +40,23 @@ function ProjectsList() {
   const projectsQueryResult = useFetchedProjects();
 
   useEffect(() => {
+    if (roundInfo) {
+      dispatch(loadRound(roundInfo));
+    }
+  }, [roundInfo?.round.id]);
+
+  useEffect(() => {
     dispatch(loadProjects());
   }, [dispatch]);
 
   useEffect(() => {
     if (!subgraphStatus.available) {
       console.warn("Subgraph is NOT available!!", subgraphStatus);
-      // TODO: this should be fine on loading, but we should record metrics
       return;
     }
     if (!subgraphStatus.healthy) {
       console.error("Subgraph is NOT healthy!!", subgraphStatus);
-      // TODO: show error, log metrics, etc.
+      dataDog.addError("Subgraph is NOT healthy!!", subgraphStatus);
       return;
     }
     if (subgraphStatus.syncedBlock !== subgraphStatus.headBlock) {
@@ -52,8 +69,19 @@ function ProjectsList() {
   }, [subgraphStatus]);
 
   useEffect(() => {
-    console.log("projectsQueryResult:", projectsQueryResult);
-  }, [projectsQueryResult]);
+    if (
+      roundToApply !== null &&
+      projectsQueryResult &&
+      projectsQueryResult.projects.length > 0 &&
+      props.rounds[roundToApply]?.round?.roundMetadata.name
+    ) {
+      setToggleModal(true);
+    }
+  }, [
+    projectsQueryResult?.projects.length,
+    roundToApply,
+    props.rounds[roundToApply],
+  ]);
 
   return (
     <div className="flex flex-col flex-grow h-full mx-4 sm:mx-0">
@@ -68,8 +96,7 @@ function ProjectsList() {
             </p>
           </div>
           <div className="grow">
-            {projectsQueryResult.projects &&
-            projectsQueryResult.projects.length ? (
+            {projectsQueryResult?.projects.length ? (
               <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
                 {projectsQueryResult.projects.map((project) => (
                   <Card
@@ -101,6 +128,29 @@ function ProjectsList() {
           </div>
         </>
       )}
+
+      <CallbackModal
+        modalOpen={toggleModal}
+        confirmText="Apply to Grant Round"
+        confirmHandler={() => {
+          navigate(slugs.roundApplication.replace(":id", roundToApply));
+        }}
+        headerImageUri="https://via.placeholder.com/380"
+        toggleModal={setToggleModal}
+      >
+        <>
+          <h5 className="font-semibold mb-2 text-2xl">
+            Time to get your project funded!
+          </h5>
+          <p className="mb-4 ">
+            Congratulations on creating your project on Grant Hub! Continue to
+            apply for{" "}
+            {props.rounds[roundToApply] === undefined
+              ? "the round"
+              : props.rounds[roundToApply].round?.roundMetadata.name}
+          </p>
+        </>
+      </CallbackModal>
     </div>
   );
 }

@@ -36,8 +36,92 @@ export const goerliClient = new ApolloClient({
   },
 });
 
+export const roundManagerGoerliClient = new ApolloClient({
+  uri: "https://api.thegraph.com/subgraphs/name/thelostone-mc/program-factory-v0",
+  cache: new InMemoryCache({
+    typePolicies: {
+      Token: {
+        // Singleton types that have no identifying field can use an empty
+        // array for their keyFields.
+        keyFields: false,
+      },
+      Pool: {
+        // Singleton types that have no identifying field can use an empty
+        // array for their keyFields.
+        keyFields: false,
+      },
+    },
+  }),
+  queryDeduplication: true,
+  defaultOptions: {
+    watchQuery: {
+      fetchPolicy: "no-cache",
+    },
+    query: {
+      fetchPolicy: "no-cache",
+      errorPolicy: "all",
+    },
+  },
+});
+
 export const optimismKovanClient = new ApolloClient({
   uri: "https://api.thegraph.com/subgraphs/name/danielesalatti/project-registry-optimism-kovan",
+  cache: new InMemoryCache({
+    typePolicies: {
+      Token: {
+        // Singleton types that have no identifying field can use an empty
+        // array for their keyFields.
+        keyFields: false,
+      },
+      Pool: {
+        // Singleton types that have no identifying field can use an empty
+        // array for their keyFields.
+        keyFields: false,
+      },
+    },
+  }),
+  queryDeduplication: true,
+  defaultOptions: {
+    watchQuery: {
+      fetchPolicy: "cache-first",
+    },
+    query: {
+      fetchPolicy: "cache-first",
+      errorPolicy: "all",
+    },
+  },
+});
+
+export const roundManagerOptimismKovanClient = new ApolloClient({
+  uri: "https://api.thegraph.com/subgraphs/name/thelostone-mc/grants-round-optimism-kovan",
+  cache: new InMemoryCache({
+    typePolicies: {
+      Token: {
+        // Singleton types that have no identifying field can use an empty
+        // array for their keyFields.
+        keyFields: false,
+      },
+      Pool: {
+        // Singleton types that have no identifying field can use an empty
+        // array for their keyFields.
+        keyFields: false,
+      },
+    },
+  }),
+  queryDeduplication: true,
+  defaultOptions: {
+    watchQuery: {
+      fetchPolicy: "cache-first",
+    },
+    query: {
+      fetchPolicy: "cache-first",
+      errorPolicy: "all",
+    },
+  },
+});
+
+export const roundManagerOptimismClient = new ApolloClient({
+  uri: "https://api.thegraph.com/subgraphs/name/thelostone-mc/grants-round-optimism-mainnet",
   cache: new InMemoryCache({
     typePolicies: {
       Token: {
@@ -92,6 +176,26 @@ export const FETCH_PROJECTS_BY_ACCOUNT_ADDRESS = gql`
         }
       }
       metaPtr {
+        id
+        pointer
+        protocol
+      }
+    }
+  }
+`;
+
+export const FETCH_ROUND_BY_ADDRESS = gql`
+  query roundByAddress($address: Bytes!) {
+    round(id: $address) {
+      id
+      applicationsStartTime
+      applicationsEndTime
+      applicationMetaPtr {
+        id
+        pointer
+        protocol
+      }
+      roundMetaPtr {
         id
         pointer
         protocol
@@ -179,12 +283,11 @@ export function useFetchedSubgraphStatus(): {
   };
 }
 
-interface ProjectsResponse {
+export type ProjectsResponse = {
   projects: [
     {
       id: string;
-
-      accounts: {
+      accounts?: {
         id: string;
         account: {
           address: string;
@@ -197,20 +300,30 @@ interface ProjectsResponse {
       };
     }
   ];
-}
+};
 
-export function useFetchedProjects(): {
-  projects:
-    | {
-        id: string;
-        metaPtr: {
-          id: string;
-          pointer: string;
-          protocol: string;
-        };
-      }[]
-    | null;
-} {
+export type RoundResponse = {
+  round: {
+    id: string;
+    applicationsStartTime: string;
+    applicationsEndTime: string;
+    applicationMetaPtr: {
+      id: string;
+      pointer: string;
+      protocol: number;
+    };
+    roundStartTime: string;
+    roundEndTime: string;
+    roundMetaPtr: {
+      id: string;
+      pointer: string;
+      protocol: number;
+    };
+    token: string;
+  };
+};
+
+export function useFetchedProjects(): ProjectsResponse | null {
   const props = useSelector(
     (state: RootState) => ({
       chainID: state.web3.chainID,
@@ -233,23 +346,52 @@ export function useFetchedProjects(): {
   const parsed = data?.projects;
 
   if (loading) {
-    return {
-      projects: null,
-    };
+    return null;
   }
 
   if ((!loading && !parsed) || error) {
-    return {
-      projects: null,
-    };
+    return null;
   }
 
-  const projects = parsed?.map((p) => ({
-    id: p.id,
-    metaPtr: p.metaPtr,
-  }));
+  return {
+    projects: parsed!,
+  };
+}
+
+export function useFetchRoundByAddress(address: string): RoundResponse | null {
+  const props = useSelector(
+    (state: RootState) => ({
+      chainID: state.web3.chainID,
+      account: state.web3.account,
+    }),
+    shallowEqual
+  );
+
+  const { loading, error, data } = useQuery<RoundResponse>(
+    FETCH_ROUND_BY_ADDRESS,
+    {
+      client:
+        props.chainID === 69
+          ? roundManagerOptimismKovanClient
+          : roundManagerGoerliClient,
+      fetchPolicy: "network-only",
+      variables: {
+        address,
+      },
+    }
+  );
+
+  const parsed = data?.round;
+
+  if (loading) {
+    return null;
+  }
+
+  if ((!loading && !parsed) || error) {
+    return null;
+  }
 
   return {
-    projects: projects ?? null,
+    round: parsed!,
   };
 }

@@ -45,7 +45,7 @@ function Landing() {
           rounds.
         </p>
         <CallbackModal
-          modalOpen
+          modalOpen={false}
           toggleModal={() => true}
           confirmText="Switch to Optimism"
           confirmHandler={() => {

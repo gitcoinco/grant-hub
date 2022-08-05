@@ -1,5 +1,10 @@
-import { crypto, ipfs, json, JSONValue } from "@graphprotocol/graph-ts";
-import { ByteArray } from "@graphprotocol/graph-ts";
+import {
+  crypto,
+  ipfs,
+  json,
+  JSONValue,
+  ByteArray,
+} from "@graphprotocol/graph-ts";
 import { MetaPtr } from "../generated/schema";
 
 /**
@@ -8,7 +13,7 @@ import { MetaPtr } from "../generated/schema";
  * @returns keccak256
  */
 export function generateID(array: Array<string>): string {
-  return crypto.keccak256(ByteArray.fromHexString(array.join("-"))).toBase58();
+  return crypto.keccak256(ByteArray.fromUTF8(array.join("-"))).toBase58();
 }
 
 /**

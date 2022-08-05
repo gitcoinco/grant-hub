@@ -6,11 +6,13 @@ import { roundApplicationPath } from "../../routes";
 import { loadRound, unloadRounds } from "../../actions/rounds";
 import { Status } from "../../reducers/rounds";
 import useLocalStorage from "../../hooks/useLocalStorage";
+import { useFetchRoundByAddress } from "../../services/graphqlClient";
 
 function Round() {
   const params = useParams();
   const dispatch = useDispatch();
   const [roundToApply, setRoundToApply] = useLocalStorage("roundToApply", null);
+  // const [roundInfo] = useState<RoundResponse | null>(null);
 
   const props = useSelector((state: RootState) => {
     const { id } = params;
@@ -24,19 +26,24 @@ function Round() {
       status,
       error,
       round,
+      chainID: state.web3.chainID,
     };
   }, shallowEqual);
 
+  const roundInfo = useFetchRoundByAddress(props.id!);
+
+  console.log("Round Info", roundInfo);
+
   useEffect(() => {
-    if (props.id !== undefined) {
+    if (props.id !== undefined && roundInfo) {
       dispatch(unloadRounds());
-      dispatch(loadRound(props.id));
+      dispatch(loadRound(roundInfo));
     }
-  }, [dispatch, props.id]);
+  }, [dispatch, props.id, roundInfo?.round.id]);
 
   useEffect(() => {
     if (props.id) {
-      setRoundToApply(props.round?.address);
+      setRoundToApply(props.id);
     }
   }, [props.roundState]);
 
