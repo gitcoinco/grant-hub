@@ -28,7 +28,7 @@ export const getProjectImage = (
 
 export const formatDate = (ts: number) => {
   const date = new Date(ts * 1000);
-  return date.toLocaleDateString("en-us", {
+  return date.toLocaleDateString("en-US", {
     year: "numeric",
     month: "short",
     day: "numeric",
