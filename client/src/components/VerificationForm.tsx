@@ -51,31 +51,25 @@ export default function VerificationForm({
       <hr className="my-4" />
       <div className="flex items-center">
         <img
-          className="h-12 mr-12"
+          className="h-12 mr-9"
           src="./assets/twitter_logo.svg"
-          alt="Github Logo"
+          alt="Twitter Logo"
         />
         <TextInput
           label="Project Name"
           info="Connect your project’s Twitter account to verify (Optional)"
           name="twitter"
           placeholder="What's the project name?"
-          value={formInputs.github}
+          value={formInputs.twitter}
           changeHandler={handleInput}
         />
         <Twitter
+          handle={formInputs.twitter}
           verificationComplete={setGHVerification}
           verificationError={(providerError) => setError(providerError)}
         />
       </div>
       <hr className="my-4" />
-      {/* <TextInput
-        label="Project Name"
-        name="twitter"
-        placeholder="What's the project name?"
-        value={formInputs.twitter}
-        changeHandler={handleInput}
-      /> */}
       {error && (
         <div className="flex bg-danger-background/25 p-4 rounded">
           <img
@@ -83,9 +77,7 @@ export default function VerificationForm({
             src="./icons/x-circle.svg"
             alt="error icon"
           />
-          <p className="text-danger-text font-normal">
-            Couldn&apos;t connect to {error}. Please try verifying again
-          </p>
+          <p className="text-danger-text font-normal">{error}</p>
         </div>
       )}
       <div className="flex w-full justify-end mt-6">
