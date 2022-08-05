@@ -5,10 +5,12 @@ import { RootState } from "../../reducers";
 import { roundApplicationPath } from "../../routes";
 import { loadRound, unloadRounds } from "../../actions/rounds";
 import { Status } from "../../reducers/rounds";
+import useLocalStorage from "../../hooks/useLocalStorage";
 
 function Round() {
   const params = useParams();
   const dispatch = useDispatch();
+  const [roundToApply, setRoundToApply] = useLocalStorage("roundToApply", null);
 
   const props = useSelector((state: RootState) => {
     const { id } = params;
@@ -31,6 +33,16 @@ function Round() {
       dispatch(loadRound(props.id));
     }
   }, [dispatch, props.id]);
+
+  useEffect(() => {
+    if (props.id) {
+      setRoundToApply(props.round?.address);
+    }
+  }, [props.roundState]);
+
+  useEffect(() => {
+    console.log("roundToApply", roundToApply);
+  }, [roundToApply]);
 
   if (props.status === Status.Error) {
     return <div>Error: {props.error}</div>;
