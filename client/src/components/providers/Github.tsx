@@ -11,7 +11,7 @@ import { RootState } from "../../reducers";
 import Button, { ButtonVariants } from "../base/Button";
 
 // Each provider is recognised by its ID
-const providerId: ProviderID = "GithubOrg";
+const providerId: ProviderID = "ClearTextGithubOrg";
 
 function generateUID(length: number) {
   return window
