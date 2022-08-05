@@ -55,7 +55,7 @@ function Round() {
   }
 
   return (
-    <div className="h-full absolute flex flex-col justify-center items-center">
+    <div className="h-full w-full absolute flex flex-col justify-center items-center">
       <div className="w-full lg:w-1/3 sm:w-2/3">
         <h2 className="text-center">{roundData?.roundMetadata.name}</h2>
         <h4 className="text-center">{roundData?.roundMetadata.description}</h4>
