@@ -107,7 +107,9 @@ export default function Github({
           verificationError();
         })
         .catch(() => {
-          verificationError("Github");
+          verificationError(
+            "Couldn't connect to Twitter. Please try verifying again"
+          );
         });
     }
   }

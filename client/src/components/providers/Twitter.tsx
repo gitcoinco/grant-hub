@@ -9,10 +9,17 @@ import { RootState } from "../../reducers";
 
 const providerId: ProviderID = "ClearTextTwitter";
 
+const parseHandle = (provider: string) => {
+  console.log(provider.replace(/ClearTextTwitter#(.*)$/, "$1"));
+  return provider.replace(/ClearTextTwitter#(.*)$/, "$1");
+};
+
 export default function Twitter({
+  handle,
   verificationComplete,
   verificationError,
 }: {
+  handle: string;
   verificationComplete: (event: VerifiableCredential) => void;
   verificationError: (providerError?: string) => void;
 }) {
@@ -90,13 +97,32 @@ export default function Twitter({
         },
         signer as { signMessage: (message: string) => Promise<string> }
       )
-        .then(async (verified: { credential: any }): Promise<void> => {
-          setComplete(true);
-          verificationComplete(verified.credential);
-          verificationError();
-        })
-        .catch((error) => {
-          throw error;
+        .then(
+          async (verified: {
+            credential: VerifiableCredential;
+          }): Promise<void> => {
+            const { provider } = verified.credential.credentialSubject;
+            if (
+              provider &&
+              parseHandle(provider).toLocaleLowerCase() ===
+                handle.toLocaleLowerCase()
+            ) {
+              setComplete(true);
+              verificationComplete(verified.credential);
+              verificationError();
+            } else {
+              verificationError(
+                `${handle} does not match ${parseHandle(
+                  provider ?? ""
+                )}, the account you authenticated with.`
+              );
+            }
+          }
+        )
+        .catch(() => {
+          verificationError(
+            "Couldn't connect to Twitter. Please try verifying again"
+          );
         })
         .finally(() => {});
     }
