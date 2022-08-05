@@ -3,11 +3,10 @@ import {
   createRouterMiddleware,
   ReduxRouter,
 } from "@lagunovsky/redux-react-router";
+import Datadog from "react-datadog";
 import ReactDOM from "react-dom/client";
 import { Provider } from "react-redux";
 import { Route, Routes } from "react-router";
-import { extendTheme, ChakraProvider } from "@chakra-ui/react";
-import Datadog from "react-datadog";
 import {
   applyMiddleware,
   createStore,
@@ -102,7 +101,10 @@ root.render(
                   <Route path={slugs.newGrant} element={<NewProject />} />
                   <Route path={slugs.edit} element={<EditProject />} />
                   <Route path={slugs.round} element={<RoundShow />} />
-                  <Route path={slugs.roundApplication} element={<RoundApply />} />
+                  <Route
+                    path={slugs.roundApplication}
+                    element={<RoundApply />}
+                  />
                 </Routes>
               </Layout>
             </WagmiConfig>

@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { shallowEqual, useSelector } from "react-redux";
+import { useAccount } from "wagmi";
 import { RootState } from "../reducers";
 import colors from "../styles/colors";
 import Toast from "./base/Toast";
@@ -28,13 +29,14 @@ function Layout(ownProps: Props) {
     }),
     shallowEqual
   );
+  const { address } = useAccount();
 
-  useEffect(() => {
-    showToast(props.web3Initialized);
-  }, [props.web3Initialized]);
+  // useEffect(() => {
+  //   showToast(props.web3Initialized);
+  // }, [props.web3Initialized]);
 
   const { children } = ownProps;
-  if (!props.web3Initialized || props.account === undefined) {
+  if (address === undefined) {
     return <Landing />;
   }
 

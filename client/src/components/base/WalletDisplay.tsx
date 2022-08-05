@@ -2,11 +2,17 @@ import { Dialog, Menu, Transition } from "@headlessui/react";
 import { ChevronDownIcon, XIcon } from "@heroicons/react/solid";
 import { Fragment, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-// import { useNavigate } from "react-router-dom";
-import { useDisconnect, useEnsName, useSwitchNetwork } from "wagmi";
-import { web3ChainIDLoaded } from "../../actions/web3";
+import {
+  useAccount,
+  // Connector,
+  // useConnect,
+  useDisconnect,
+  useEnsName,
+  useSwitchNetwork,
+} from "wagmi";
+import { loadProjects } from "../../actions/projects";
+import { loadAccountData, web3ChainIDLoaded } from "../../actions/web3"; // initializeWeb3,
 import { RootState } from "../../reducers";
-// import { slugs } from "../../routes";
 import { shortAddress } from "../../utils/wallet";
 import { Button } from "./styles";
 
@@ -17,7 +23,7 @@ function classNames(...classes: string[]) {
 export default function WalletDisplay() {
   const [open, setOpen] = useState(false);
   const dispatch = useDispatch();
-  // const navigate = useNavigate();
+  const { address } = useAccount();
   const {
     chains,
     error: networkError,
@@ -26,10 +32,11 @@ export default function WalletDisplay() {
     switchNetwork,
   } = useSwitchNetwork({
     onSuccess(data) {
-      console.log("Success", data);
+      // console.log("Success", data);
       setOpen(false);
-      dispatch(web3ChainIDLoaded(data.id));
-      window.location.reload();
+      dispatch<any>(web3ChainIDLoaded(data.id));
+      dispatch<any>(loadAccountData(address ?? ""));
+      dispatch<any>(loadProjects(false));
     },
   });
   const { disconnect } = useDisconnect({
@@ -60,6 +67,12 @@ export default function WalletDisplay() {
       console.log("ensName", ensName);
     },
   });
+  // const { connect } = useConnect();
+  // todo: use this when "connect wallet" is displayed
+  // const connectHandler = (connector: Connector<any, any, any>) => {
+  //   connect({ connector });
+  //   dispatch<any>(initializeWeb3());
+  // };
 
   return (
     <div className="relative z-0 inline-flex shadow-sm rounded-md">
@@ -68,9 +81,9 @@ export default function WalletDisplay() {
         $variant="outline"
         className="relative inline-flex items-center px-4 py-0 rounded-l-md text-sm w-[150px] bg-grey-500 text-white"
       >
-        <span className="truncate text-black">
+        <Button type="button" className="truncate text-black">
           {props.account ? shortAddress(props.account) : "Connect Wallet"}
-        </span>
+        </Button>
       </Button>
       <Menu as="div" className="-ml-px relative block">
         <Menu.Button className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-grey-100 text-sm text-white focus:z-10">
