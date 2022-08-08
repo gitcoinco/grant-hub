@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 // import { debounce } from "ts-debounce";
 import { shallowEqual, useSelector } from "react-redux";
 import { VerifiableCredential } from "@gitcoinco/passport-sdk-types";
+import { datadogRum } from "@datadog/browser-rum";
 import { global } from "../../global";
 // --- Identity tools
 import { ProviderID } from "../../types";
@@ -106,10 +107,11 @@ export default function Github({
           verificationComplete(verified.credential);
           verificationError();
         })
-        .catch(() => {
+        .catch((error) => {
           verificationError(
             "Couldn't connect to Github. Please try verifying again"
           );
+          datadogRum.addError(error, { provider: providerId });
         });
     }
   }

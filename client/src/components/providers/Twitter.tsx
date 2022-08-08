@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { shallowEqual, useSelector } from "react-redux";
 import { VerifiableCredential } from "@gitcoinco/passport-sdk-types";
+import { datadogRum } from "@datadog/browser-rum";
 import Button, { ButtonVariants } from "../base/Button";
 import { global } from "../../global";
 import { fetchVerifiableCredential } from "./identity/credentials";
@@ -117,10 +118,11 @@ export default function Twitter({
             }
           }
         )
-        .catch(() => {
+        .catch((error) => {
           verificationError(
             "Couldn't connect to Twitter. Please try verifying again"
           );
+          datadogRum.addError(error, { provider: providerId });
         })
         .finally(() => {});
     }
