@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useDatadogRum } from "react-datadog";
 import { Link, useNavigate } from "react-router-dom";
 import { shallowEqual, useSelector, useDispatch } from "react-redux";
@@ -18,8 +18,6 @@ import {
 import useLocalStorage from "../../hooks/useLocalStorage";
 import CallbackModal from "../base/CallbackModal";
 import { loadRound } from "../../actions/rounds";
-
-import { ProjectEvent } from "../../types";
 
 function ProjectsList() {
   const dataDog = useDatadogRum();

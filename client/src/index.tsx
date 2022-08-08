@@ -15,7 +15,6 @@ import {
   ReduxRouter,
 } from "@lagunovsky/redux-react-router";
 import { ApolloProvider } from "@apollo/client/react";
-import { optimismKovanClient } from "./services/graphqlClient";
 import thunkMiddleware from "redux-thunk";
 // WAGMI
 import { WagmiConfig } from "wagmi";
@@ -35,6 +34,7 @@ import reportWebVitals from "./reportWebVitals";
 import { slugs } from "./routes";
 import "./styles/index.css";
 import client from "./utils/wagmi";
+import { optimismKovanClient } from "./services/graphqlClient";
 
 const logger: Middleware =
   ({ getState }: MiddlewareAPI) =>

@@ -172,6 +172,7 @@ export const FETCH_PROJECTS_BY_ACCOUNT_ADDRESS = gql`
       accounts {
         id
         account {
+          id
           address
         }
       }
@@ -332,13 +333,15 @@ export function useFetchedProjects(): ProjectsResponse | null {
     shallowEqual
   );
 
+  console.log("DASA props", props);
+
   const { loading, error, data } = useQuery<ProjectsResponse>(
     FETCH_PROJECTS_BY_ACCOUNT_ADDRESS,
     {
       client: props.chainID === 69 ? optimismKovanClient : goerliClient,
       fetchPolicy: "network-only",
       variables: {
-        address: props.account,
+        address: props.account?.toLowerCase(),
       },
     }
   );
@@ -362,7 +365,6 @@ export function useFetchRoundByAddress(address: string): RoundResponse | null {
   const props = useSelector(
     (state: RootState) => ({
       chainID: state.web3.chainID,
-      account: state.web3.account,
     }),
     shallowEqual
   );
@@ -376,7 +378,7 @@ export function useFetchRoundByAddress(address: string): RoundResponse | null {
           : roundManagerGoerliClient,
       fetchPolicy: "network-only",
       variables: {
-        address,
+        address: address.toLowerCase(),
       },
     }
   );
