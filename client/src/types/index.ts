@@ -131,4 +131,4 @@ export interface RoundApplication {
   }>;
 }
 
-export type ProviderID = "Twitter" | "ClearTextGithubOrg";
+export type ProviderID = "ClearTextTwitter" | "ClearTextGithubOrg";

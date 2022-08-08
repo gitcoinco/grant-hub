@@ -67,7 +67,7 @@ export const fetchChallengeCredential = async (
 };
 
 export type GHOrgRequestPayload = RequestPayload & {
-  org: string;
+  org?: string;
 };
 
 // Fetch a verifiableCredential

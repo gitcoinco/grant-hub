@@ -4,6 +4,7 @@ import { ChangeHandlers } from "../types";
 import Button, { ButtonVariants } from "./base/Button";
 import { TextInput } from "./grants/inputs";
 import Github from "./providers/Github";
+import Twitter from "./providers/Twitter";
 
 const initialFormValues = {
   github: "",
@@ -17,13 +18,15 @@ export default function VerificationForm({
 }) {
   const [formInputs, setFormInputs] = useState(initialFormValues);
   const [ghVerification, setGHVerification] = useState<VerifiableCredential>();
+  const [twitterVerification, setTwitterVerification] =
+    useState<VerifiableCredential>();
   const [error, setError] = useState<string | undefined>();
   const handleInput = (e: ChangeHandlers) => {
     const { value } = e.target;
     setFormInputs({ ...formInputs, [e.target.name]: value });
   };
 
-  console.log({ ghVerification });
+  console.log({ ghVerification, twitterVerification });
 
   return (
     <div className="border-0 sm:border sm:border-solid border-tertiary-text rounded text-primary-text p-0 sm:p-4">
@@ -48,13 +51,27 @@ export default function VerificationForm({
         />
       </div>
       <hr className="my-4" />
-      {/* <TextInput
-        label="Project Name"
-        name="twitter"
-        placeholder="What's the project name?"
-        value={formInputs.twitter}
-        changeHandler={handleInput}
-      /> */}
+      <div className="flex items-center">
+        <img
+          className="h-12 mr-9"
+          src="./assets/twitter_logo.svg"
+          alt="Twitter Logo"
+        />
+        <TextInput
+          label="Project Name"
+          info="Connect your project’s Twitter account to verify (Optional)"
+          name="twitter"
+          placeholder="What's the project name?"
+          value={formInputs.twitter}
+          changeHandler={handleInput}
+        />
+        <Twitter
+          handle={formInputs.twitter}
+          verificationComplete={setTwitterVerification}
+          verificationError={(providerError) => setError(providerError)}
+        />
+      </div>
+      <hr className="my-4" />
       {error && (
         <div className="flex bg-danger-background/25 p-4 rounded">
           <img
@@ -62,9 +79,7 @@ export default function VerificationForm({
             src="./icons/x-circle.svg"
             alt="error icon"
           />
-          <p className="text-danger-text font-normal">
-            Couldn&apos;t connect to {error}. Please try verifying again
-          </p>
+          <p className="text-danger-text font-normal">{error}</p>
         </div>
       )}
       <div className="flex w-full justify-end mt-6">
