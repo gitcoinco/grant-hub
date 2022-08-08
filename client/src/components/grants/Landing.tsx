@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useAccount } from "wagmi";
 import { RootState } from "../../reducers";
 import { slugs } from "../../routes";
+import CallbackModal from "../base/CallbackModal";
 import WalletConnectionButton from "../base/WalletConnectButton";
 
 function Landing() {
@@ -53,6 +54,27 @@ function Landing() {
           matching from Gitcoin, partner DAO, or independent grant program
           rounds.
         </p>
+        <CallbackModal
+          modalOpen={false}
+          toggleModal={() => true}
+          confirmText="Switch to Optimism"
+          confirmHandler={() => {
+            console.log("SWITCH!!");
+          }}
+          headerImageUri="https://via.placeholder.com/380"
+        >
+          <>
+            <h5 className="font-semibold mb-2 text-2xl">
+              Switch to the Optimism network
+            </h5>
+            <p className="mb-4 ">
+              Gitcoin Grant Hub is running on the Optimism network, a layer 2
+              solution on Ethereum, which means transactions are cheaper and
+              faster!
+            </p>
+          </>
+        </CallbackModal>
+
         {!isConnected ? (
           <div className="mt-8">
             <WalletConnectionButton />

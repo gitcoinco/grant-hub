@@ -1,8 +1,4 @@
 import { ChakraProvider, extendTheme } from "@chakra-ui/react";
-import {
-  createRouterMiddleware,
-  ReduxRouter,
-} from "@lagunovsky/redux-react-router";
 import Datadog from "react-datadog";
 import ReactDOM from "react-dom/client";
 import { Provider } from "react-redux";
@@ -14,6 +10,11 @@ import {
   Middleware,
   MiddlewareAPI,
 } from "redux";
+import {
+  createRouterMiddleware,
+  ReduxRouter,
+} from "@lagunovsky/redux-react-router";
+import { ApolloProvider } from "@apollo/client/react";
 import thunkMiddleware from "redux-thunk";
 // WAGMI
 import { WagmiConfig } from "wagmi";
@@ -33,6 +34,7 @@ import reportWebVitals from "./reportWebVitals";
 import { slugs } from "./routes";
 import "./styles/index.css";
 import client from "./utils/wagmi";
+import { optimismKovanClient } from "./services/graphqlClient";
 
 const logger: Middleware =
   ({ getState }: MiddlewareAPI) =>
@@ -90,29 +92,32 @@ root.render(
       // defaultPrivacyLevel="mask-user-input"
     >
       <ChakraProvider theme={theme} resetCSS={false}>
-        <Provider store={store}>
-          <ReduxRouter history={history} store={store}>
-            <WagmiConfig client={client}>
-              <Layout>
-                <Routes>
-                  <Route path={slugs.root} element={<Landing />} />
-                  <Route path={slugs.grants} element={<ProjectsList />} />
-                  <Route path={slugs.grant} element={<Project />} />
-                  <Route path={slugs.newGrant} element={<NewProject />} />
-                  <Route path={slugs.edit} element={<EditProject />} />
-                  <Route path={slugs.round} element={<RoundShow />} />
-                  <Route
-                    path={slugs.roundApplication}
-                    element={<RoundApply />}
-                  />
-                </Routes>
-              </Layout>
-            </WagmiConfig>
-          </ReduxRouter>
-        </Provider>
+        <ApolloProvider client={optimismKovanClient}>
+          <Provider store={store}>
+            <ReduxRouter history={history} store={store}>
+              <WagmiConfig client={client}>
+                <Layout>
+                  <Routes>
+                    <Route path={slugs.root} element={<Landing />} />
+                    <Route path={slugs.grants} element={<ProjectsList />} />
+                    <Route path={slugs.grant} element={<Project />} />
+                    <Route path={slugs.newGrant} element={<NewProject />} />
+                    <Route path={slugs.edit} element={<EditProject />} />
+                    <Route path={slugs.round} element={<RoundShow />} />
+                    <Route
+                      path={slugs.roundApplication}
+                      element={<RoundApply />}
+                    />
+                  </Routes>
+                </Layout>
+              </WagmiConfig>
+            </ReduxRouter>
+          </Provider>
+        </ApolloProvider>
       </ChakraProvider>
     </Datadog>
   </ErrorBoundary>
+
   // </React.StrictMode>
 );
 
