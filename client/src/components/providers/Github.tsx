@@ -79,7 +79,7 @@ export default function Github({
     data: { code: string; state: string };
   }) {
     // when receiving github oauth response from a spawned child run fetchVerifiableCredential
-    if (e.target === "twitter") {
+    if (e.target === "github") {
       // pull data from message
       const { code } = e.data;
 
@@ -108,7 +108,7 @@ export default function Github({
         })
         .catch(() => {
           verificationError(
-            "Couldn't connect to Twitter. Please try verifying again"
+            "Couldn't connect to Github. Please try verifying again"
           );
         });
     }
