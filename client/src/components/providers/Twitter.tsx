@@ -9,10 +9,8 @@ import { RootState } from "../../reducers";
 
 const providerId: ProviderID = "ClearTextTwitter";
 
-const parseHandle = (provider: string) => {
-  console.log(provider.replace(/ClearTextTwitter#(.*)$/, "$1"));
-  return provider.replace(/ClearTextTwitter#(.*)$/, "$1");
-};
+const parseHandle = (provider: string) =>
+  provider.replace(/ClearTextTwitter#(.*)$/, "$1");
 
 export default function Twitter({
   handle,
