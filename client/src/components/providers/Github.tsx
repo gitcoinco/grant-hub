@@ -1,9 +1,9 @@
 // --- Methods
 import { useEffect, useState } from "react";
-// import { debounce } from "ts-debounce";
 import { shallowEqual, useSelector } from "react-redux";
 import { VerifiableCredential } from "@gitcoinco/passport-sdk-types";
 import { datadogRum } from "@datadog/browser-rum";
+import { debounce } from "ts-debounce";
 import { global } from "../../global";
 // --- Identity tools
 import { ProviderID } from "../../types";
@@ -121,9 +121,9 @@ export default function Github({
     // open the channel
     const channel = new BroadcastChannel("github_oauth_channel");
     // event handler will listen for messages from the child (debounced to avoid multiple submissions)
-    channel.onmessage = (event: MessageEvent) => {
+    channel.onmessage = debounce((event: MessageEvent) => {
       listenForRedirect(event.data);
-    };
+    });
 
     return () => {
       channel.close();

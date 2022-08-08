@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { shallowEqual, useSelector } from "react-redux";
 import { VerifiableCredential } from "@gitcoinco/passport-sdk-types";
 import { datadogRum } from "@datadog/browser-rum";
+import { debounce } from "ts-debounce";
 import Button, { ButtonVariants } from "../base/Button";
 import { global } from "../../global";
 import { fetchVerifiableCredential } from "./identity/credentials";
@@ -133,9 +134,9 @@ export default function Twitter({
     // open the channel
     const channel = new BroadcastChannel("twitter_oauth_channel");
     // event handler will listen for messages from the child (debounced to avoid multiple submissions)
-    channel.onmessage = (event: MessageEvent) => {
+    channel.onmessage = debounce((event: MessageEvent) => {
       listenForRedirect(event.data);
-    };
+    });
 
     return () => {
       channel.close();
