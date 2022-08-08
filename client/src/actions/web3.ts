@@ -1,11 +1,11 @@
 import { ethers } from "ethers";
 import { Dispatch } from "redux";
-import { chains } from "../contracts/deployments";
+// import { chains } from "../contracts/deployments";
 import { global } from "../global";
 import { RootState } from "../reducers";
 
-const chainIds = Object.keys(chains);
-const chainNames = Object.values(chains);
+// const chainIds = Object.keys(chains);
+// const chainNames = Object.values(chains);
 
 enum Web3Type {
   Generic,
@@ -110,22 +110,21 @@ export const notWeb3Browser = (): Web3Actions => ({
 // }
 
 const loadWeb3Data = () => (dispatch: Dispatch) => {
-  console.log("Loading web3 data...");
+  console.log("Loading chainId...");
   global.web3Provider = new ethers.providers.Web3Provider(window.ethereum);
-  global.web3Provider!.getNetwork().then(({ chainId }) => {
-    if (!chainIds.includes(String(chainId))) {
-      dispatch(
-        web3Error(
-          `wrong network, please connect to one of the following networks: ${chainNames.join(
-            ", "
-          )}`
-        )
-      );
-      return;
-    }
-
-    dispatch(web3ChainIDLoaded(chainId));
-  });
+  // global.web3Provider!.getNetwork().then(({ chainId }) => {
+  //   if (!chainIds.includes(String(chainId))) {
+  //     dispatch(
+  //       web3Error(
+  //         `wrong network, please connect to one of the following networks: ${chainNames.join(
+  //           ", "
+  //         )}`
+  //       )
+  //     );
+  //     return;
+  //   }
+  dispatch(web3ChainIDLoaded(window.ethereum.networkVersion));
+  // });
 };
 
 export const loadAccountData = (account: string) => (dispatch: Dispatch) => {

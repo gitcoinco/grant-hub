@@ -9,7 +9,7 @@ import { MetaMaskConnector } from "wagmi/connectors/metaMask";
 import { WalletConnectConnector } from "wagmi/connectors/walletConnect";
 
 // RPC keys
-// const alchemyId = process.env.ALCHEMY_ID;
+const alchemyId = process.env.ALCHEMY_ID;
 const infuraId = process.env.INFURA_ID;
 
 const { chains, provider, webSocketProvider } = configureChains(
@@ -47,7 +47,7 @@ const client = createClient({
       options: {
         qrcode: true,
         rpc: {
-          1: "https://eth-mainnet.alchemyapi.io/v2/oKxs-03sij-U_N0iOlrSsZFr29-IqbuF",
+          1: `https://eth-mainnet.alchemyapi.io/v2/${alchemyId}`,
           10: "https://mainnet.optimism.io",
           69: "https://kovan.optimism.io",
           420: "https://goerli.optimism.io",

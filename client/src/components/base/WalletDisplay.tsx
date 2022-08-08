@@ -36,7 +36,7 @@ export default function WalletDisplay() {
       setOpen(false);
       dispatch<any>(web3ChainIDLoaded(data.id));
       dispatch<any>(loadAccountData(address ?? ""));
-      dispatch<any>(loadProjects(false));
+      dispatch<any>(loadProjects(true));
     },
   });
   const { disconnect } = useDisconnect({
@@ -60,11 +60,14 @@ export default function WalletDisplay() {
     ens: state.web3.ens,
   }));
   const { data: ensName } = useEnsName({
-    address: props.account,
+    address,
     chainId: 1,
     onSuccess() {
-      // dispatch({ type: "ENS_NAME_LOADED", ens: ensName });
+      dispatch({ type: "ENS_NAME_LOADED", ens: ensName });
       console.log("ensName", ensName);
+    },
+    onError(error) {
+      console.log("error", error);
     },
   });
   // const { connect } = useConnect();
@@ -81,14 +84,14 @@ export default function WalletDisplay() {
         $variant="outline"
         className="relative inline-flex items-center px-4 py-0 rounded-l-md text-sm w-[150px] bg-grey-500 text-white"
       >
-        <Button type="button" className="truncate text-black">
+        <div className="truncate text-black">
           {props.account ? shortAddress(props.account) : "Connect Wallet"}
-        </Button>
+        </div>
       </Button>
       <Menu as="div" className="-ml-px relative block">
         <Menu.Button className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-grey-100 text-sm text-white focus:z-10">
           <span className="sr-only">Open options</span>
-          <ChevronDownIcon className="h-5 w-5" aria-hidden="true" />
+          <ChevronDownIcon className="h-5 w-5 text-black" aria-hidden="true" />
         </Menu.Button>
         <Transition
           as={Fragment}

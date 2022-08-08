@@ -59,6 +59,7 @@ export function aggregateEvents(
   return Object.values(result);
 }
 
+// todo: get updated loading logic from graph
 export const loadProjects =
   (withMetaData?: boolean) =>
   async (dispatch: Dispatch, getState: () => RootState) => {
