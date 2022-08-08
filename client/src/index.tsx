@@ -1,16 +1,14 @@
-import "./browserPatches";
-import ReactDOM from "react-dom/client";
-import { Route, Routes } from "react-router";
-import thunkMiddleware from "redux-thunk";
-import { Provider } from "react-redux";
-import { extendTheme, ChakraProvider } from "@chakra-ui/react";
+import { ChakraProvider, extendTheme } from "@chakra-ui/react";
 import Datadog from "react-datadog";
+import ReactDOM from "react-dom/client";
+import { Provider } from "react-redux";
+import { Route, Routes } from "react-router";
 import {
-  createStore,
   applyMiddleware,
+  createStore,
+  Dispatch,
   Middleware,
   MiddlewareAPI,
-  Dispatch,
 } from "redux";
 import {
   createRouterMiddleware,
@@ -18,21 +16,25 @@ import {
 } from "@lagunovsky/redux-react-router";
 import { ApolloProvider } from "@apollo/client/react";
 import { optimismKovanClient } from "./services/graphqlClient";
-import { createRootReducer } from "./reducers";
+import thunkMiddleware from "redux-thunk";
+// WAGMI
+import { WagmiConfig } from "wagmi";
+import "./browserPatches";
 import ErrorBoundary from "./components/ErrorBoundary";
-import "./styles/index.css";
-import Layout from "./components/Layout";
-import reportWebVitals from "./reportWebVitals";
-import history from "./history";
-import { slugs } from "./routes";
-import ProjectsList from "./components/grants/List";
-import Project from "./components/grants/Show";
-import NewProject from "./components/grants/New";
 import EditProject from "./components/grants/Edit";
-import RoundShow from "./components/rounds/Show";
-import RoundApply from "./components/rounds/Apply";
 import Landing from "./components/grants/Landing";
-import { initializeWeb3 } from "./actions/web3";
+import ProjectsList from "./components/grants/List";
+import NewProject from "./components/grants/New";
+import Project from "./components/grants/Show";
+import Layout from "./components/Layout";
+import RoundApply from "./components/rounds/Apply";
+import RoundShow from "./components/rounds/Show";
+import history from "./history";
+import { createRootReducer } from "./reducers";
+import reportWebVitals from "./reportWebVitals";
+import { slugs } from "./routes";
+import "./styles/index.css";
+import client from "./utils/wagmi";
 
 const logger: Middleware =
   ({ getState }: MiddlewareAPI) =>
@@ -45,16 +47,17 @@ const logger: Middleware =
   };
 
 const routerMiddleware = createRouterMiddleware(history);
-
 let middlewares: Middleware[] = [thunkMiddleware, routerMiddleware];
 
+// add logger to middleware if not in production
 const urlParams = new URLSearchParams(window.location.search);
 if (process.env.NODE_ENV !== "production" || urlParams.get("debug") !== null) {
   middlewares = [...middlewares, logger];
 }
 
+// setup redux store
 const store = createStore(createRootReducer(), applyMiddleware(...middlewares));
-store.dispatch<any>(initializeWeb3(false));
+// store.dispatch<any>(initializeWeb3(false));
 
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
@@ -92,20 +95,22 @@ root.render(
         <ApolloProvider client={optimismKovanClient}>
           <Provider store={store}>
             <ReduxRouter history={history} store={store}>
-              <Layout>
-                <Routes>
-                  <Route path={slugs.root} element={<Landing />} />
-                  <Route path={slugs.grants} element={<ProjectsList />} />
-                  <Route path={slugs.grant} element={<Project />} />
-                  <Route path={slugs.newGrant} element={<NewProject />} />
-                  <Route path={slugs.edit} element={<EditProject />} />
-                  <Route path={slugs.round} element={<RoundShow />} />
-                  <Route
-                    path={slugs.roundApplication}
-                    element={<RoundApply />}
-                  />
-                </Routes>
-              </Layout>
+              <WagmiConfig client={client}>
+                <Layout>
+                  <Routes>
+                    <Route path={slugs.root} element={<Landing />} />
+                    <Route path={slugs.grants} element={<ProjectsList />} />
+                    <Route path={slugs.grant} element={<Project />} />
+                    <Route path={slugs.newGrant} element={<NewProject />} />
+                    <Route path={slugs.edit} element={<EditProject />} />
+                    <Route path={slugs.round} element={<RoundShow />} />
+                    <Route
+                      path={slugs.roundApplication}
+                      element={<RoundApply />}
+                    />
+                  </Routes>
+                </Layout>
+              </WagmiConfig>
             </ReduxRouter>
           </Provider>
         </ApolloProvider>

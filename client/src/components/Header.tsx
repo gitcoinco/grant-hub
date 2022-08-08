@@ -1,34 +1,16 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { shallowEqual, useSelector, useDispatch } from "react-redux";
-import { RootState } from "../reducers";
-import { initializeWeb3 } from "../actions/web3";
+import { useNetwork } from "wagmi";
 import { grantsPath, newGrantPath } from "../routes";
-import Button, { ButtonVariants } from "./base/Button";
-import Plus from "./icons/Plus";
 import colors from "../styles/colors";
-import { shortAddress } from "../utils/wallet";
-import { ChainLogos, Blockchain } from "./icons/Blockchain";
+import Button, { ButtonVariants } from "./base/Button";
+import WalletDisplay from "./base/WalletDisplay";
 import Hamburger from "./icons/Hamburger";
+import Plus from "./icons/Plus";
 
 export default function Header() {
   const [navbarOpen, setNavbarOpen] = React.useState(false);
-
-  const dispatch = useDispatch();
-  const props = useSelector(
-    (state: RootState) => ({
-      web3Initialized: state.web3.initialized,
-      web3Error: state.web3.error,
-      chainID: state.web3.chainID,
-      account: state.web3.account,
-    }),
-    shallowEqual
-  );
-
-  const connectHandler = (e: React.MouseEvent) => {
-    e.preventDefault();
-    dispatch(initializeWeb3());
-  };
+  const { chain } = useNetwork();
 
   return (
     <header className="flex items-center justify-between px-4 sm:px-2 mb-3 text-primary-text w-full border-0 sm:border-b container mx-auto h-1/8">
@@ -69,15 +51,8 @@ export default function Header() {
                 New Project
               </Button>
             </Link>
-            <Button
-              variant={ButtonVariants.outline}
-              onClick={() => connectHandler}
-            >
-              <i className="icon">
-                <Blockchain chain={ChainLogos.ETH} />
-              </i>
-              {props.account ? shortAddress(props.account) : "Connect Wallet"}
-            </Button>
+            <div className="p-4 m-2">{chain?.name}</div>
+            <WalletDisplay />
           </div>
         </div>
       </div>

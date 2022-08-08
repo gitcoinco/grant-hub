@@ -19,6 +19,8 @@ import useLocalStorage from "../../hooks/useLocalStorage";
 import CallbackModal from "../base/CallbackModal";
 import { loadRound } from "../../actions/rounds";
 
+import { ProjectEvent } from "../../types";
+
 function ProjectsList() {
   const dataDog = useDatadogRum();
   const navigate = useNavigate();

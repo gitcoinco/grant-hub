@@ -1,10 +1,12 @@
 import {
+  ENS_NAME_LOADED,
   Web3Actions,
-  WEB3_INITIALIZING,
-  WEB3_INITIALIZED,
-  WEB3_ERROR,
-  WEB3_CHAIN_ID_LOADED,
+  WEB3_ACCOUNT_DISCONNECTED,
   WEB3_ACCOUNT_LOADED,
+  WEB3_CHAIN_ID_LOADED,
+  WEB3_ERROR,
+  WEB3_INITIALIZED,
+  WEB3_INITIALIZING,
 } from "../actions/web3";
 
 export interface Web3State {
@@ -13,6 +15,7 @@ export interface Web3State {
   chainID: number | undefined;
   error: string | undefined;
   account: string | undefined;
+  ens: string | undefined;
 }
 
 const initialState: Web3State = {
@@ -21,6 +24,7 @@ const initialState: Web3State = {
   chainID: undefined,
   error: undefined,
   account: undefined,
+  ens: undefined,
 };
 
 export const web3Reducer = (
@@ -61,13 +65,30 @@ export const web3Reducer = (
       };
     }
 
+    case WEB3_ACCOUNT_DISCONNECTED: {
+      return {
+        ...state,
+        account: action.account,
+        initialized: false,
+        initializing: false,
+        ens: undefined,
+      };
+    }
+
     case WEB3_ACCOUNT_LOADED: {
       return {
         ...state,
         account: action.account,
       };
     }
-  }
 
-  return state;
+    case ENS_NAME_LOADED: {
+      return {
+        ...state,
+        ens: action.ens,
+      };
+    }
+    default:
+      return state;
+  }
 };

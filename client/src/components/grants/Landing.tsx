@@ -1,24 +1,34 @@
-import { useSelector, useDispatch } from "react-redux";
 import { useEffect } from "react";
+import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import Button, { ButtonVariants } from "../base/Button";
+import { useAccount } from "wagmi";
 import { RootState } from "../../reducers";
-import { initializeWeb3 } from "../../actions/web3";
 import { slugs } from "../../routes";
 import CallbackModal from "../base/CallbackModal";
+import WalletConnectionButton from "../base/WalletConnectButton";
 
 function Landing() {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
+  // const dispatch = useDispatch();
   const props = useSelector((state: RootState) => ({
     web3Initialized: state.web3.initialized,
     web3Error: state.web3.error,
     account: state.web3.account,
   }));
+  // const [openConnectModal, setOpenConnectModal] = useState(false);
+  const { isConnected } = useAccount();
+  // const { data: ensName } = useEnsName({ address });
+  // const { chain } = useNetwork();
 
-  const connectHandler = () => {
-    dispatch(initializeWeb3());
-  };
+  // const connectHandler = () => {
+  //   // dispatch(initializeWeb3());
+  //   if (isDisconnected) {
+  //     console.log("Connecting your wallet now, please stand by ser ...");
+  //     setOpenConnectModal(!openConnectModal);
+  //   } else {
+  //     console.log(`Your already connected with ${address}`);
+  //   }
+  // };
 
   useEffect(() => {
     if (props.account) {
@@ -65,21 +75,17 @@ function Landing() {
           </>
         </CallbackModal>
 
-        {!props.web3Initialized && (
+        {!isConnected ? (
           <div className="mt-8">
-            <Button
-              onClick={() => connectHandler()}
-              variant={ButtonVariants.primary}
-              styles={["w-full sm:w-auto mx-w-full ml-0"]}
-            >
-              Connect Wallet
-            </Button>
+            <WalletConnectionButton />
             {props.web3Error !== undefined && (
               <div>
                 <div>{props.web3Error}</div>
               </div>
             )}
           </div>
+        ) : (
+          <div>You Are Connected.. but something is wrong...</div>
         )}
       </div>
       <img
@@ -92,6 +98,17 @@ function Landing() {
         src="./assets/mobile-landing-background.svg"
         alt="Jungle Background"
       />
+      {/* <BaseModal
+        isOpen={openConnectModal}
+        onClose={() => {
+          setOpenConnectModal(!openConnectModal);
+        }}
+        children={
+          <WalletOptions address={address} isDisconnected={isDisconnected} />
+        }
+        title="Connect Wallet"
+        footer={<></>}
+      /> */}
     </div>
   );
 }
