@@ -18,13 +18,15 @@ export default function VerificationForm({
 }) {
   const [formInputs, setFormInputs] = useState(initialFormValues);
   const [ghVerification, setGHVerification] = useState<VerifiableCredential>();
+  const [twitterVerification, setTwitterVerification] =
+    useState<VerifiableCredential>();
   const [error, setError] = useState<string | undefined>();
   const handleInput = (e: ChangeHandlers) => {
     const { value } = e.target;
     setFormInputs({ ...formInputs, [e.target.name]: value });
   };
 
-  console.log({ ghVerification });
+  console.log({ ghVerification, twitterVerification });
 
   return (
     <div className="border-0 sm:border sm:border-solid border-tertiary-text rounded text-primary-text p-0 sm:p-4">
@@ -65,7 +67,7 @@ export default function VerificationForm({
         />
         <Twitter
           handle={formInputs.twitter}
-          verificationComplete={setGHVerification}
+          verificationComplete={setTwitterVerification}
           verificationError={(providerError) => setError(providerError)}
         />
       </div>
