@@ -5,9 +5,11 @@ import Button, { ButtonVariants } from "../base/Button";
 import colors from "../../styles/colors";
 import Cross from "../icons/Cross";
 import ExitModal from "../base/ExitModal";
+import VerificationForm from "../VerificationForm";
 
 function EditProject() {
   const [modalOpen, toggleModal] = useState(false);
+  const [verifying, setVerifying] = useState(false);
 
   const params = useParams();
 
@@ -35,10 +37,16 @@ function EditProject() {
           <p>Make sure to Save &amp; Exit, so your changes are saved.</p>
         </div>
         <div className="w-full md:w-2/3">
-          <ProjectForm
-            setVerifying={() => console.log("herrr")}
-            currentProjectId={params.id}
-          />
+          {!verifying ? (
+            <ProjectForm
+              setVerifying={(verifyUpdate) => setVerifying(verifyUpdate)}
+              currentProjectId={params.id}
+            />
+          ) : (
+            <VerificationForm
+              setVerifying={(verifyUpdate) => setVerifying(verifyUpdate)}
+            />
+          )}
         </div>
       </div>
       <ExitModal modalOpen={modalOpen} toggleModal={toggleModal} />
