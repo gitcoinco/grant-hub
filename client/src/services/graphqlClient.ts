@@ -378,7 +378,7 @@ export function useFetchRoundByAddress(address: string): RoundResponse | null {
           : roundManagerGoerliClient,
       fetchPolicy: "network-only",
       variables: {
-        address: address.toLowerCase(),
+        address: address?.toLowerCase(),
       },
     }
   );
