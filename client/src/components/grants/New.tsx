@@ -29,7 +29,11 @@ function NewProject() {
           />
         );
       case ProjectFormStatus.Preview:
-        return <Preview />;
+        return (
+          <Preview
+            setVerifying={(verifyUpdate) => setFormStatus(verifyUpdate)}
+          />
+        );
       default:
         return (
           <ProjectForm

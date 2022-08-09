@@ -1,18 +1,23 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { publishGrant, resetStatus } from "../../actions/newGrant";
 import { RootState } from "../../reducers";
 import { Status } from "../../reducers/newGrant";
 import { formatDate } from "../../utils/components";
+import { slugs } from "../../routes";
 import Details from "../grants/Details";
 import Button, { ButtonVariants } from "./Button";
 import Toast from "./Toast";
 import TXLoading from "./TXLoading";
+import { ProjectFormStatus } from "../../types";
 
 export default function Preview({
   currentProjectId,
+  setVerifying,
 }: {
   currentProjectId?: string;
+  setVerifying: (verifying: ProjectFormStatus) => void;
 }) {
   const dispatch = useDispatch();
 
@@ -36,10 +41,23 @@ export default function Preview({
 
   const publishProject = async () => {
     setSubmitted(true);
-    localResetStatus();
     showToast(true);
     await dispatch(publishGrant(currentProjectId));
   };
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    console.log(props.status, "props.statusprops.status");
+    if (props.status === Status.Completed) {
+      localResetStatus();
+      setTimeout(() => navigate(slugs.grants), 1500);
+    }
+  }, [props.status]);
+
+  useEffect(() => {
+    console.log(props.metadata, "metaaaa");
+  }, [props.metadata]);
 
   return (
     <div>
@@ -50,7 +68,12 @@ export default function Preview({
         bannerImg={props.metadata?.bannerImg ?? "./assets/card-img.png"}
       />
       <div className="flex justify-end">
-        <Button variant={ButtonVariants.outline}>Back to Editing</Button>
+        <Button
+          variant={ButtonVariants.outline}
+          onClick={() => setVerifying(ProjectFormStatus.Verification)}
+        >
+          Back to Editing
+        </Button>
         <Button
           disabled={submitted}
           variant={ButtonVariants.primary}

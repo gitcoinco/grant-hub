@@ -1,19 +1,14 @@
 import { useEffect, useState } from "react";
 import { shallowEqual, useSelector, useDispatch } from "react-redux";
 import { ValidationError } from "yup";
-import { useNavigate } from "react-router-dom";
 import { TextArea, TextInput, WebsiteInput } from "../grants/inputs";
 import ImageInput from "./ImageInput";
 import { RootState } from "../../reducers";
 import { fetchGrantData } from "../../actions/grantsMetadata";
 import Button, { ButtonVariants } from "./Button";
-import { publishGrant, resetStatus } from "../../actions/newGrant";
 import { validateProjectForm } from "./formValidation";
 import { Status } from "../../reducers/newGrant";
-import Toast from "./Toast";
-import TXLoading from "./TXLoading";
 import ExitModal from "./ExitModal";
-import { slugs } from "../../routes";
 import { ChangeHandlers, ProjectFormStatus } from "../../types";
 import { metadataSaved } from "../../actions/projectForm";
 
@@ -36,7 +31,6 @@ function ProjectForm({
   setVerifying: (verifying: ProjectFormStatus) => void;
 }) {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
 
   const props = useSelector((state: RootState) => {
     const grantMetadata = state.grantsMetadata[Number(currentProjectId)];
@@ -53,41 +47,15 @@ function ProjectForm({
   const [formValidation, setFormValidation] = useState(validation);
   const [submitted, setSubmitted] = useState(false);
   const [formInputs, setFormInputs] = useState(initialFormValues);
-  const [show, showToast] = useState(false);
   const [modalOpen, toggleModal] = useState(false);
 
-  const localResetStatus = () => {
-    setSubmitted(false);
-    setFormValidation(validation);
-    dispatch(resetStatus());
-  };
   const [logoImg, setLogoImg] = useState<Blob | undefined>();
   const [bannerImg, setBannerImg] = useState<Blob | undefined>();
-
-  const publishProject = async () => {
-    setSubmitted(true);
-    if (!formValidation.valid) return;
-    localResetStatus();
-    showToast(true);
-    await dispatch(
-      publishGrant(currentProjectId, formInputs, {
-        bannerImg,
-        logoImg,
-      })
-    );
-  };
-  console.log(publishProject);
 
   const handleInput = (e: ChangeHandlers) => {
     const { value } = e.target;
     setFormInputs({ ...formInputs, [e.target.name]: value });
   };
-
-  useEffect(() => {
-    if (props.status === Status.Completed) {
-      setTimeout(() => navigate(slugs.grants), 1500);
-    }
-  }, [props.status]);
 
   useEffect(() => {
     // called twice
@@ -126,13 +94,6 @@ function ProjectForm({
   useEffect(() => {
     validate();
   }, [formInputs]);
-
-  // eslint-disable-next-line
-  useEffect(() => {
-    return () => {
-      localResetStatus();
-    };
-  }, []);
 
   useEffect(() => {
     if (props.status === Status.Completed) {
@@ -213,7 +174,6 @@ function ProjectForm({
         )}
         <div className="flex w-full justify-end mt-6">
           <Button
-            disabled={!formValidation.valid && submitted}
             variant={ButtonVariants.outline}
             onClick={() => toggleModal(true)}
           >
@@ -228,14 +188,6 @@ function ProjectForm({
           </Button>
         </div>
       </form>
-      <Toast
-        show={show}
-        fadeOut={props.status === Status.Completed}
-        onClose={() => showToast(false)}
-        error={props.status === Status.Error}
-      >
-        <TXLoading status={props.status} error={props.error} />
-      </Toast>
       <ExitModal modalOpen={modalOpen} toggleModal={toggleModal} />
     </div>
   );
