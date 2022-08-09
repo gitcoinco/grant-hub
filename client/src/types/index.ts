@@ -147,9 +147,9 @@ export type ProjectCredentials = {
 };
 
 export type FormInputs = {
-  title: string;
-  description: string;
-  website: string;
+  title?: string;
+  description?: string;
+  website?: string;
   bannerImg?: Blob;
   logoImg?: Blob;
 };

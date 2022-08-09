@@ -7,16 +7,9 @@ import { RootState } from "../../reducers";
 import { fetchGrantData } from "../../actions/grantsMetadata";
 import Button, { ButtonVariants } from "./Button";
 import { validateProjectForm } from "./formValidation";
-import { Status } from "../../reducers/newGrant";
 import ExitModal from "./ExitModal";
 import { ChangeHandlers, ProjectFormStatus } from "../../types";
 import { metadataSaved } from "../../actions/projectForm";
-
-const initialFormValues = {
-  title: "",
-  description: "",
-  website: "",
-};
 
 const validation = {
   message: "",
@@ -46,7 +39,6 @@ function ProjectForm({
 
   const [formValidation, setFormValidation] = useState(validation);
   const [submitted, setSubmitted] = useState(false);
-  const [formInputs, setFormInputs] = useState(initialFormValues);
   const [modalOpen, toggleModal] = useState(false);
 
   const [logoImg, setLogoImg] = useState<Blob | undefined>();
@@ -54,7 +46,14 @@ function ProjectForm({
 
   const handleInput = (e: ChangeHandlers) => {
     const { value } = e.target;
-    setFormInputs({ ...formInputs, [e.target.name]: value });
+    dispatch(
+      metadataSaved({
+        ...props.formMetaData,
+        [e.target.name]: value,
+        bannerImg,
+        logoImg,
+      })
+    );
   };
 
   useEffect(() => {
@@ -67,17 +66,17 @@ function ProjectForm({
     const { currentProject } = props;
 
     if (currentProject) {
-      setFormInputs({
-        title: currentProject.title,
-        description: currentProject.description,
-        website: currentProject.website,
-      });
+      dispatch(
+        metadataSaved({
+          ...props.formMetaData,
+        })
+      );
     }
   }, [dispatch, currentProjectId, props.currentProject]);
 
   const validate = async () => {
     try {
-      await validateProjectForm(formInputs);
+      await validateProjectForm(props.formMetaData);
       setFormValidation({
         message: "",
         valid: true,
@@ -93,24 +92,11 @@ function ProjectForm({
   // perform validation after the fields state is updated
   useEffect(() => {
     validate();
-  }, [formInputs]);
-
-  useEffect(() => {
-    if (props.status === Status.Completed) {
-      setFormInputs(initialFormValues);
-    }
-  }, [props.status]);
+  }, [props.formMetaData]);
 
   const nextStep = () => {
     setSubmitted(true);
     if (formValidation.valid) {
-      dispatch(
-        metadataSaved({
-          ...formInputs,
-          bannerImg,
-          logoImg,
-        })
-      );
       setVerifying(ProjectFormStatus.Verification);
     }
   };
@@ -132,13 +118,13 @@ function ProjectForm({
           label="Project Name"
           name="title"
           placeholder="What's the project name?"
-          value={formInputs.title}
+          value={props.formMetaData.title}
           changeHandler={handleInput}
         />
         <WebsiteInput
           label="Project Website"
           name="website"
-          value={formInputs.website}
+          value={props.formMetaData.website}
           changeHandler={handleInput}
         />
         <ImageInput
@@ -164,7 +150,7 @@ function ProjectForm({
           label="Project Description"
           name="description"
           placeholder="What is the project about and what kind of impact does it aim to have?"
-          value={formInputs.description}
+          value={props.formMetaData.description}
           changeHandler={handleInput}
         />
         {!formValidation.valid && submitted && (

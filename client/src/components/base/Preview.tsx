@@ -48,7 +48,6 @@ export default function Preview({
   const navigate = useNavigate();
 
   useEffect(() => {
-    console.log(props.status, "props.statusprops.status");
     if (props.status === Status.Completed) {
       localResetStatus();
       setTimeout(() => navigate(slugs.grants), 1500);

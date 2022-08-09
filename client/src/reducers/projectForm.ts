@@ -6,12 +6,12 @@ import {
 import { FormInputs, ProjectCredentials } from "../types";
 
 export interface ProjectFormState {
-  metadata?: FormInputs;
+  metadata: FormInputs;
   credentials?: ProjectCredentials;
 }
 
 export const initialState: ProjectFormState = {
-  metadata: undefined,
+  metadata: {},
   credentials: {},
 };
 
