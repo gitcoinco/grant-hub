@@ -2,7 +2,7 @@ import { VerifiableCredential } from "@gitcoinco/passport-sdk-types";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { credentialsSaved } from "../actions/projectForm";
-import { ChangeHandlers } from "../types";
+import { ChangeHandlers, ProjectFormStatus } from "../types";
 import Button, { ButtonVariants } from "./base/Button";
 import { TextInput } from "./grants/inputs";
 import Github from "./providers/Github";
@@ -16,7 +16,7 @@ const initialFormValues = {
 export default function VerificationForm({
   setVerifying,
 }: {
-  setVerifying: (verifying: boolean) => void;
+  setVerifying: (verifying: ProjectFormStatus) => void;
 }) {
   const dispatch = useDispatch();
 
@@ -89,7 +89,7 @@ export default function VerificationForm({
       <div className="flex w-full justify-end mt-6">
         <Button
           variant={ButtonVariants.outline}
-          onClick={() => setVerifying(false)}
+          onClick={() => setVerifying(ProjectFormStatus.Metadata)}
         >
           Back
         </Button>

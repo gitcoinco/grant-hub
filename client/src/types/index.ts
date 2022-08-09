@@ -152,3 +152,9 @@ export type FormInputs = {
   bannerImg?: Blob;
   logoImg?: Blob;
 };
+
+export enum ProjectFormStatus {
+  Metadata,
+  Verification,
+  Preview,
+}

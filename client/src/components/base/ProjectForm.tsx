@@ -14,7 +14,7 @@ import Toast from "./Toast";
 import TXLoading from "./TXLoading";
 import ExitModal from "./ExitModal";
 import { slugs } from "../../routes";
-import { ChangeHandlers } from "../../types";
+import { ChangeHandlers, ProjectFormStatus } from "../../types";
 import { metadataSaved } from "../../actions/projectForm";
 
 const initialFormValues = {
@@ -33,7 +33,7 @@ function ProjectForm({
   setVerifying,
 }: {
   currentProjectId?: string;
-  setVerifying: (verifying: boolean) => void;
+  setVerifying: (verifying: ProjectFormStatus) => void;
 }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -150,7 +150,7 @@ function ProjectForm({
           logoImg,
         })
       );
-      setVerifying(true);
+      setVerifying(ProjectFormStatus.Verification);
     }
   };
 

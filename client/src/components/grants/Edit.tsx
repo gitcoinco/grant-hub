@@ -6,12 +6,41 @@ import colors from "../../styles/colors";
 import Cross from "../icons/Cross";
 import ExitModal from "../base/ExitModal";
 import VerificationForm from "../VerificationForm";
+import { ProjectFormStatus } from "../../types";
 
 function EditProject() {
-  const [modalOpen, toggleModal] = useState(false);
-  const [verifying, setVerifying] = useState(false);
-
   const params = useParams();
+
+  const [modalOpen, toggleModal] = useState(false);
+  const [formStatus, setFormStatus] = useState<ProjectFormStatus>(
+    ProjectFormStatus.Metadata
+  );
+
+  const currentForm = (status: ProjectFormStatus) => {
+    switch (status) {
+      case ProjectFormStatus.Metadata:
+        return (
+          <ProjectForm
+            setVerifying={(verifyUpdate) => setFormStatus(verifyUpdate)}
+            currentProjectId={params.id}
+          />
+        );
+      case ProjectFormStatus.Verification:
+        return (
+          <VerificationForm
+            setVerifying={(verifyUpdate) => setFormStatus(verifyUpdate)}
+          />
+        );
+      case ProjectFormStatus.Preview:
+        return <div>Preview</div>;
+      default:
+        return (
+          <ProjectForm
+            setVerifying={(verifyUpdate) => setFormStatus(verifyUpdate)}
+          />
+        );
+    }
+  };
 
   return (
     <div className="mx-4">
@@ -36,18 +65,8 @@ function EditProject() {
         <div className="w-full md:w-1/3 mb-2 hidden sm:inline-block">
           <p>Make sure to Save &amp; Exit, so your changes are saved.</p>
         </div>
-        <div className="w-full md:w-2/3">
-          {!verifying ? (
-            <ProjectForm
-              setVerifying={(verifyUpdate) => setVerifying(verifyUpdate)}
-              currentProjectId={params.id}
-            />
-          ) : (
-            <VerificationForm
-              setVerifying={(verifyUpdate) => setVerifying(verifyUpdate)}
-            />
-          )}
-        </div>
+
+        <div className="w-full md:w-2/3">{currentForm(formStatus)}</div>
       </div>
       <ExitModal modalOpen={modalOpen} toggleModal={toggleModal} />
     </div>
