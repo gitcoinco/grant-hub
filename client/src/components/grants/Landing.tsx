@@ -2,39 +2,25 @@ import { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { useAccount } from "wagmi";
+import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { RootState } from "../../reducers";
 import { slugs } from "../../routes";
 import CallbackModal from "../base/CallbackModal";
-import WalletConnectionButton from "../base/WalletConnectButton";
+// import WalletConnectionButton from "../base/WalletConnectButton";
 
 function Landing() {
   const navigate = useNavigate();
-  // const dispatch = useDispatch();
   const props = useSelector((state: RootState) => ({
     web3Initialized: state.web3.initialized,
     web3Error: state.web3.error,
-    account: state.web3.account,
   }));
-  // const [openConnectModal, setOpenConnectModal] = useState(false);
-  const { isConnected } = useAccount();
-  // const { data: ensName } = useEnsName({ address });
-  // const { chain } = useNetwork();
-
-  // const connectHandler = () => {
-  //   // dispatch(initializeWeb3());
-  //   if (isDisconnected) {
-  //     console.log("Connecting your wallet now, please stand by ser ...");
-  //     setOpenConnectModal(!openConnectModal);
-  //   } else {
-  //     console.log(`Your already connected with ${address}`);
-  //   }
-  // };
+  const { address, isConnected } = useAccount();
 
   useEffect(() => {
-    if (props.account) {
+    if (address) {
       navigate(slugs.grants);
     }
-  }, [props.account]);
+  }, [address]);
 
   return (
     <div className="md:flex h-full">
@@ -77,7 +63,7 @@ function Landing() {
 
         {!isConnected ? (
           <div className="mt-8">
-            <WalletConnectionButton />
+            <ConnectButton />
             {props.web3Error !== undefined && (
               <div>
                 <div>{props.web3Error}</div>
@@ -98,17 +84,6 @@ function Landing() {
         src="./assets/mobile-landing-background.svg"
         alt="Jungle Background"
       />
-      {/* <BaseModal
-        isOpen={openConnectModal}
-        onClose={() => {
-          setOpenConnectModal(!openConnectModal);
-        }}
-        children={
-          <WalletOptions address={address} isDisconnected={isDisconnected} />
-        }
-        title="Connect Wallet"
-        footer={<></>}
-      /> */}
     </div>
   );
 }

@@ -1,8 +1,6 @@
 import { Dispatch } from "redux";
 import { ethers, BigNumber } from "ethers";
-import { RootState } from "../reducers";
 import ProjectRegistryABI from "../contracts/abis/ProjectRegistry.json";
-import { global } from "../global";
 import { addressesByChainID } from "../contracts/deployments";
 import { ProjectEvent } from "../types";
 import { fetchGrantData } from "./grantsMetadata";
@@ -61,22 +59,18 @@ export function aggregateEvents(
 
 // todo: get updated loading logic from graph
 export const loadProjects =
-  (withMetaData?: boolean) =>
-  async (dispatch: Dispatch, getState: () => RootState) => {
+  (address: string, signer: any, chainId: number, withMetaData?: boolean) =>
+  async (dispatch: Dispatch) => {
     dispatch(projectsLoading());
 
-    const state = getState();
-    const { chainID } = state.web3;
-
-    const addresses = addressesByChainID(chainID!);
-    const signer = global.web3Provider!.getSigner();
+    const addresses = addressesByChainID(chainId!);
     const contract = new ethers.Contract(
       addresses.projectRegistry,
       ProjectRegistryABI,
       signer
     );
 
-    const createdFilter = contract.filters.ProjectCreated(state.web3.account);
+    const createdFilter = contract.filters.ProjectCreated(address);
     const createdEvents = await contract.queryFilter(createdFilter);
 
     const createdIds: ProjectEvent[] = createdEvents.map((event: any) => ({

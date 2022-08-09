@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { shallowEqual, useSelector, useDispatch } from "react-redux";
+import { useAccount, useNetwork, useSigner } from "wagmi";
 import { grantsPath, editPath } from "../../routes";
 import { RootState } from "../../reducers";
 import { fetchGrantData } from "../../actions/grantsMetadata";
@@ -17,6 +18,9 @@ import Calendar from "../icons/Calendar";
 
 function Project() {
   const [updatedAt, setUpdated] = useState("");
+  const { data: signer } = useSigner();
+  const { address } = useAccount();
+  const { chain } = useNetwork();
 
   const dispatch = useDispatch();
   // FIXME: params.id doesn't change if the location hash is changed manually.
@@ -78,7 +82,7 @@ function Project() {
       fetchTimeStamp(props.projects, props.id);
     } else {
       // If user reloads Show projects will not exist
-      dispatch(loadProjects());
+      dispatch(loadProjects(address!, signer, chain?.id!));
     }
   }, [props.id, props.currentProject, global, dispatch]);
 

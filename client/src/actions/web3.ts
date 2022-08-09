@@ -112,19 +112,7 @@ export const notWeb3Browser = (): Web3Actions => ({
 const loadWeb3Data = () => (dispatch: Dispatch) => {
   console.log("Loading chainId...");
   global.web3Provider = new ethers.providers.Web3Provider(window.ethereum);
-  // global.web3Provider!.getNetwork().then(({ chainId }) => {
-  //   if (!chainIds.includes(String(chainId))) {
-  //     dispatch(
-  //       web3Error(
-  //         `wrong network, please connect to one of the following networks: ${chainNames.join(
-  //           ", "
-  //         )}`
-  //       )
-  //     );
-  //     return;
-  //   }
   dispatch(web3ChainIDLoaded(window.ethereum.networkVersion));
-  // });
 };
 
 export const loadAccountData = (account: string) => (dispatch: Dispatch) => {

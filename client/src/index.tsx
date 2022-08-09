@@ -1,4 +1,9 @@
+import { ApolloProvider } from "@apollo/client/react";
 import { ChakraProvider, extendTheme } from "@chakra-ui/react";
+import {
+  createRouterMiddleware,
+  ReduxRouter,
+} from "@lagunovsky/redux-react-router";
 import Datadog from "react-datadog";
 import ReactDOM from "react-dom/client";
 import { Provider } from "react-redux";
@@ -10,13 +15,10 @@ import {
   Middleware,
   MiddlewareAPI,
 } from "redux";
-import {
-  createRouterMiddleware,
-  ReduxRouter,
-} from "@lagunovsky/redux-react-router";
-import { ApolloProvider } from "@apollo/client/react";
 import thunkMiddleware from "redux-thunk";
 // WAGMI
+import { RainbowKitProvider } from "@rainbow-me/rainbowkit";
+import "@rainbow-me/rainbowkit/styles.css";
 import { WagmiConfig } from "wagmi";
 import "./browserPatches";
 import ErrorBoundary from "./components/ErrorBoundary";
@@ -32,9 +34,9 @@ import history from "./history";
 import { createRootReducer } from "./reducers";
 import reportWebVitals from "./reportWebVitals";
 import { slugs } from "./routes";
-import "./styles/index.css";
-import client from "./utils/wagmi";
 import { optimismKovanClient } from "./services/graphqlClient";
+import "./styles/index.css";
+import client, { chains } from "./utils/wagmi";
 
 const logger: Middleware =
   ({ getState }: MiddlewareAPI) =>
@@ -96,20 +98,22 @@ root.render(
           <Provider store={store}>
             <ReduxRouter history={history} store={store}>
               <WagmiConfig client={client}>
-                <Layout>
-                  <Routes>
-                    <Route path={slugs.root} element={<Landing />} />
-                    <Route path={slugs.grants} element={<ProjectsList />} />
-                    <Route path={slugs.grant} element={<Project />} />
-                    <Route path={slugs.newGrant} element={<NewProject />} />
-                    <Route path={slugs.edit} element={<EditProject />} />
-                    <Route path={slugs.round} element={<RoundShow />} />
-                    <Route
-                      path={slugs.roundApplication}
-                      element={<RoundApply />}
-                    />
-                  </Routes>
-                </Layout>
+                <RainbowKitProvider chains={chains}>
+                  <Layout>
+                    <Routes>
+                      <Route path={slugs.root} element={<Landing />} />
+                      <Route path={slugs.grants} element={<ProjectsList />} />
+                      <Route path={slugs.grant} element={<Project />} />
+                      <Route path={slugs.newGrant} element={<NewProject />} />
+                      <Route path={slugs.edit} element={<EditProject />} />
+                      <Route path={slugs.round} element={<RoundShow />} />
+                      <Route
+                        path={slugs.roundApplication}
+                        element={<RoundApply />}
+                      />
+                    </Routes>
+                  </Layout>
+                </RainbowKitProvider>
               </WagmiConfig>
             </ReduxRouter>
           </Provider>

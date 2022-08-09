@@ -1,18 +1,17 @@
 import { Dialog, Menu, Transition } from "@headlessui/react";
 import { ChevronDownIcon, XIcon } from "@heroicons/react/solid";
 import { Fragment, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import {
   useAccount,
-  // Connector,
-  // useConnect,
   useDisconnect,
   useEnsName,
+  useNetwork,
+  useSigner,
   useSwitchNetwork,
 } from "wagmi";
 import { loadProjects } from "../../actions/projects";
-import { loadAccountData, web3ChainIDLoaded } from "../../actions/web3"; // initializeWeb3,
-import { RootState } from "../../reducers";
+import { loadAccountData, web3ChainIDLoaded } from "../../actions/web3";
 import { shortAddress } from "../../utils/wallet";
 import { Button } from "./styles";
 
@@ -24,6 +23,8 @@ export default function WalletDisplay() {
   const [open, setOpen] = useState(false);
   const dispatch = useDispatch();
   const { address } = useAccount();
+  const { data: signer } = useSigner();
+  const { chain } = useNetwork();
   const {
     chains,
     error: networkError,
@@ -32,11 +33,10 @@ export default function WalletDisplay() {
     switchNetwork,
   } = useSwitchNetwork({
     onSuccess(data) {
-      // console.log("Success", data);
       setOpen(false);
-      dispatch<any>(web3ChainIDLoaded(data.id));
-      dispatch<any>(loadAccountData(address ?? ""));
-      dispatch<any>(loadProjects(true));
+      dispatch<any>(web3ChainIDLoaded(data?.id));
+      dispatch<any>(loadAccountData(address!));
+      dispatch<any>(loadProjects(address!, signer, chain?.id!));
     },
   });
   const { disconnect } = useDisconnect({
@@ -51,17 +51,8 @@ export default function WalletDisplay() {
     },
   });
 
-  const props = useSelector((state: RootState) => ({
-    web3Initializing: state.web3.initializing,
-    web3Initalized: state.web3.initialized,
-    web3Error: state.web3.error,
-    chainID: state.web3.chainID,
-    account: state.web3.account,
-    ens: state.web3.ens,
-  }));
   const { data: ensName } = useEnsName({
     address,
-    chainId: 1,
     onSuccess() {
       dispatch({ type: "ENS_NAME_LOADED", ens: ensName });
       console.log("ensName", ensName);
@@ -70,12 +61,6 @@ export default function WalletDisplay() {
       console.log("error", error);
     },
   });
-  // const { connect } = useConnect();
-  // todo: use this when "connect wallet" is displayed
-  // const connectHandler = (connector: Connector<any, any, any>) => {
-  //   connect({ connector });
-  //   dispatch<any>(initializeWeb3());
-  // };
 
   return (
     <div className="relative z-0 inline-flex shadow-sm rounded-md">
@@ -85,7 +70,7 @@ export default function WalletDisplay() {
         className="relative inline-flex items-center px-4 py-0 rounded-l-md text-sm w-[150px] bg-grey-500 text-white"
       >
         <div className="truncate text-black">
-          {props.account ? shortAddress(props.account) : "Connect Wallet"}
+          {address ? shortAddress(address) : "Connect Wallet"}
         </div>
       </Button>
       <Menu as="div" className="-ml-px relative block">
@@ -126,9 +111,7 @@ export default function WalletDisplay() {
                       active ? "bg-gray-100 text-gray-900" : "text-gray-700",
                       "block px-4 py-2 text-sm w-full text-left"
                     )}
-                    onClick={() => {
-                      disconnect();
-                    }}
+                    onClick={() => disconnect()}
                   >
                     Disconnect
                   </button>

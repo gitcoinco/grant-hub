@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useDatadogRum } from "react-datadog";
 import { Link, useNavigate } from "react-router-dom";
 import { shallowEqual, useSelector, useDispatch } from "react-redux";
+import { useAccount, useNetwork, useSigner } from "wagmi";
 import { RootState } from "../../reducers";
 import { newGrantPath, slugs } from "../../routes";
 import { loadProjects } from "../../actions/projects";
@@ -26,6 +27,9 @@ function ProjectsList() {
   const [toggleModal, setToggleModal] = useState<boolean>(false);
   const [roundToApply] = useLocalStorage("roundToApply", null);
   const roundInfo = useFetchRoundByAddress(roundToApply);
+  const { data: signer } = useSigner();
+  const { address } = useAccount();
+  const { chain } = useNetwork();
 
   const props = useSelector(
     (state: RootState) => ({
@@ -46,8 +50,8 @@ function ProjectsList() {
   }, [roundInfo?.round.id]);
 
   useEffect(() => {
-    dispatch(loadProjects());
-  }, [dispatch]);
+    dispatch(loadProjects(address!, signer, chain?.id!));
+  }, [address]);
 
   useEffect(() => {
     if (!subgraphStatus.available) {
