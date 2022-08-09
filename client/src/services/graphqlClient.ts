@@ -1,7 +1,6 @@
 import { ApolloClient, InMemoryCache, useQuery } from "@apollo/client";
 import gql from "graphql-tag";
-import { shallowEqual, useSelector } from "react-redux";
-import { RootState } from "../reducers";
+import { useNetwork, useAccount } from "wagmi";
 
 export const healthClient = new ApolloClient({
   uri: "https://api.thegraph.com/index-node/graphql",
@@ -234,19 +233,14 @@ export function useFetchedSubgraphStatus(): {
   headBlock: number | undefined;
   healthy: boolean | null;
 } {
-  const props = useSelector(
-    (state: RootState) => ({
-      chainID: state.web3.chainID,
-    }),
-    shallowEqual
-  );
+  const { chain } = useNetwork();
 
   const { loading, error, data } = useQuery<HealthResponse>(SUBGRAPH_HEALTH, {
     client: healthClient,
     fetchPolicy: "network-only",
     variables: {
       name:
-        props.chainID === 69
+        chain?.id === 69
           ? "danielesalatti/project-registry-optimism-kovan"
           : "danielesalatti/project-registry-goerli",
     },
@@ -325,23 +319,18 @@ export type RoundResponse = {
 };
 
 export function useFetchedProjects(): ProjectsResponse | null {
-  const props = useSelector(
-    (state: RootState) => ({
-      chainID: state.web3.chainID,
-      account: state.web3.account,
-    }),
-    shallowEqual
-  );
+  const { chain } = useNetwork();
+  const { address } = useAccount();
 
-  console.log("DASA props", props);
+  console.log("DASA props", { chain, address });
 
   const { loading, error, data } = useQuery<ProjectsResponse>(
     FETCH_PROJECTS_BY_ACCOUNT_ADDRESS,
     {
-      client: props.chainID === 69 ? optimismKovanClient : goerliClient,
+      client: chain?.id === 69 ? optimismKovanClient : goerliClient,
       fetchPolicy: "network-only",
       variables: {
-        address: props.account?.toLowerCase(),
+        address: address?.toLowerCase(),
       },
     }
   );
@@ -362,18 +351,13 @@ export function useFetchedProjects(): ProjectsResponse | null {
 }
 
 export function useFetchRoundByAddress(address: string): RoundResponse | null {
-  const props = useSelector(
-    (state: RootState) => ({
-      chainID: state.web3.chainID,
-    }),
-    shallowEqual
-  );
+  const { chain } = useNetwork();
 
   const { loading, error, data } = useQuery<RoundResponse>(
     FETCH_ROUND_BY_ADDRESS,
     {
       client:
-        props.chainID === 69
+        chain?.id === 69
           ? roundManagerOptimismKovanClient
           : roundManagerGoerliClient,
       fetchPolicy: "network-only",
