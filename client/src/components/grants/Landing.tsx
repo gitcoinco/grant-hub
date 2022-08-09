@@ -2,10 +2,11 @@ import { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { useAccount } from "wagmi";
+import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { RootState } from "../../reducers";
 import { slugs } from "../../routes";
 import CallbackModal from "../base/CallbackModal";
-import WalletConnectionButton from "../base/WalletConnectButton";
+// import WalletConnectionButton from "../base/WalletConnectButton";
 
 function Landing() {
   const navigate = useNavigate();
@@ -62,7 +63,7 @@ function Landing() {
 
         {!isConnected ? (
           <div className="mt-8">
-            <WalletConnectionButton />
+            <ConnectButton />
             {props.web3Error !== undefined && (
               <div>
                 <div>{props.web3Error}</div>

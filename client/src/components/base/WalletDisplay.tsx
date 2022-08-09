@@ -2,7 +2,14 @@ import { Dialog, Menu, Transition } from "@headlessui/react";
 import { ChevronDownIcon, XIcon } from "@heroicons/react/solid";
 import { Fragment, useState } from "react";
 import { useDispatch } from "react-redux";
-import { useAccount, useDisconnect, useEnsName, useSwitchNetwork } from "wagmi";
+import {
+  useAccount,
+  useDisconnect,
+  useEnsName,
+  useNetwork,
+  useSigner,
+  useSwitchNetwork,
+} from "wagmi";
 import { loadProjects } from "../../actions/projects";
 import { loadAccountData, web3ChainIDLoaded } from "../../actions/web3";
 import { shortAddress } from "../../utils/wallet";
@@ -16,6 +23,8 @@ export default function WalletDisplay() {
   const [open, setOpen] = useState(false);
   const dispatch = useDispatch();
   const { address } = useAccount();
+  const { data: signer } = useSigner();
+  const { chain } = useNetwork();
   const {
     chains,
     error: networkError,
@@ -27,7 +36,7 @@ export default function WalletDisplay() {
       setOpen(false);
       dispatch<any>(web3ChainIDLoaded(data?.id));
       dispatch<any>(loadAccountData(address!));
-      dispatch<any>(loadProjects(true));
+      dispatch<any>(loadProjects(address!, signer, chain?.id!));
     },
   });
   const { disconnect } = useDisconnect({

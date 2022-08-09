@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
-import { shallowEqual, useSelector } from "react-redux";
+import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { useAccount, useNetwork } from "wagmi";
+import { initializeWeb3, loadAccountData } from "../actions/web3";
 import { RootState } from "../reducers";
 import colors from "../styles/colors";
 import Toast from "./base/Toast";
@@ -14,6 +15,7 @@ interface Props {
 
 function Layout(ownProps: Props) {
   const [show, showToast] = useState(false);
+  const dispatch = useDispatch();
   const props = useSelector(
     (state: RootState) => ({
       web3Error: state.web3.error,
@@ -23,6 +25,8 @@ function Layout(ownProps: Props) {
   const { address, isConnected } = useAccount({
     onConnect({ address: addr, connector, isReconnected }) {
       console.log("Connected =>", { addr, connector, isReconnected });
+      dispatch<any>(loadAccountData(addr!));
+      dispatch<any>(initializeWeb3());
     },
   });
   const { chain } = useNetwork();
