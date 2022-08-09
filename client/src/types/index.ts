@@ -1,3 +1,5 @@
+import { VerifiableCredential } from "@gitcoinco/passport-sdk-types";
+
 export type Images = {
   bannerImg?: Blob;
   logoImg?: Blob;
@@ -132,3 +134,16 @@ export interface RoundApplication {
 }
 
 export type ProviderID = "ClearTextTwitter" | "ClearTextGithubOrg";
+
+export type ProjectCredential = {
+  input: string;
+  credential?: VerifiableCredential;
+};
+
+export type FormInputs = {
+  title: string;
+  description: string;
+  website: string;
+  bannerImg?: Blob;
+  logoImg?: Blob;
+};
