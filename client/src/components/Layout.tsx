@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { shallowEqual, useSelector } from "react-redux";
-import { useAccount } from "wagmi";
+import { useAccount, useNetwork } from "wagmi";
 import { RootState } from "../reducers";
 import colors from "../styles/colors";
 import Toast from "./base/Toast";
@@ -14,26 +14,22 @@ interface Props {
 
 function Layout(ownProps: Props) {
   const [show, showToast] = useState(false);
-  // const { address } = useAccount();
-  // const { data: ensName } = useEnsName({ address });
-  // const { chain } = useNetwork();
-
   const props = useSelector(
     (state: RootState) => ({
-      web3Initializing: state.web3.initializing,
-      web3Initialized: state.web3.initialized,
       web3Error: state.web3.error,
-      chainID: state.web3.chainID,
-      account: state.web3.account,
-      ens: state.web3.ens,
     }),
     shallowEqual
   );
-  const { address } = useAccount();
+  const { address, isConnected } = useAccount({
+    onConnect({ address: addr, connector, isReconnected }) {
+      console.log("Connected =>", { addr, connector, isReconnected });
+    },
+  });
+  const { chain } = useNetwork();
 
-  // useEffect(() => {
-  //   showToast(props.web3Initialized);
-  // }, [props.web3Initialized]);
+  useEffect(() => {
+    showToast(isConnected);
+  }, [isConnected]);
 
   const { children } = ownProps;
   if (address === undefined) {
@@ -44,7 +40,7 @@ function Layout(ownProps: Props) {
     <div className="flex flex-col min-h-screen relative">
       <Header />
       <main className="container mx-auto dark:bg-primary-background grow relative">
-        {!props.web3Error && props.web3Initialized && props.chainID && children}
+        {!props.web3Error && isConnected && chain?.id && children}
         {props.web3Error && <p>{props.web3Error}</p>}
       </main>
       <Toast fadeOut show={show} onClose={() => showToast(false)}>

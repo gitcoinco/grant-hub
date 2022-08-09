@@ -9,26 +9,11 @@ import WalletConnectionButton from "../base/WalletConnectButton";
 
 function Landing() {
   const navigate = useNavigate();
-  // const dispatch = useDispatch();
   const props = useSelector((state: RootState) => ({
     web3Initialized: state.web3.initialized,
     web3Error: state.web3.error,
-    account: state.web3.account,
   }));
-  // const [openConnectModal, setOpenConnectModal] = useState(false);
   const { address, isConnected } = useAccount();
-  // const { data: ensName } = useEnsName({ address });
-  // const { chain } = useNetwork();
-
-  // const connectHandler = () => {
-  //   // dispatch(initializeWeb3());
-  //   if (isDisconnected) {
-  //     console.log("Connecting your wallet now, please stand by ser ...");
-  //     setOpenConnectModal(!openConnectModal);
-  //   } else {
-  //     console.log(`Your already connected with ${address}`);
-  //   }
-  // };
 
   useEffect(() => {
     if (address) {
@@ -98,17 +83,6 @@ function Landing() {
         src="./assets/mobile-landing-background.svg"
         alt="Jungle Background"
       />
-      {/* <BaseModal
-        isOpen={openConnectModal}
-        onClose={() => {
-          setOpenConnectModal(!openConnectModal);
-        }}
-        children={
-          <WalletOptions address={address} isDisconnected={isDisconnected} />
-        }
-        title="Connect Wallet"
-        footer={<></>}
-      /> */}
     </div>
   );
 }

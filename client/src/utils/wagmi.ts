@@ -24,6 +24,7 @@ const client = createClient({
       chains,
       options: {
         shimChainChangedDisconnect: false,
+        shimDisconnect: false,
       },
     }),
     new CoinbaseWalletConnector({
