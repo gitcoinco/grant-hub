@@ -15,6 +15,7 @@ import TXLoading from "./TXLoading";
 import ExitModal from "./ExitModal";
 import { slugs } from "../../routes";
 import { ChangeHandlers } from "../../types";
+import { metadataUpdated } from "../../actions/projectForm";
 
 const initialFormValues = {
   title: "",
@@ -87,7 +88,6 @@ function ProjectForm({
     }
   }, [props.status]);
 
-  // TODO: feels like this could be extracted to a component
   useEffect(() => {
     // called twice
     // 1 - when it loads or id changes (it checks if it's cached in local storage)
@@ -136,8 +136,16 @@ function ProjectForm({
   useEffect(() => {
     if (props.status === Status.Completed) {
       setFormInputs(initialFormValues);
+      dispatch(metadataUpdated(formInputs));
     }
   }, [props.status]);
+
+  const nextStep = () => {
+    setSubmitted(true);
+    if (formValidation.valid) {
+      setVerifying(true);
+    }
+  };
 
   if (
     // if it's undefined we don't have anything to load
@@ -207,7 +215,7 @@ function ProjectForm({
           <Button
             disabled={!formValidation.valid && submitted}
             variant={ButtonVariants.primary}
-            onClick={() => setVerifying(true)}
+            onClick={nextStep}
           >
             Next
           </Button>
