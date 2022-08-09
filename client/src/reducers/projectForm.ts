@@ -3,14 +3,11 @@ import {
   CREDENTIALS_SAVED,
   ProjectFormActions,
 } from "../actions/projectForm";
-import { ProjectCredential } from "../types";
+import { ProjectCredentials } from "../types";
 
 export interface ProjectFormState {
   metadata?: any;
-  credentials?: {
-    github?: ProjectCredential;
-    twitter?: ProjectCredential;
-  };
+  credentials?: ProjectCredentials;
 }
 
 export const initialState: ProjectFormState = {

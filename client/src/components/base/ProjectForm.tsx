@@ -15,7 +15,7 @@ import TXLoading from "./TXLoading";
 import ExitModal from "./ExitModal";
 import { slugs } from "../../routes";
 import { ChangeHandlers } from "../../types";
-import { metadataUpdated } from "../../actions/projectForm";
+import { metadataSaved } from "../../actions/projectForm";
 
 const initialFormValues = {
   title: "",
@@ -46,6 +46,7 @@ function ProjectForm({
       currentProject: grantMetadata?.metadata,
       status: state.newGrant.status,
       error: state.newGrant.error,
+      formMetaData: state.projectForm.metadata,
     };
   }, shallowEqual);
 
@@ -136,13 +137,19 @@ function ProjectForm({
   useEffect(() => {
     if (props.status === Status.Completed) {
       setFormInputs(initialFormValues);
-      dispatch(metadataUpdated(formInputs));
     }
   }, [props.status]);
 
   const nextStep = () => {
     setSubmitted(true);
     if (formValidation.valid) {
+      dispatch(
+        metadataSaved({
+          ...formInputs,
+          bannerImg,
+          logoImg,
+        })
+      );
       setVerifying(true);
     }
   };

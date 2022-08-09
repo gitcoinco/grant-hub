@@ -140,6 +140,11 @@ export type ProjectCredential = {
   credential?: VerifiableCredential;
 };
 
+export type ProjectCredentials = {
+  github?: ProjectCredential;
+  twitter?: ProjectCredential;
+};
+
 export type FormInputs = {
   title: string;
   description: string;
