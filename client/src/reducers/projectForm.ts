@@ -3,15 +3,15 @@ import {
   CREDENTIALS_SAVED,
   ProjectFormActions,
 } from "../actions/projectForm";
-import { ProjectCredentials } from "../types";
+import { FormInputs, ProjectCredentials } from "../types";
 
 export interface ProjectFormState {
-  metadata?: any;
+  metadata?: FormInputs;
   credentials?: ProjectCredentials;
 }
 
 export const initialState: ProjectFormState = {
-  metadata: null,
+  metadata: undefined,
   credentials: {},
 };
 

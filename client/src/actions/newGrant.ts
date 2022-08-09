@@ -1,11 +1,11 @@
 import { ethers } from "ethers";
 import { Dispatch } from "redux";
+import { Project } from "../types/index";
 import { global } from "../global";
 import { RootState } from "../reducers";
 import ProjectRegistryABI from "../contracts/abis/ProjectRegistry.json";
 import { addressesByChainID } from "../contracts/deployments";
 import { NewGrant, Status } from "../reducers/newGrant";
-import { Images } from "../types";
 import PinataClient from "../services/pinata";
 
 export const NEW_GRANT_STATUS = "NEW_GRANT_STATUS";
@@ -55,26 +55,34 @@ export const grantCreated = ({
 });
 
 export const publishGrant =
-  (grantId: string | undefined, _content: any, images: Images) =>
+  (grantId?: string) =>
   async (dispatch: Dispatch, getState: () => RootState) => {
-    const content = _content;
+    const state = getState();
+    const { metadata, credentials } = state.projectForm;
+
+    if (metadata === undefined) {
+      return;
+    }
+    const application = metadata as Project;
+
     const pinataClient = new PinataClient();
     dispatch(grantStatus(Status.UploadingImages, undefined));
-    if (images.bannerImg !== undefined) {
-      const resp = await pinataClient.pinFile(images.bannerImg);
-      content.bannerImg = resp.IpfsHash;
+    if (metadata?.bannerImg) {
+      const resp = await pinataClient.pinFile(metadata.bannerImg);
+      application.bannerImg = resp.IpfsHash;
     }
 
-    if (images.logoImg !== undefined) {
-      const resp = await pinataClient.pinFile(images.logoImg);
-      content.logoImg = resp.IpfsHash;
+    if (metadata?.logoImg) {
+      const resp = await pinataClient.pinFile(metadata.logoImg);
+      application.logoImg = resp.IpfsHash;
     }
+
+    application.credentials = credentials;
 
     dispatch(grantStatus(Status.UploadingJSON, undefined));
-    const resp = await pinataClient.pinJSON(content);
+    const resp = await pinataClient.pinJSON(application);
     const metadataCID = resp.IpfsHash;
 
-    const state = getState();
     const { chainID } = state.web3;
     const addresses = addressesByChainID(chainID!);
     const signer = global.web3Provider?.getSigner();

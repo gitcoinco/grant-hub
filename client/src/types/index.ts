@@ -25,8 +25,9 @@ export interface Project {
   description: string;
   website: string;
   bannerImg?: string;
-  logoImg: string;
+  logoImg?: string;
   metaPtr: MetaPtr;
+  credentials?: ProjectCredentials;
 }
 
 export type ProjectRegistryMetadata = {
