@@ -6,6 +6,7 @@ import Cross from "../icons/Cross";
 import ExitModal from "../base/ExitModal";
 import VerificationForm from "../base/VerificationForm";
 import { ProjectFormStatus } from "../../types";
+import Preview from "../base/Preview";
 
 function NewProject() {
   const [modalOpen, toggleModal] = useState(false);
@@ -28,7 +29,7 @@ function NewProject() {
           />
         );
       case ProjectFormStatus.Preview:
-        return <div>Preview</div>;
+        return <Preview />;
       default:
         return (
           <ProjectForm
