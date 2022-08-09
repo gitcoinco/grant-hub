@@ -5,7 +5,7 @@ import Button, { ButtonVariants } from "../base/Button";
 import colors from "../../styles/colors";
 import Cross from "../icons/Cross";
 import ExitModal from "../base/ExitModal";
-import VerificationForm from "../VerificationForm";
+import VerificationForm from "../base/VerificationForm";
 import { ProjectFormStatus } from "../../types";
 
 function EditProject() {

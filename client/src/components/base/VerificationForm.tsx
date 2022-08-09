@@ -1,12 +1,12 @@
 import { VerifiableCredential } from "@gitcoinco/passport-sdk-types";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
-import { credentialsSaved } from "../actions/projectForm";
-import { ChangeHandlers, ProjectFormStatus } from "../types";
-import Button, { ButtonVariants } from "./base/Button";
-import { TextInput } from "./grants/inputs";
-import Github from "./providers/Github";
-import Twitter from "./providers/Twitter";
+import { credentialsSaved } from "../../actions/projectForm";
+import { ChangeHandlers, ProjectFormStatus } from "../../types";
+import Button, { ButtonVariants } from "./Button";
+import { TextInput } from "../grants/inputs";
+import Github from "../providers/Github";
+import Twitter from "../providers/Twitter";
 
 const initialFormValues = {
   github: "",
