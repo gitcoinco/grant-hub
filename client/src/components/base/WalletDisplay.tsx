@@ -1,7 +1,7 @@
 import { Dialog, Menu, Transition } from "@headlessui/react";
 import { ChevronDownIcon, XIcon } from "@heroicons/react/solid";
 import { Fragment, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import {
   useAccount,
   // Connector,
@@ -12,7 +12,6 @@ import {
 } from "wagmi";
 import { loadProjects } from "../../actions/projects";
 import { loadAccountData, web3ChainIDLoaded } from "../../actions/web3"; // initializeWeb3,
-import { RootState } from "../../reducers";
 import { shortAddress } from "../../utils/wallet";
 import { Button } from "./styles";
 
@@ -51,17 +50,8 @@ export default function WalletDisplay() {
     },
   });
 
-  const props = useSelector((state: RootState) => ({
-    web3Initializing: state.web3.initializing,
-    web3Initalized: state.web3.initialized,
-    web3Error: state.web3.error,
-    chainID: state.web3.chainID,
-    account: state.web3.account,
-    ens: state.web3.ens,
-  }));
   const { data: ensName } = useEnsName({
     address,
-    chainId: 1,
     onSuccess() {
       dispatch({ type: "ENS_NAME_LOADED", ens: ensName });
       console.log("ensName", ensName);
@@ -70,12 +60,6 @@ export default function WalletDisplay() {
       console.log("error", error);
     },
   });
-  // const { connect } = useConnect();
-  // todo: use this when "connect wallet" is displayed
-  // const connectHandler = (connector: Connector<any, any, any>) => {
-  //   connect({ connector });
-  //   dispatch<any>(initializeWeb3());
-  // };
 
   return (
     <div className="relative z-0 inline-flex shadow-sm rounded-md">
@@ -85,7 +69,7 @@ export default function WalletDisplay() {
         className="relative inline-flex items-center px-4 py-0 rounded-l-md text-sm w-[150px] bg-grey-500 text-white"
       >
         <div className="truncate text-black">
-          {props.account ? shortAddress(props.account) : "Connect Wallet"}
+          {address ? shortAddress(address) : "Connect Wallet"}
         </div>
       </Button>
       <Menu as="div" className="-ml-px relative block">
@@ -126,9 +110,7 @@ export default function WalletDisplay() {
                       active ? "bg-gray-100 text-gray-900" : "text-gray-700",
                       "block px-4 py-2 text-sm w-full text-left"
                     )}
-                    onClick={() => {
-                      disconnect();
-                    }}
+                    onClick={() => disconnect()}
                   >
                     Disconnect
                   </button>

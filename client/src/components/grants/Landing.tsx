@@ -16,7 +16,7 @@ function Landing() {
     account: state.web3.account,
   }));
   // const [openConnectModal, setOpenConnectModal] = useState(false);
-  const { isConnected } = useAccount();
+  const { address, isConnected } = useAccount();
   // const { data: ensName } = useEnsName({ address });
   // const { chain } = useNetwork();
 
@@ -31,10 +31,10 @@ function Landing() {
   // };
 
   useEffect(() => {
-    if (props.account) {
+    if (address) {
       navigate(slugs.grants);
     }
-  }, [props.account]);
+  }, [address]);
 
   return (
     <div className="md:flex h-full">
