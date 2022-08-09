@@ -30,7 +30,21 @@ export default function VerificationForm({
     setFormInputs({ ...formInputs, [e.target.name]: value });
   };
 
-  console.log({ ghVerification, twitterVerification });
+  const saveAndPreview = () => {
+    dispatch(
+      credentialsSaved({
+        github: {
+          input: formInputs.github,
+          credential: ghVerification,
+        },
+        twitter: {
+          input: formInputs.twitter,
+          credential: twitterVerification,
+        },
+      })
+    );
+    setVerifying(ProjectFormStatus.Preview);
+  };
 
   return (
     <div className="border-0 sm:border sm:border-solid border-tertiary-text rounded text-primary-text p-0 sm:p-4">
@@ -93,23 +107,7 @@ export default function VerificationForm({
         >
           Back
         </Button>
-        <Button
-          variant={ButtonVariants.primary}
-          onClick={() =>
-            dispatch(
-              credentialsSaved({
-                github: {
-                  input: formInputs.github,
-                  credential: ghVerification,
-                },
-                twitter: {
-                  input: formInputs.twitter,
-                  credential: twitterVerification,
-                },
-              })
-            )
-          }
-        >
+        <Button variant={ButtonVariants.primary} onClick={saveAndPreview}>
           Next
         </Button>
       </div>
