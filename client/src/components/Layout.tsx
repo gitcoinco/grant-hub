@@ -22,14 +22,14 @@ function Layout(ownProps: Props) {
     }),
     shallowEqual
   );
+  const { chain } = useNetwork();
   const { address, isConnected } = useAccount({
     onConnect({ address: addr, connector, isReconnected }) {
       console.log("Connected =>", { addr, connector, isReconnected });
       dispatch<any>(loadAccountData(addr!));
-      dispatch<any>(initializeWeb3());
+      dispatch<any>(initializeWeb3(chain?.id!));
     },
   });
-  const { chain } = useNetwork();
 
   useEffect(() => {
     showToast(isConnected);
