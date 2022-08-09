@@ -1,5 +1,7 @@
 import { VerifiableCredential } from "@gitcoinco/passport-sdk-types";
 import { useState } from "react";
+import { useDispatch } from "react-redux";
+import { credentialsSaved } from "../actions/projectForm";
 import { ChangeHandlers } from "../types";
 import Button, { ButtonVariants } from "./base/Button";
 import { TextInput } from "./grants/inputs";
@@ -16,6 +18,8 @@ export default function VerificationForm({
 }: {
   setVerifying: (verifying: boolean) => void;
 }) {
+  const dispatch = useDispatch();
+
   const [formInputs, setFormInputs] = useState(initialFormValues);
   const [ghVerification, setGHVerification] = useState<VerifiableCredential>();
   const [twitterVerification, setTwitterVerification] =
@@ -91,7 +95,20 @@ export default function VerificationForm({
         </Button>
         <Button
           variant={ButtonVariants.primary}
-          onClick={() => setVerifying(true)}
+          onClick={() =>
+            dispatch(
+              credentialsSaved({
+                github: {
+                  input: formInputs.github,
+                  credential: ghVerification,
+                },
+                twitter: {
+                  input: formInputs.twitter,
+                  credential: twitterVerification,
+                },
+              })
+            )
+          }
         >
           Next
         </Button>

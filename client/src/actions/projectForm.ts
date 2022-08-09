@@ -1,4 +1,4 @@
-import { FormInputs } from "../types";
+import { FormInputs, ProjectCredentials } from "../types";
 
 export const METADATA_SAVED = "METADATA_SAVED";
 export const CREDENTIALS_SAVED = "CREDENTIALS_SAVED";
@@ -10,12 +10,12 @@ export interface MetadataSaved {
 
 export interface CredentialsSaved {
   type: typeof CREDENTIALS_SAVED;
-  credentials: string;
+  credentials?: ProjectCredentials;
 }
 
 export type ProjectFormActions = MetadataSaved | CredentialsSaved;
 
-export const metadataUpdated = ({
+export const metadataSaved = ({
   title,
   description,
   website,
@@ -29,5 +29,16 @@ export const metadataUpdated = ({
     website,
     bannerImg,
     logoImg,
+  },
+});
+
+export const credentialsSaved = ({
+  github,
+  twitter,
+}: ProjectCredentials): ProjectFormActions => ({
+  type: CREDENTIALS_SAVED,
+  credentials: {
+    github,
+    twitter,
   },
 });
