@@ -58,26 +58,29 @@ export const publishGrant =
   (grantId?: string) =>
   async (dispatch: Dispatch, getState: () => RootState) => {
     const state = getState();
-    const { metadata, credentials } = state.projectForm;
+    const { metadata: formMetaData, credentials: formCredentials } =
+      state.projectForm;
 
-    if (metadata === undefined) {
+    if (formMetaData === undefined) {
       return;
     }
-    const application = metadata as Project;
+    const application = {
+      ...formMetaData,
+    } as Project;
 
     const pinataClient = new PinataClient();
     dispatch(grantStatus(Status.UploadingImages, undefined));
-    if (metadata?.bannerImg) {
-      const resp = await pinataClient.pinFile(metadata.bannerImg);
+    if (formMetaData?.bannerImg) {
+      const resp = await pinataClient.pinFile(formMetaData.bannerImg);
       application.bannerImg = resp.IpfsHash;
     }
 
-    if (metadata?.logoImg) {
-      const resp = await pinataClient.pinFile(metadata.logoImg);
+    if (formMetaData?.logoImg) {
+      const resp = await pinataClient.pinFile(formMetaData.logoImg);
       application.logoImg = resp.IpfsHash;
     }
 
-    application.credentials = credentials;
+    application.credentials = formCredentials;
 
     dispatch(grantStatus(Status.UploadingJSON, undefined));
     const resp = await pinataClient.pinJSON(application);
