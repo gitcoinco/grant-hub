@@ -4,9 +4,11 @@ import Button, { ButtonVariants } from "../base/Button";
 import ProjectForm from "../base/ProjectForm";
 import Cross from "../icons/Cross";
 import ExitModal from "../base/ExitModal";
+import VerificationForm from "../VerificationForm";
 
 function NewProject() {
   const [modalOpen, toggleModal] = useState(false);
+  const [verifying, setVerifying] = useState(false);
 
   return (
     <div className="mx-4">
@@ -32,7 +34,15 @@ function NewProject() {
           <p>Tell us what you’re working on.</p>
         </div>
         <div className="w-full md:w-2/3">
-          <ProjectForm />
+          {!verifying ? (
+            <ProjectForm
+              setVerifying={(verifyUpdate) => setVerifying(verifyUpdate)}
+            />
+          ) : (
+            <VerificationForm
+              setVerifying={(verifyUpdate) => setVerifying(verifyUpdate)}
+            />
+          )}
         </div>
       </div>
       <ExitModal modalOpen={modalOpen} toggleModal={toggleModal} />

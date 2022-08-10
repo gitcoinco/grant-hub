@@ -27,7 +27,13 @@ const validation = {
   valid: false,
 };
 
-function ProjectForm({ currentProjectId }: { currentProjectId?: string }) {
+function ProjectForm({
+  currentProjectId,
+  setVerifying,
+}: {
+  currentProjectId?: string;
+  setVerifying: (verifying: boolean) => void;
+}) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -68,6 +74,7 @@ function ProjectForm({ currentProjectId }: { currentProjectId?: string }) {
       })
     );
   };
+  console.log(publishProject);
 
   const handleInput = (e: ChangeHandlers) => {
     const { value } = e.target;
@@ -200,9 +207,9 @@ function ProjectForm({ currentProjectId }: { currentProjectId?: string }) {
           <Button
             disabled={!formValidation.valid && submitted}
             variant={ButtonVariants.primary}
-            onClick={publishProject}
+            onClick={() => setVerifying(true)}
           >
-            Save &amp; Publish
+            Next
           </Button>
         </div>
       </form>
