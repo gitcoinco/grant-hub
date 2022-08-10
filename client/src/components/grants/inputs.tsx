@@ -10,7 +10,7 @@ export function TextInput({
   changeHandler,
 }: InputProps) {
   return (
-    <div className="mt-6 w-full sm:w-1/2">
+    <div className="w-full sm:w-1/2">
       <label htmlFor={name}>{label}</label>
       <legend>{info}</legend>
       <input

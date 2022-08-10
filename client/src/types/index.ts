@@ -131,6 +131,9 @@ export interface RoundApplication {
   }>;
 }
 
+
+export type ProviderID = "ClearTextTwitter" | "ClearTextGithubOrg";
+
 /**
  * Supported EVM networks
  */
@@ -150,3 +153,4 @@ export interface Web3Instance {
     network: Network;
   };
 }
+
