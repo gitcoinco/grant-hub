@@ -1,13 +1,12 @@
 import { useEffect, useState } from "react";
-import { shallowEqual, useSelector, useDispatch } from "react-redux";
 import { ValidationError } from "yup";
 import { useNavigate } from "react-router-dom";
+import { useNetwork } from "wagmi";
 import { TextArea, TextInput, WebsiteInput } from "../grants/inputs";
 import ImageInput from "./ImageInput";
-import { RootState } from "../../reducers";
-import { fetchGrantData } from "../../actions/grantsMetadata";
+import fetchGrantData from "../../actions/grantsMetadata";
 import Button, { ButtonVariants } from "./Button";
-import { publishGrant, resetStatus } from "../../actions/newGrant";
+import { publishGrant } from "../../actions/newGrant";
 import { validateProjectForm } from "./formValidation";
 import { Status } from "../../reducers/newGrant";
 import Toast from "./Toast";
@@ -15,6 +14,7 @@ import TXLoading from "./TXLoading";
 import ExitModal from "./ExitModal";
 import { slugs } from "../../routes";
 import { ChangeHandlers } from "../../types";
+import { useClients } from "../../hooks/useDataClient";
 
 const initialFormValues = {
   title: "",
@@ -28,9 +28,9 @@ const validation = {
 };
 
 function ProjectForm({ currentProjectId }: { currentProjectId?: string }) {
-  const dispatch = useDispatch();
+  // const dispatch = useDispatch();
   const navigate = useNavigate();
-
+  /*
   const props = useSelector((state: RootState) => {
     const grantMetadata = state.grantsMetadata[Number(currentProjectId)];
     return {
@@ -41,33 +41,70 @@ function ProjectForm({ currentProjectId }: { currentProjectId?: string }) {
       error: state.newGrant.error,
     };
   }, shallowEqual);
+*/
+  const [loading, setLoading] = useState(true);
+  const [status, setStatus] = useState(Status.Undefined);
 
+  const [grantData, setGrantData] = useState<any>();
   const [formValidation, setFormValidation] = useState(validation);
+  const [error, setError] = useState<string>();
   const [submitted, setSubmitted] = useState(false);
   const [formInputs, setFormInputs] = useState(initialFormValues);
   const [show, showToast] = useState(false);
   const [modalOpen, toggleModal] = useState(false);
 
+  const { chain } = useNetwork();
+
   const localResetStatus = () => {
     setSubmitted(false);
     setFormValidation(validation);
-    dispatch(resetStatus());
+    // dispatch(resetStatus());
   };
   const [logoImg, setLogoImg] = useState<Blob | undefined>();
   const [bannerImg, setBannerImg] = useState<Blob | undefined>();
+
+  const { grantHubClient } = useClients();
 
   const publishProject = async () => {
     setSubmitted(true);
     if (!formValidation.valid) return;
     localResetStatus();
     showToast(true);
-    await dispatch(
-      publishGrant(currentProjectId, formInputs, {
-        bannerImg,
-        logoImg,
-      })
+
+    console.log(
+      "TODO(@DanieleSalatti): publish grant and then set status correctly"
     );
+    // TODO(@DanieleSalatti): publish grant and then set status correctly
+    publishGrant(currentProjectId, formInputs, {
+      bannerImg,
+      logoImg,
+    });
+    setError(
+      "TODO(@DanieleSalatti): publish grant and then set status correctly"
+    );
+    setStatus(Status.Completed);
   };
+
+  useEffect(() => {
+    console.log("grantData", grantData);
+  }, [grantData]);
+
+  const getGrantData = async () => {
+    if (!chain || !currentProjectId || !grantHubClient) {
+      console.log("DASA chain is ", chain);
+      console.log("DASA currentProjectId is ", currentProjectId);
+      return;
+    }
+    const data = await fetchGrantData(grantHubClient, Number(currentProjectId));
+
+    setGrantData(data);
+    setLoading(false);
+    console.log("DASA DATA", data);
+  };
+
+  useEffect(() => {
+    getGrantData();
+  }, []);
 
   const handleInput = (e: ChangeHandlers) => {
     const { value } = e.target;
@@ -75,29 +112,21 @@ function ProjectForm({ currentProjectId }: { currentProjectId?: string }) {
   };
 
   useEffect(() => {
-    if (props.status === Status.Completed) {
+    if (status === Status.Completed) {
       setTimeout(() => navigate(slugs.grants), 1500);
     }
-  }, [props.status]);
+  }, [status]);
 
   // TODO: feels like this could be extracted to a component
   useEffect(() => {
-    // called twice
-    // 1 - when it loads or id changes (it checks if it's cached in local storage)
-    if (currentProjectId !== undefined && props.currentProject === undefined) {
-      dispatch(fetchGrantData(Number(currentProjectId)));
-    }
-
-    const { currentProject } = props;
-
-    if (currentProject) {
+    if (grantData) {
       setFormInputs({
-        title: currentProject.title,
-        description: currentProject.description,
-        website: currentProject.website,
+        title: grantData.title,
+        description: grantData.description,
+        website: grantData.website,
       });
     }
-  }, [dispatch, currentProjectId, props.currentProject]);
+  }, [currentProjectId, grantData]);
 
   const validate = async () => {
     try {
@@ -107,9 +136,9 @@ function ProjectForm({ currentProjectId }: { currentProjectId?: string }) {
         valid: true,
       });
     } catch (e) {
-      const error = e as ValidationError;
+      const validationError = e as ValidationError;
       setFormValidation({
-        message: error.message,
+        message: validationError.message,
         valid: false,
       });
     }
@@ -127,18 +156,12 @@ function ProjectForm({ currentProjectId }: { currentProjectId?: string }) {
   }, []);
 
   useEffect(() => {
-    if (props.status === Status.Completed) {
+    if (status === Status.Completed) {
       setFormInputs(initialFormValues);
     }
-  }, [props.status]);
+  }, [status]);
 
-  if (
-    // if it's undefined we don't have anything to load
-    currentProjectId !== undefined &&
-    props.currentProject === undefined &&
-    props.loading &&
-    props.currentProject === undefined
-  ) {
+  if (loading) {
     return <>Loading grant data from IPFS... </>;
   }
 
@@ -165,7 +188,7 @@ function ProjectForm({ currentProjectId }: { currentProjectId?: string }) {
             height: 300,
           }}
           circle
-          currentProject={props.currentProject}
+          currentProject={grantData}
           imgHandler={(buffer: Blob) => setLogoImg(buffer)}
         />
         <ImageInput
@@ -174,7 +197,7 @@ function ProjectForm({ currentProjectId }: { currentProjectId?: string }) {
             width: 1500,
             height: 500,
           }}
-          currentProject={props.currentProject}
+          currentProject={grantData}
           imgHandler={(buffer: Blob) => setBannerImg(buffer)}
         />
         <TextArea
@@ -208,11 +231,11 @@ function ProjectForm({ currentProjectId }: { currentProjectId?: string }) {
       </form>
       <Toast
         show={show}
-        fadeOut={props.status === Status.Completed}
+        fadeOut={status === Status.Completed}
         onClose={() => showToast(false)}
-        error={props.status === Status.Error}
+        error={status === Status.Error}
       >
-        <TXLoading status={props.status} error={props.error} />
+        <TXLoading status={status} error={error} />
       </Toast>
       <ExitModal modalOpen={modalOpen} toggleModal={toggleModal} />
     </div>

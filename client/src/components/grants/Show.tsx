@@ -1,63 +1,61 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { shallowEqual, useSelector, useDispatch } from "react-redux";
-import { useAccount, useNetwork, useSigner } from "wagmi";
 import { grantsPath, editPath } from "../../routes";
-import { RootState } from "../../reducers";
-import { fetchGrantData } from "../../actions/grantsMetadata";
+import fetchGrantData from "../../actions/grantsMetadata";
 import Button, { ButtonVariants } from "../base/Button";
-import { global } from "../../global";
 import Pencil from "../icons/Pencil";
 import colors from "../../styles/colors";
 import LinkIcon from "../icons/LinkIcon";
 import Arrow from "../icons/Arrow";
 import { getProjectImage, ImgTypes } from "../../utils/components";
-import { ProjectEvent } from "../../types";
-import { loadProjects } from "../../actions/projects";
-import Calendar from "../icons/Calendar";
+import { Metadata } from "../../types";
+// import Calendar from "../icons/Calendar";
+import { useClients } from "../../hooks/useDataClient";
 
 function Project() {
-  const [updatedAt, setUpdated] = useState("");
-  const { data: signer } = useSigner();
-  const { address } = useAccount();
-  const { chain } = useNetwork();
+  const [loading, setLoading] = useState(true);
+  // const [updatedAt, setUpdated] = useState("");
+  const [grantData, setGrantData] = useState<Metadata>();
+  const [logoImg, setLogoImg] = useState<string>(
+    getProjectImage(true, ImgTypes.logoImg)
+  );
+  const [bannerImg, setBannerImg] = useState<string>(
+    getProjectImage(true, ImgTypes.bannerImg)
+  );
 
-  const dispatch = useDispatch();
   // FIXME: params.id doesn't change if the location hash is changed manually.
   const params = useParams();
 
-  const props = useSelector((state: RootState) => {
-    const grantMetadata = state.grantsMetadata[Number(params.id)];
-    const loading = grantMetadata ? grantMetadata.loading : false;
-    const bannerImg = getProjectImage(
-      loading,
-      ImgTypes.bannerImg,
-      grantMetadata?.metadata
-    );
-    const logoImg = getProjectImage(
-      loading,
-      ImgTypes.logoImg,
-      grantMetadata?.metadata
-    );
-    return {
-      id: params.id,
-      loading,
-      bannerImg,
-      logoImg,
-      currentProject: grantMetadata?.metadata,
-      projects: state.projects.projects,
-    };
-  }, shallowEqual);
+  const { grantHubClient } = useClients();
+
+  const getGrantData = async () => {
+    if (!grantHubClient) {
+      console.log("DASA grantHubClient is ", grantHubClient);
+      return;
+    }
+    const data = await fetchGrantData(grantHubClient, Number(params.id));
+    if (data) {
+      setLogoImg(getProjectImage(false, ImgTypes.logoImg, data));
+      setBannerImg(getProjectImage(false, ImgTypes.bannerImg, data));
+      setLoading(false);
+      setGrantData(data);
+    }
+    console.log("DASA DATA", data);
+  };
 
   useEffect(() => {
-    // called twice
-    // 1 - when it loads or id changes (it checks if it's cached in local storage)
-    // 2 - when ipfs is initialized (it fetches it if not loaded yet)
-    if (params.id !== undefined && props.currentProject === undefined) {
-      dispatch(fetchGrantData(Number(params.id)));
-    }
-  }, [dispatch, params.id, props.currentProject]);
+    getGrantData();
+  }, []);
 
+  useEffect(() => {
+    getGrantData();
+  }, [params.id]);
+
+  useEffect(() => {
+    console.log("grantData", grantData);
+  }, [grantData]);
+
+  /*
   useEffect(() => {
     async function fetchTimeStamp(projects: ProjectEvent[], projectId: string) {
       if (global) {
@@ -84,19 +82,15 @@ function Project() {
       // If user reloads Show projects will not exist
       dispatch(loadProjects(address!, signer, chain?.id!));
     }
-  }, [props.id, props.currentProject, global, dispatch]);
-
-  if (
-    props.currentProject === undefined &&
-    props.loading &&
-    props.currentProject
-  ) {
+  }, [grantData]);
+*/
+  if (loading) {
     return <>Loading grant data from IPFS... </>;
   }
 
   return (
     <div>
-      {props.currentProject && (
+      {grantData && (
         <>
           <div className="flex justify-between items-center mb-6">
             <Link to={grantsPath()}>
@@ -107,9 +101,9 @@ function Project() {
                 Project Details
               </h3>
             </Link>
-            {props.id && (
+            {grantData.id && (
               <Link
-                to={editPath(props.id)}
+                to={editPath(grantData.id)}
                 className="sm:w-auto mx-w-full ml-0"
               >
                 <Button
@@ -127,11 +121,7 @@ function Project() {
           <div className="w-full md:w-2/3 mb-40">
             <img
               className="w-full mb-4"
-              src={getProjectImage(
-                props.loading,
-                ImgTypes.bannerImg,
-                props.currentProject
-              )}
+              src={bannerImg}
               onError={(e) => {
                 e.currentTarget.onerror = null;
                 e.currentTarget.src = "./assets/card-img.png";
@@ -143,7 +133,7 @@ function Project() {
                 <div className="rounded-full h-20 w-20 bg-quaternary-text border border-tertiary-text flex justify-center items-center">
                   <img
                     className="rounded-full"
-                    src={props.logoImg}
+                    src={logoImg}
                     onError={(e) => {
                       e.currentTarget.onerror = null;
                       e.currentTarget.src = "./icons/lightning.svg";
@@ -153,25 +143,27 @@ function Project() {
                 </div>
               </div>
             </div>
-            <h4 className="mb-4 mt-14">{props.currentProject.title}</h4>
+            <h4 className="mb-4 mt-14">{grantData.title}</h4>
             <div className="flex justify-start border-b pb-6 mb-6">
               <a
                 target="_blank"
-                href={props.currentProject.website}
+                href={grantData.website}
                 className="flex items-center text-sm mr-6"
                 rel="noreferrer"
               >
                 <LinkIcon color={colors["secondary-text"]} />{" "}
-                <p className="ml-1">{props.currentProject.website}</p>
+                <p className="ml-1">{grantData.website}</p>
                 {/* TODO add created at updated timestamp */}
               </a>
               <p className="flex text-sm">
+                {/* TODO add updated at timestamp 
                 <Calendar color={colors["secondary-text"]} /> {updatedAt}
+                */}
               </p>
             </div>
 
             <p className="text-xs text-primary-text mb-1">Description</p>
-            <p className="mb-12">{props.currentProject.description}</p>
+            <p className="mb-12">{grantData.description}</p>
           </div>
         </>
       )}

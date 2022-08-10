@@ -102,13 +102,6 @@ export const notWeb3Browser = (): Web3Actions => ({
   error: "not a web3 browser",
 });
 
-// Moved to react-app-env.d.ts
-// declare global {
-//   interface Window {
-//     ethereum: any;
-//   }
-// }
-
 const loadWeb3Data = () => (dispatch: Dispatch) => {
   console.log("Loading chainId...");
   global.web3Provider = new ethers.providers.Web3Provider(window.ethereum);

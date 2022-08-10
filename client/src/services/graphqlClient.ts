@@ -1,6 +1,12 @@
-import { ApolloClient, InMemoryCache, useQuery } from "@apollo/client";
+import {
+  ApolloClient,
+  InMemoryCache,
+  NormalizedCacheObject,
+  useQuery,
+} from "@apollo/client";
 import gql from "graphql-tag";
-import { useNetwork, useAccount } from "wagmi";
+import { useNetwork } from "wagmi";
+import { Metadata, RoundApplicationMetadata, RoundMetadata } from "../types";
 
 export const healthClient = new ApolloClient({
   uri: "https://api.thegraph.com/index-node/graphql",
@@ -82,10 +88,10 @@ export const optimismKovanClient = new ApolloClient({
   queryDeduplication: true,
   defaultOptions: {
     watchQuery: {
-      fetchPolicy: "cache-first",
+      fetchPolicy: "no-cache",
     },
     query: {
-      fetchPolicy: "cache-first",
+      fetchPolicy: "no-cache",
       errorPolicy: "all",
     },
   },
@@ -110,10 +116,10 @@ export const roundManagerOptimismKovanClient = new ApolloClient({
   queryDeduplication: true,
   defaultOptions: {
     watchQuery: {
-      fetchPolicy: "cache-first",
+      fetchPolicy: "no-cache",
     },
     query: {
-      fetchPolicy: "cache-first",
+      fetchPolicy: "no-cache",
       errorPolicy: "all",
     },
   },
@@ -138,10 +144,10 @@ export const roundManagerOptimismClient = new ApolloClient({
   queryDeduplication: true,
   defaultOptions: {
     watchQuery: {
-      fetchPolicy: "cache-first",
+      fetchPolicy: "no-cache",
     },
     query: {
-      fetchPolicy: "cache-first",
+      fetchPolicy: "no-cache",
       errorPolicy: "all",
     },
   },
@@ -165,7 +171,7 @@ export const SUBGRAPH_HEALTH = gql`
 `;
 
 export const FETCH_PROJECTS_BY_ACCOUNT_ADDRESS = gql`
-  query projectsByAccountAddress($address: Bytes!) {
+  query projectsByAccountAddress($address: ID!) {
     projects(where: { accounts_: { account: $address } }) {
       id
       accounts {
@@ -184,9 +190,29 @@ export const FETCH_PROJECTS_BY_ACCOUNT_ADDRESS = gql`
   }
 `;
 
+export const FETCH_PROJECT_BY_PROJECT_ID = gql`
+  query projectById($id: ID!) {
+    project(id: $id) {
+      id
+      accounts {
+        id
+        account {
+          id
+          address
+        }
+      }
+      metaPtr {
+        id
+        pointer
+        protocol
+      }
+    }
+  }
+`;
+
 export const FETCH_ROUND_BY_ADDRESS = gql`
-  query roundByAddress($address: Bytes!) {
-    round(id: $address) {
+  query roundByAddress($id: ID!) {
+    round(id: $id) {
       id
       applicationsStartTime
       applicationsEndTime
@@ -237,7 +263,7 @@ export function useFetchedSubgraphStatus(): {
 
   const { loading, error, data } = useQuery<HealthResponse>(SUBGRAPH_HEALTH, {
     client: healthClient,
-    fetchPolicy: "network-only",
+    fetchPolicy: "no-cache",
     variables: {
       name:
         chain?.id === 69
@@ -278,62 +304,74 @@ export function useFetchedSubgraphStatus(): {
   };
 }
 
+export type BaseProject = {
+  id: string;
+  accounts?: {
+    id: string;
+    account: {
+      address: string;
+    };
+  };
+  metaPtr: {
+    id: string;
+    pointer: string;
+    protocol: string;
+  };
+  metadata?: Metadata;
+};
+
+export type BaseRound = {
+  id: string;
+  applicationsStartTime: string;
+  applicationsEndTime: string;
+  applicationMetaPtr: {
+    id: string;
+    pointer: string;
+    protocol: number;
+  };
+  roundStartTime: string;
+  roundEndTime: string;
+  roundMetaPtr: {
+    id: string;
+    pointer: string;
+    protocol: number;
+  };
+  token: string;
+  metadata?: RoundMetadata;
+  applicationMetadata?: RoundApplicationMetadata;
+};
+
+export type ProjectResponse = {
+  project: BaseProject;
+};
+
 export type ProjectsResponse = {
-  projects: [
-    {
-      id: string;
-      accounts?: {
-        id: string;
-        account: {
-          address: string;
-        };
-      };
-      metaPtr: {
-        id: string;
-        pointer: string;
-        protocol: string;
-      };
-    }
-  ];
+  projects: BaseProject[];
 };
 
 export type RoundResponse = {
-  round: {
-    id: string;
-    applicationsStartTime: string;
-    applicationsEndTime: string;
-    applicationMetaPtr: {
-      id: string;
-      pointer: string;
-      protocol: number;
-    };
-    roundStartTime: string;
-    roundEndTime: string;
-    roundMetaPtr: {
-      id: string;
-      pointer: string;
-      protocol: number;
-    };
-    token: string;
-  };
+  round: BaseRound;
 };
 
-export function useFetchedProjects(): ProjectsResponse | null {
-  const { chain } = useNetwork();
-  const { address } = useAccount();
+export async function fetchProjectsByAccountAddress(
+  client: ApolloClient<NormalizedCacheObject>,
+  address: string
+): Promise<ProjectsResponse | null> {
+  const { loading, error, data } = await client.query<ProjectsResponse>({
+    query: FETCH_PROJECTS_BY_ACCOUNT_ADDRESS,
+    fetchPolicy: "no-cache",
+    variables: {
+      address: address?.toLowerCase(),
+    },
+  });
 
-  console.log("DASA props", { chain, address });
-
-  const { loading, error, data } = useQuery<ProjectsResponse>(
-    FETCH_PROJECTS_BY_ACCOUNT_ADDRESS,
-    {
-      client: chain?.id === 69 ? optimismKovanClient : goerliClient,
-      fetchPolicy: "network-only",
-      variables: {
-        address: address?.toLowerCase(),
-      },
-    }
-  );
+  console.log("DASA fetchProjectsByAccountAddress", {
+    client,
+    address,
+    loading,
+    error,
+    data,
+  });
 
   const parsed = data?.projects;
 
@@ -350,22 +388,56 @@ export function useFetchedProjects(): ProjectsResponse | null {
   };
 }
 
-export function useFetchRoundByAddress(address: string): RoundResponse | null {
-  const { chain } = useNetwork();
+export async function fetchProjectById(
+  client: ApolloClient<NormalizedCacheObject>,
+  id: number
+): Promise<ProjectResponse | null> {
+  const hexId: string = `0x${id.toString(16)}`.toLowerCase();
 
-  const { loading, error, data } = useQuery<RoundResponse>(
-    FETCH_ROUND_BY_ADDRESS,
-    {
-      client:
-        chain?.id === 69
-          ? roundManagerOptimismKovanClient
-          : roundManagerGoerliClient,
-      fetchPolicy: "network-only",
-      variables: {
-        address: address?.toLowerCase(),
-      },
-    }
-  );
+  const { loading, error, data } = await client.query<ProjectResponse>({
+    query: FETCH_PROJECT_BY_PROJECT_ID,
+    fetchPolicy: "no-cache",
+    variables: {
+      id: hexId,
+    },
+  });
+
+  console.log("DASA fetchProjectById", { client, hexId, loading, error, data });
+
+  const parsed = data?.project;
+
+  if (loading) {
+    return null;
+  }
+
+  if ((!loading && !parsed) || error) {
+    return null;
+  }
+
+  return {
+    project: parsed!,
+  };
+}
+
+export async function useFetchRoundByAddress(
+  client: ApolloClient<NormalizedCacheObject>,
+  address: string
+): Promise<RoundResponse | null> {
+  const { loading, error, data } = await client.query<RoundResponse>({
+    query: FETCH_ROUND_BY_ADDRESS,
+    fetchPolicy: "no-cache",
+    variables: {
+      id: address.toLowerCase(),
+    },
+  });
+
+  console.log("DASA useFetchRoundByAddress", {
+    client,
+    address,
+    loading,
+    error,
+    data,
+  });
 
   const parsed = data?.round;
 
