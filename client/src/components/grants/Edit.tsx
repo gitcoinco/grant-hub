@@ -7,10 +7,10 @@ import Cross from "../icons/Cross";
 import ExitModal from "../base/ExitModal";
 import VerificationForm from "../base/VerificationForm";
 import { ProjectFormStatus } from "../../types";
+import Preview from "../base/Preview";
 
 function EditProject() {
   const params = useParams();
-
   const [modalOpen, toggleModal] = useState(false);
   const [formStatus, setFormStatus] = useState<ProjectFormStatus>(
     ProjectFormStatus.Metadata
@@ -32,7 +32,11 @@ function EditProject() {
           />
         );
       case ProjectFormStatus.Preview:
-        return <div>Preview</div>;
+        return (
+          <Preview
+            setVerifying={(verifyUpdate) => setFormStatus(verifyUpdate)}
+          />
+        );
       default:
         return (
           <ProjectForm
