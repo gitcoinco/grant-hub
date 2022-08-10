@@ -1,8 +1,8 @@
+import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { useAccount } from "wagmi";
-import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { RootState } from "../../reducers";
 import { slugs } from "../../routes";
 import CallbackModal from "../base/CallbackModal";
@@ -63,6 +63,8 @@ function Landing() {
     web3Error: state.web3.error,
   }));
   const { address, isConnected } = useAccount();
+  // const { chain } = useNetwork();
+  // const { switchNetwork } = useSwitchNetwork();
 
   useEffect(() => {
     const isCallback =
@@ -84,7 +86,7 @@ function Landing() {
         />
         <img alt="Gitcoin Logo Text" src="./assets/gitcoin-logo-text.svg" />
       </div>
-      <div className="w-full md:w-1/2 flex flex-col h-1/2 max-w-fit md:h-full justify-center container mx-10">
+      <div className="w-full md:w-1/2 flex flex-col absolute h-1/2 max-w-fit md:h-full justify-center container mx-10">
         <h1 className="mb-8 hidden md:inline-block">Grant Hub</h1>
         <h3 className="mb-4 pt-20 inline-block md:hidden">Grant Hub</h3>
         <p>
@@ -132,7 +134,7 @@ function Landing() {
         alt="Jungle Background"
       />
       <img
-        className="h-1/2 w-full inline-block md:hidden"
+        className="h-1/2 w-full md:hidden"
         src="./assets/mobile-landing-background.svg"
         alt="Jungle Background"
       />
