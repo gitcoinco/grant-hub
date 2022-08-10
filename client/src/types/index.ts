@@ -16,6 +16,7 @@ export interface Metadata {
   website: string;
   bannerImg?: string;
   logoImg?: string;
+  credentials?: ProjectCredentials;
 }
 
 export interface Project {
@@ -152,6 +153,7 @@ export type FormInputs = {
   website?: string;
   bannerImg?: Blob;
   logoImg?: Blob;
+  credentials?: ProjectCredentials;
 };
 
 export enum ProjectFormStatus {

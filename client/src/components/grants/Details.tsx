@@ -1,5 +1,5 @@
 import colors from "../../styles/colors";
-import { Metadata, FormInputs, Project } from "../../types";
+import { Metadata, FormInputs, Project, ProjectCredential } from "../../types";
 import Calendar from "../icons/Calendar";
 import LinkIcon from "../icons/LinkIcon";
 import Shield from "../icons/Shield";
@@ -12,6 +12,9 @@ function Verified() {
     </div>
   );
 }
+
+const hasCredential = (credential?: ProjectCredential) =>
+  credential && credential.input.length > 0;
 
 export default function Details({
   project,
@@ -74,14 +77,28 @@ export default function Details({
             <Calendar color={colors["secondary-text"]} /> {updatedAt}
           </p>
         </div>
-        <div className="flex justify-start">
-          <img
-            className="h-3 mr-2 mt-1"
-            src="./assets/gh_logo.png"
-            alt="Github Logo"
-          />
-          <Verified />
-        </div>
+        {hasCredential(project?.credentials?.twitter) && (
+          <div className="flex justify-start">
+            <img
+              className="h-3 mr-2 mt-1"
+              src="./assets/twitter_logo.svg"
+              alt="Twitter Logo"
+            />
+            {project?.credentials?.twitter?.input}
+            {project?.credentials?.twitter?.credential && <Verified />}
+          </div>
+        )}
+        {hasCredential(project?.credentials?.github) && (
+          <div className="flex justify-start">
+            <img
+              className="h-3 mr-2 mt-1"
+              src="./assets/github_logo.png"
+              alt="Github Logo"
+            />
+            {project?.credentials?.github?.input}
+            {project?.credentials?.github?.credential && <Verified />}
+          </div>
+        )}
       </div>
 
       <p className="text-xs text-primary-text mb-1">Description</p>
