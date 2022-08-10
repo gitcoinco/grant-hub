@@ -1,7 +1,17 @@
 import colors from "../../styles/colors";
-import { Metadata, FormInputs } from "../../types";
+import { Metadata, FormInputs, Project } from "../../types";
 import Calendar from "../icons/Calendar";
 import LinkIcon from "../icons/LinkIcon";
+import Shield from "../icons/Shield";
+
+function Verified() {
+  return (
+    <div className="flex rounded bg-green-text/25 px-2 py-0.5">
+      <Shield dimension={16} color={colors["green-text"]} />{" "}
+      <p className="pl-2 text-green-text text-xs font-bold">Verified</p>
+    </div>
+  );
+}
 
 export default function Details({
   project,
@@ -10,12 +20,13 @@ export default function Details({
   logoImg,
   preview,
 }: {
-  project?: FormInputs | Metadata;
+  project?: Metadata | FormInputs | Project;
   updatedAt: string;
   bannerImg: string | Blob;
   logoImg: string | Blob;
   preview?: boolean;
 }) {
+  console.log({ project });
   return (
     <div className={`w-full ${!preview && "md:w-2/3"} mb-40`}>
       <img
@@ -47,7 +58,7 @@ export default function Details({
         </div>
       </div>
       <h4 className="mb-4 mt-14">{project?.title}</h4>
-      <div className="flex justify-start border-b pb-6 mb-6">
+      <div className="grid grid-cols-2 gap-4 pb-6 mb-6">
         <a
           target="_blank"
           href={project?.website}
@@ -58,9 +69,19 @@ export default function Details({
           <p className="ml-1">{project?.website}</p>
           {/* TODO add created at updated timestamp */}
         </a>
-        <p className="flex text-sm">
-          <Calendar color={colors["secondary-text"]} /> {updatedAt}
-        </p>
+        <div>
+          <p className="flex text-sm">
+            <Calendar color={colors["secondary-text"]} /> {updatedAt}
+          </p>
+        </div>
+        <div className="flex justify-start">
+          <img
+            className="h-3 mr-2 mt-1"
+            src="./assets/gh_logo.png"
+            alt="Github Logo"
+          />
+          <Verified />
+        </div>
       </div>
 
       <p className="text-xs text-primary-text mb-1">Description</p>
