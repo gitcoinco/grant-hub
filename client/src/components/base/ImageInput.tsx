@@ -119,9 +119,9 @@ export default function ImageInput({
   const currentImg = () => {
     if (tempImg) return tempImg;
     if (!currentProject) return "";
-    const type =
+    const imgType =
       label === "Project Logo" ? ImgTypes.logoImg : ImgTypes.bannerImg;
-    return getProjectImage(false, type, currentProject);
+    return getProjectImage(false, imgType, currentProject);
   };
 
   const onButtonClick = () => {
