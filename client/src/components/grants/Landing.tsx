@@ -1,10 +1,12 @@
-import { useSelector, useDispatch } from "react-redux";
 import { useEffect } from "react";
+import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import Button, { ButtonVariants } from "../base/Button";
+import { useAccount } from "wagmi";
+import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { RootState } from "../../reducers";
-import { initializeWeb3 } from "../../actions/web3";
 import { slugs } from "../../routes";
+import CallbackModal from "../base/CallbackModal";
+// import WalletConnectionButton from "../base/WalletConnectButton";
 
 function Landing() {
   const queryString = new URLSearchParams(window?.location?.search);
@@ -55,26 +57,21 @@ function Landing() {
     return <div />;
   }
   const navigate = useNavigate();
-  const dispatch = useDispatch();
   const props = useSelector((state: RootState) => ({
     web3Initialized: state.web3.initialized,
     web3Error: state.web3.error,
-    account: state.web3.account,
   }));
-
-  const connectHandler = () => {
-    dispatch(initializeWeb3());
-  };
+  const { address, isConnected } = useAccount();
 
   useEffect(() => {
     const isCallback =
       queryCode !== undefined ||
       queryState !== undefined ||
       queryError !== undefined;
-    if (props.account || !isCallback) {
+    if (address || !isCallback) {
       navigate(slugs.grants);
     }
-  }, [props.account]);
+  }, [address]);
 
   return (
     <div className="md:flex h-full">
@@ -94,21 +91,38 @@ function Landing() {
           matching from Gitcoin, partner DAO, or independent grant program
           rounds.
         </p>
-        {!props.web3Initialized && (
+        <CallbackModal
+          modalOpen={false}
+          toggleModal={() => true}
+          confirmText="Switch to Optimism"
+          confirmHandler={() => {
+            console.log("SWITCH!!");
+          }}
+          headerImageUri="https://via.placeholder.com/380"
+        >
+          <>
+            <h5 className="font-semibold mb-2 text-2xl">
+              Switch to the Optimism network
+            </h5>
+            <p className="mb-4 ">
+              Gitcoin Grant Hub is running on the Optimism network, a layer 2
+              solution on Ethereum, which means transactions are cheaper and
+              faster!
+            </p>
+          </>
+        </CallbackModal>
+
+        {!isConnected ? (
           <div className="mt-8">
-            <Button
-              onClick={() => connectHandler()}
-              variant={ButtonVariants.primary}
-              styles={["w-full sm:w-auto mx-w-full ml-0"]}
-            >
-              Connect Wallet
-            </Button>
+            <ConnectButton />
             {props.web3Error !== undefined && (
               <div>
                 <div>{props.web3Error}</div>
               </div>
             )}
           </div>
+        ) : (
+          <div>You Are Connected.. but something is wrong...</div>
         )}
       </div>
       <img

@@ -1,12 +1,12 @@
 import { Dispatch } from "redux";
 import { ethers } from "ethers";
+import { useSigner } from "wagmi";
 import { Status } from "../reducers/roundApplication";
 import { RootState } from "../reducers";
 import RoundApplicationBuilder from "../utils/RoundApplicationBuilder";
 import { Metadata, Project } from "../types";
 import PinataClient from "../services/pinata";
 import RoundABI from "../contracts/abis/Round.json";
-import { global } from "../global";
 
 export const ROUND_APPLICATION_LOADING = "ROUND_APPLICATION_LOADING";
 interface RoundApplicationLoadingAction {
@@ -132,8 +132,9 @@ export const submitApplication =
       status: Status.SendingTx,
     });
 
-    const signer = global.web3Provider!.getSigner();
-    const contract = new ethers.Contract(roundAddress, RoundABI, signer);
+    const { data: signer } = useSigner();
+    // global.web3Provider!.getSigner();
+    const contract = new ethers.Contract(roundAddress, RoundABI, signer!);
 
     const projectUniqueID = ethers.utils.formatBytes32String(
       projectId.toString()

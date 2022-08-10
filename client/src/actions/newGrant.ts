@@ -1,7 +1,6 @@
 import { ethers } from "ethers";
 import { Dispatch } from "redux";
-import { global } from "../global";
-import { RootState } from "../reducers";
+import { useNetwork, useSigner } from "wagmi";
 import ProjectRegistryABI from "../contracts/abis/ProjectRegistry.json";
 import { addressesByChainID } from "../contracts/deployments";
 import { NewGrant, Status } from "../reducers/newGrant";
@@ -56,7 +55,7 @@ export const grantCreated = ({
 
 export const publishGrant =
   (grantId: string | undefined, _content: any, images: Images) =>
-  async (dispatch: Dispatch, getState: () => RootState) => {
+  async (dispatch: Dispatch) => {
     const content = _content;
     const pinataClient = new PinataClient();
     dispatch(grantStatus(Status.UploadingImages, undefined));
@@ -74,14 +73,13 @@ export const publishGrant =
     const resp = await pinataClient.pinJSON(content);
     const metadataCID = resp.IpfsHash;
 
-    const state = getState();
-    const { chainID } = state.web3;
-    const addresses = addressesByChainID(chainID!);
-    const signer = global.web3Provider?.getSigner();
+    const { chain } = useNetwork();
+    const addresses = addressesByChainID(chain?.id!);
+    const { data: signer } = useSigner();
     const projectRegistry = new ethers.Contract(
       addresses.projectRegistry,
       ProjectRegistryABI,
-      signer
+      signer!
     );
 
     dispatch(grantStatus(Status.WaitingForSignature, undefined));

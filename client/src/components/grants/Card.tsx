@@ -7,7 +7,13 @@ import { grantPath } from "../../routes";
 import TextLoading from "../base/TextLoading";
 import { getProjectImage, ImgTypes } from "../../utils/components";
 
-function Card({ projectId }: { projectId: number }) {
+function Card({
+  projectId,
+  metaPtr,
+}: {
+  projectId: number;
+  metaPtr: { id: string; pointer: string; protocol: string };
+}) {
   const dispatch = useDispatch();
   const props = useSelector((state: RootState) => {
     const grantMetadata = state.grantsMetadata[projectId];
@@ -33,6 +39,10 @@ function Card({ projectId }: { projectId: number }) {
       dispatch(fetchGrantData(projectId));
     }
   }, [dispatch, projectId, props.currentProject]);
+
+  useEffect(() => {
+    dispatch(fetchGrantData(projectId, true));
+  }, [metaPtr.pointer]);
 
   return (
     <div className="max-w-sm rounded overflow-hidden shadow-lg my-6">

@@ -1,11 +1,13 @@
-import React, { useEffect, useState } from "react";
-import { shallowEqual, useSelector } from "react-redux";
+import { useState, useEffect } from "react";
+import { shallowEqual, useDispatch, useSelector } from "react-redux";
+import { useAccount, useNetwork } from "wagmi";
+import { initializeWeb3, loadAccountData } from "../actions/web3";
 import { RootState } from "../reducers";
+import colors from "../styles/colors";
+import Toast from "./base/Toast";
 import Landing from "./grants/Landing";
 import Header from "./Header";
-import Toast from "./base/Toast";
 import Globe from "./icons/Globe";
-import colors from "../styles/colors";
 
 interface Props {
   children: JSX.Element;
@@ -13,23 +15,28 @@ interface Props {
 
 function Layout(ownProps: Props) {
   const [show, showToast] = useState(false);
+  const dispatch = useDispatch();
   const props = useSelector(
     (state: RootState) => ({
-      web3Initializing: state.web3.initializing,
-      web3Initialized: state.web3.initialized,
       web3Error: state.web3.error,
-      chainID: state.web3.chainID,
-      account: state.web3.account,
     }),
     shallowEqual
   );
+  const { chain } = useNetwork();
+  const { address, isConnected } = useAccount({
+    onConnect({ address: addr, connector, isReconnected }) {
+      console.log("Connected =>", { addr, connector, isReconnected });
+      dispatch<any>(loadAccountData(addr!));
+      dispatch<any>(initializeWeb3(chain?.id!));
+    },
+  });
 
   useEffect(() => {
-    showToast(props.web3Initialized);
-  }, [props.web3Initialized]);
+    showToast(isConnected);
+  }, [isConnected]);
 
   const { children } = ownProps;
-  if (!props.web3Initialized || props.account === undefined) {
+  if (address === undefined) {
     return <Landing />;
   }
 
@@ -37,7 +44,7 @@ function Layout(ownProps: Props) {
     <div className="flex flex-col min-h-screen relative">
       <Header />
       <main className="container mx-auto dark:bg-primary-background grow relative">
-        {!props.web3Error && props.web3Initialized && props.chainID && children}
+        {!props.web3Error && isConnected && chain?.id && children}
         {props.web3Error && <p>{props.web3Error}</p>}
       </main>
       <Toast fadeOut show={show} onClose={() => showToast(false)}>
