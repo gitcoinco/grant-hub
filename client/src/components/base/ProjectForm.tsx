@@ -8,7 +8,7 @@ import { fetchGrantData } from "../../actions/grantsMetadata";
 import Button, { ButtonVariants } from "./Button";
 import { validateProjectForm } from "./formValidation";
 import ExitModal from "./ExitModal";
-import { ChangeHandlers, ProjectFormStatus } from "../../types";
+import { ChangeHandlers, FormInputs, ProjectFormStatus } from "../../types";
 import { metadataSaved } from "../../actions/projectForm";
 
 const validation = {
@@ -63,12 +63,12 @@ function ProjectForm({
       dispatch(fetchGrantData(Number(currentProjectId)));
     }
 
-    const { currentProject } = props;
+    const currentProject = props.currentProject as FormInputs;
 
     if (currentProject) {
       dispatch(
         metadataSaved({
-          ...props.formMetaData,
+          ...currentProject,
         })
       );
     }
