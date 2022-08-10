@@ -1,20 +1,20 @@
 import { useEffect, useState } from "react";
-import { ValidationError } from "yup";
 import { useNavigate } from "react-router-dom";
 import { useNetwork } from "wagmi";
-import { TextArea, TextInput, WebsiteInput } from "../grants/inputs";
-import ImageInput from "./ImageInput";
+import { ValidationError } from "yup";
 import fetchGrantData from "../../actions/grantsMetadata";
-import Button, { ButtonVariants } from "./Button";
 import { publishGrant } from "../../actions/newGrant";
-import { validateProjectForm } from "./formValidation";
+import { useClients } from "../../hooks/useDataClient";
 import { Status } from "../../reducers/newGrant";
-import Toast from "./Toast";
-import TXLoading from "./TXLoading";
-import ExitModal from "./ExitModal";
 import { slugs } from "../../routes";
 import { ChangeHandlers } from "../../types";
-import { useClients } from "../../hooks/useDataClient";
+import { TextArea, TextInput, WebsiteInput } from "../grants/inputs";
+import Button, { ButtonVariants } from "./Button";
+import ExitModal from "./ExitModal";
+import { validateProjectForm } from "./formValidation";
+import ImageInput from "./ImageInput";
+import Toast from "./Toast";
+import TXLoading from "./TXLoading";
 
 const initialFormValues = {
   title: "",
@@ -42,7 +42,7 @@ function ProjectForm({ currentProjectId }: { currentProjectId?: string }) {
     };
   }, shallowEqual);
 */
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(currentProjectId !== undefined);
   const [status, setStatus] = useState(Status.Undefined);
 
   const [grantData, setGrantData] = useState<any>();
