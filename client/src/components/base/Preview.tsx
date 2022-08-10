@@ -11,6 +11,7 @@ import Button, { ButtonVariants } from "./Button";
 import Toast from "./Toast";
 import TXLoading from "./TXLoading";
 import { ProjectFormStatus } from "../../types";
+import { formReset } from "../../actions/projectForm";
 
 export default function Preview({
   currentProjectId,
@@ -37,6 +38,7 @@ export default function Preview({
   const localResetStatus = () => {
     setSubmitted(false);
     dispatch(resetStatus());
+    dispatch(formReset());
   };
 
   const publishProject = async () => {
@@ -53,10 +55,6 @@ export default function Preview({
       setTimeout(() => navigate(slugs.grants), 1500);
     }
   }, [props.status]);
-
-  useEffect(() => {
-    console.log(props.metadata, "metaaaa");
-  }, [props.metadata]);
 
   return (
     <div>

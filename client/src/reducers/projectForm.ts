@@ -1,6 +1,7 @@
 import {
   METADATA_SAVED,
   CREDENTIALS_SAVED,
+  FORM_RESET,
   ProjectFormActions,
 } from "../actions/projectForm";
 import { FormInputs, ProjectCredentials } from "../types";
@@ -31,6 +32,9 @@ export const projectFormReducer = (
         ...state,
         credentials: action.credentials,
       };
+    }
+    case FORM_RESET: {
+      return initialState;
     }
     default: {
       return state;
