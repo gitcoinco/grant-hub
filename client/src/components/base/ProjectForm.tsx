@@ -134,7 +134,7 @@ function ProjectForm({
             height: 300,
           }}
           circle
-          currentProject={props.currentProject}
+          existingImg={props.currentProject?.logoImg}
           imgHandler={(buffer: Blob) => setLogoImg(buffer)}
         />
         <ImageInput
@@ -143,7 +143,7 @@ function ProjectForm({
             width: 1500,
             height: 500,
           }}
-          currentProject={props.currentProject}
+          existingImg={props.currentProject?.bannerImg}
           imgHandler={(buffer: Blob) => setBannerImg(buffer)}
         />
         <TextArea

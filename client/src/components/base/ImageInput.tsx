@@ -1,7 +1,6 @@
 import { useRef, useState } from "react";
+import PinataClient from "../../services/pinata";
 import colors from "../../styles/colors";
-import { Metadata } from "../../types";
-import { getProjectImage, ImgTypes } from "../../utils/components";
 import CloudUpload from "../icons/CloudUpload";
 import Toast from "./Toast";
 
@@ -24,7 +23,7 @@ const validateDimensions = (
 export default function ImageInput({
   label,
   dimensions,
-  currentProject,
+  existingImg,
   circle,
   imgHandler,
 }: {
@@ -33,7 +32,7 @@ export default function ImageInput({
     width: number;
     height: number;
   };
-  currentProject?: Metadata;
+  existingImg?: string;
   circle?: Boolean;
   imgHandler: (file: Blob) => void;
 }) {
@@ -116,12 +115,21 @@ export default function ImageInput({
     }
   };
 
+  const blobExistingImg = async (imgUrl: string) => {
+    const img = await fetch(imgUrl);
+    const blob = await img.blob();
+    imgHandler(blob);
+  };
+
   const currentImg = () => {
     if (tempImg) return tempImg;
-    if (!currentProject) return "";
-    const imgType =
-      label === "Project Logo" ? ImgTypes.logoImg : ImgTypes.bannerImg;
-    return getProjectImage(false, imgType, currentProject);
+    if (!existingImg) return "";
+
+    const pinataClient = new PinataClient();
+    const imgUrl = pinataClient.fileURL(existingImg);
+
+    blobExistingImg(imgUrl);
+    return imgUrl;
   };
 
   const onButtonClick = () => {
