@@ -59,6 +59,7 @@ export default function Preview({
   return (
     <div>
       <Details
+        preview
         updatedAt={formatDate(Date.now() / 1000)}
         project={props.metadata}
         logoImg={props.metadata?.logoImg ?? "./icons/lightning.svg"}

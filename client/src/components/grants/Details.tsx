@@ -17,7 +17,7 @@ export default function Details({
   preview?: boolean;
 }) {
   return (
-    <div className={`w-full ${!preview ?? "md:w-2/3"} mb-40`}>
+    <div className={`w-full ${!preview && "md:w-2/3"} mb-40`}>
       <img
         className="w-full mb-4"
         src={
