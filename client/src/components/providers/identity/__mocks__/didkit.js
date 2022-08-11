@@ -12,21 +12,11 @@ const issueCredential = jest.fn((credential) =>
     })
   )
 );
-const verifyCredential = jest.fn(() =>
-  Promise.resolve(
-    JSON.stringify({
-      checks: [],
-      warnings: [],
-      errors: [],
-    })
-  )
-);
 
 const clearDidkitMocks = () => {
   keyToDID.mockClear();
   keyToVerificationMethod.mockClear();
   issueCredential.mockClear();
-  verifyCredential.mockClear();
 };
 
 // ---- Generate & Verify methods
@@ -34,7 +24,6 @@ module.exports = {
   keyToDID,
   keyToVerificationMethod,
   issueCredential,
-  verifyCredential,
 
   /* Mock helpers */
   clearDidkitMocks,

@@ -4,7 +4,7 @@ import { useSigner } from "wagmi";
 import { Status } from "../reducers/roundApplication";
 import { RootState } from "../reducers";
 import RoundApplicationBuilder from "../utils/RoundApplicationBuilder";
-import { Metadata, Project } from "../types";
+import { Project } from "../types";
 import PinataClient from "../services/pinata";
 import RoundABI from "../contracts/abis/Round.json";
 
@@ -75,7 +75,7 @@ export const submitApplication =
     }
 
     const projectId = formInputs[projectQuestionId];
-    const projectMetadata: Metadata | undefined =
+    const projectMetadata: any =
       state.grantsMetadata[Number(projectId)].metadata;
     if (projectMetadata === undefined) {
       dispatch(
@@ -92,10 +92,8 @@ export const submitApplication =
       website: projectMetadata.website,
       bannerImg: projectMetadata.bannerImg!,
       logoImg: projectMetadata.logoImg!,
-      metaPtr: {
-        protocol: String(projectMetadata.protocol),
-        pointer: projectMetadata.pointer,
-      },
+      credentials: projectMetadata.credentials,
+      metaPtr: projectMetadata.metaPtr,
     };
 
     // FIXME: this is temporarily until the round manager adds the encrypted field

@@ -1,26 +1,15 @@
 import { useEffect, useState } from "react";
 import { shallowEqual, useSelector, useDispatch } from "react-redux";
 import { ValidationError } from "yup";
-import { useNavigate } from "react-router-dom";
 import { TextArea, TextInput, WebsiteInput } from "../grants/inputs";
 import ImageInput from "./ImageInput";
 import { RootState } from "../../reducers";
 import { fetchGrantData } from "../../actions/grantsMetadata";
 import Button, { ButtonVariants } from "./Button";
-import { publishGrant, resetStatus } from "../../actions/newGrant";
 import { validateProjectForm } from "./formValidation";
-import { Status } from "../../reducers/newGrant";
-import Toast from "./Toast";
-import TXLoading from "./TXLoading";
 import ExitModal from "./ExitModal";
-import { slugs } from "../../routes";
-import { ChangeHandlers } from "../../types";
-
-const initialFormValues = {
-  title: "",
-  description: "",
-  website: "",
-};
+import { ChangeHandlers, FormInputs, ProjectFormStatus } from "../../types";
+import { metadataSaved } from "../../actions/projectForm";
 
 const validation = {
   message: "",
@@ -32,10 +21,9 @@ function ProjectForm({
   setVerifying,
 }: {
   currentProjectId?: string;
-  setVerifying: (verifying: boolean) => void;
+  setVerifying: (verifying: ProjectFormStatus) => void;
 }) {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
 
   const props = useSelector((state: RootState) => {
     const grantMetadata = state.grantsMetadata[Number(currentProjectId)];
@@ -45,49 +33,29 @@ function ProjectForm({
       currentProject: grantMetadata?.metadata,
       status: state.newGrant.status,
       error: state.newGrant.error,
+      formMetaData: state.projectForm.metadata,
     };
   }, shallowEqual);
 
   const [formValidation, setFormValidation] = useState(validation);
   const [submitted, setSubmitted] = useState(false);
-  const [formInputs, setFormInputs] = useState(initialFormValues);
-  const [show, showToast] = useState(false);
   const [modalOpen, toggleModal] = useState(false);
 
-  const localResetStatus = () => {
-    setSubmitted(false);
-    setFormValidation(validation);
-    dispatch(resetStatus());
-  };
   const [logoImg, setLogoImg] = useState<Blob | undefined>();
   const [bannerImg, setBannerImg] = useState<Blob | undefined>();
 
-  const publishProject = async () => {
-    setSubmitted(true);
-    if (!formValidation.valid) return;
-    localResetStatus();
-    showToast(true);
-    await dispatch(
-      publishGrant(currentProjectId, formInputs, {
+  const handleInput = (e: ChangeHandlers) => {
+    const { value } = e.target;
+    dispatch(
+      metadataSaved({
+        ...props.formMetaData,
+        [e.target.name]: value,
         bannerImg,
         logoImg,
       })
     );
   };
-  console.log(publishProject);
 
-  const handleInput = (e: ChangeHandlers) => {
-    const { value } = e.target;
-    setFormInputs({ ...formInputs, [e.target.name]: value });
-  };
-
-  useEffect(() => {
-    if (props.status === Status.Completed) {
-      setTimeout(() => navigate(slugs.grants), 1500);
-    }
-  }, [props.status]);
-
-  // TODO: feels like this could be extracted to a component
   useEffect(() => {
     // called twice
     // 1 - when it loads or id changes (it checks if it's cached in local storage)
@@ -95,20 +63,20 @@ function ProjectForm({
       dispatch(fetchGrantData(Number(currentProjectId)));
     }
 
-    const { currentProject } = props;
+    const currentProject = props.currentProject as FormInputs;
 
     if (currentProject) {
-      setFormInputs({
-        title: currentProject.title,
-        description: currentProject.description,
-        website: currentProject.website,
-      });
+      dispatch(
+        metadataSaved({
+          ...currentProject,
+        })
+      );
     }
   }, [dispatch, currentProjectId, props.currentProject]);
 
   const validate = async () => {
     try {
-      await validateProjectForm(formInputs);
+      await validateProjectForm(props.formMetaData);
       setFormValidation({
         message: "",
         valid: true,
@@ -124,20 +92,14 @@ function ProjectForm({
   // perform validation after the fields state is updated
   useEffect(() => {
     validate();
-  }, [formInputs]);
+  }, [props.formMetaData]);
 
-  // eslint-disable-next-line
-  useEffect(() => {
-    return () => {
-      localResetStatus();
-    };
-  }, []);
-
-  useEffect(() => {
-    if (props.status === Status.Completed) {
-      setFormInputs(initialFormValues);
+  const nextStep = () => {
+    setSubmitted(true);
+    if (formValidation.valid) {
+      setVerifying(ProjectFormStatus.Verification);
     }
-  }, [props.status]);
+  };
 
   if (
     // if it's undefined we don't have anything to load
@@ -156,13 +118,13 @@ function ProjectForm({
           label="Project Name"
           name="title"
           placeholder="What's the project name?"
-          value={formInputs.title}
+          value={props.formMetaData.title}
           changeHandler={handleInput}
         />
         <WebsiteInput
           label="Project Website"
           name="website"
-          value={formInputs.website}
+          value={props.formMetaData.website}
           changeHandler={handleInput}
         />
         <ImageInput
@@ -172,7 +134,7 @@ function ProjectForm({
             height: 300,
           }}
           circle
-          currentProject={props.currentProject}
+          existingImg={props.currentProject?.logoImg}
           imgHandler={(buffer: Blob) => setLogoImg(buffer)}
         />
         <ImageInput
@@ -181,14 +143,14 @@ function ProjectForm({
             width: 1500,
             height: 500,
           }}
-          currentProject={props.currentProject}
+          existingImg={props.currentProject?.bannerImg}
           imgHandler={(buffer: Blob) => setBannerImg(buffer)}
         />
         <TextArea
           label="Project Description"
           name="description"
           placeholder="What is the project about and what kind of impact does it aim to have?"
-          value={formInputs.description}
+          value={props.formMetaData.description}
           changeHandler={handleInput}
         />
         {!formValidation.valid && submitted && (
@@ -198,7 +160,6 @@ function ProjectForm({
         )}
         <div className="flex w-full justify-end mt-6">
           <Button
-            disabled={!formValidation.valid && submitted}
             variant={ButtonVariants.outline}
             onClick={() => toggleModal(true)}
           >
@@ -207,20 +168,12 @@ function ProjectForm({
           <Button
             disabled={!formValidation.valid && submitted}
             variant={ButtonVariants.primary}
-            onClick={() => setVerifying(true)}
+            onClick={nextStep}
           >
             Next
           </Button>
         </div>
       </form>
-      <Toast
-        show={show}
-        fadeOut={props.status === Status.Completed}
-        onClose={() => showToast(false)}
-        error={props.status === Status.Error}
-      >
-        <TXLoading status={props.status} error={props.error} />
-      </Toast>
       <ExitModal modalOpen={modalOpen} toggleModal={toggleModal} />
     </div>
   );

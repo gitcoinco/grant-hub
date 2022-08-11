@@ -1,10 +1,12 @@
 import { VerifiableCredential } from "@gitcoinco/passport-sdk-types";
 import { useState } from "react";
-import { ChangeHandlers } from "../types";
-import Button, { ButtonVariants } from "./base/Button";
-import { TextInput } from "./grants/inputs";
-import Github from "./providers/Github";
-import Twitter from "./providers/Twitter";
+import { useDispatch } from "react-redux";
+import { credentialsSaved } from "../../actions/projectForm";
+import { ChangeHandlers, ProjectFormStatus } from "../../types";
+import Button, { ButtonVariants } from "./Button";
+import { TextInput } from "../grants/inputs";
+import Github from "../providers/Github";
+import Twitter from "../providers/Twitter";
 
 const initialFormValues = {
   github: "",
@@ -14,8 +16,10 @@ const initialFormValues = {
 export default function VerificationForm({
   setVerifying,
 }: {
-  setVerifying: (verifying: boolean) => void;
+  setVerifying: (verifying: ProjectFormStatus) => void;
 }) {
+  const dispatch = useDispatch();
+
   const [formInputs, setFormInputs] = useState(initialFormValues);
   const [ghVerification, setGHVerification] = useState<VerifiableCredential>();
   const [twitterVerification, setTwitterVerification] =
@@ -26,14 +30,28 @@ export default function VerificationForm({
     setFormInputs({ ...formInputs, [e.target.name]: value });
   };
 
-  console.log({ ghVerification, twitterVerification });
+  const saveAndPreview = () => {
+    dispatch(
+      credentialsSaved({
+        github: {
+          input: formInputs.github,
+          credential: ghVerification,
+        },
+        twitter: {
+          input: formInputs.twitter,
+          credential: twitterVerification,
+        },
+      })
+    );
+    setVerifying(ProjectFormStatus.Preview);
+  };
 
   return (
     <div className="border-0 sm:border sm:border-solid border-tertiary-text rounded text-primary-text p-0 sm:p-4">
       <div className="flex items-center">
         <img
           className="h-12 mr-12"
-          src="./assets/gh_logo.png"
+          src="./assets/github_logo.png"
           alt="Github Logo"
         />
         <TextInput
@@ -85,14 +103,11 @@ export default function VerificationForm({
       <div className="flex w-full justify-end mt-6">
         <Button
           variant={ButtonVariants.outline}
-          onClick={() => setVerifying(false)}
+          onClick={() => setVerifying(ProjectFormStatus.Metadata)}
         >
           Back
         </Button>
-        <Button
-          variant={ButtonVariants.primary}
-          onClick={() => setVerifying(true)}
-        >
+        <Button variant={ButtonVariants.primary} onClick={saveAndPreview}>
           Next
         </Button>
       </div>
