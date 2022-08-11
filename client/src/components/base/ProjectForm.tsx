@@ -27,7 +27,13 @@ const validation = {
   valid: false,
 };
 
-function ProjectForm({ currentProjectId }: { currentProjectId?: string }) {
+function ProjectForm({
+  currentProjectId,
+  setVerifying,
+}: {
+  currentProjectId?: string;
+  setVerifying: (verifying: boolean) => void;
+}) {
   // const dispatch = useDispatch();
   const navigate = useNavigate();
   /*
@@ -101,6 +107,7 @@ function ProjectForm({ currentProjectId }: { currentProjectId?: string }) {
     setLoading(false);
     console.log("DASA DATA", data);
   };
+  console.log(publishProject);
 
   useEffect(() => {
     getGrantData();
@@ -223,9 +230,9 @@ function ProjectForm({ currentProjectId }: { currentProjectId?: string }) {
           <Button
             disabled={!formValidation.valid && submitted}
             variant={ButtonVariants.primary}
-            onClick={publishProject}
+            onClick={() => setVerifying(true)}
           >
-            Save &amp; Publish
+            Next
           </Button>
         </div>
       </form>

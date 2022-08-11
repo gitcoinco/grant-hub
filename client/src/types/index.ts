@@ -131,6 +131,8 @@ export interface RoundApplication {
   }>;
 }
 
+export type ProviderID = "ClearTextTwitter" | "ClearTextGithubOrg";
+
 /**
  * Supported EVM networks
  */

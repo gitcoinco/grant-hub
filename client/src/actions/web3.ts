@@ -102,10 +102,17 @@ export const notWeb3Browser = (): Web3Actions => ({
   error: "not a web3 browser",
 });
 
-const loadWeb3Data = () => (dispatch: Dispatch) => {
+// Moved to react-app-env.d.ts
+// declare global {
+//   interface Window {
+//     ethereum: any;
+//   }
+// }
+
+const loadWeb3Data = (chainId: number) => (dispatch: Dispatch) => {
   console.log("Loading chainId...");
   global.web3Provider = new ethers.providers.Web3Provider(window.ethereum);
-  dispatch(web3ChainIDLoaded(window.ethereum.networkVersion));
+  dispatch(web3ChainIDLoaded(chainId));
 };
 
 export const loadAccountData = (account: string) => (dispatch: Dispatch) => {
@@ -120,7 +127,7 @@ export const loadEnsData = (ens: string) => (dispatch: Dispatch) => {
   dispatch(ensLoaded(ens));
 };
 
-export const initializeWeb3 = () => {
+export const initializeWeb3 = (chainId: number) => {
   console.log("Initializing wallet...");
   if (window.ethereum) {
     return (dispatch: Dispatch, getState: () => RootState) => {
@@ -130,7 +137,7 @@ export const initializeWeb3 = () => {
       }
 
       dispatch(web3Initializing());
-      dispatch<any>(loadWeb3Data());
+      dispatch<any>(loadWeb3Data(chainId));
     };
   }
   return notWeb3Browser();

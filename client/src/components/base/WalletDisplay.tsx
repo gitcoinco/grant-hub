@@ -29,6 +29,10 @@ export default function WalletDisplay() {
       dispatch<any>(loadAccountData(address!));
       // dispatch<any>(loadProjects(address!, signer, chain?.id!));
     },
+    onError(error) {
+      console.log("switch network error", error);
+      dispatch({ type: "WEB3_ERROR", error });
+    },
   });
   const { disconnect } = useDisconnect({
     onSuccess() {
@@ -38,6 +42,7 @@ export default function WalletDisplay() {
       });
     },
     onError(error) {
+      console.log("disconnect error", error);
       dispatch({ type: "WEB3_ERROR", error });
     },
   });
@@ -49,7 +54,8 @@ export default function WalletDisplay() {
       console.log("ensName", ensName);
     },
     onError(error) {
-      console.log("error", error);
+      console.log("ens error", error);
+      dispatch({ type: "WEB3_ERROR", error });
     },
   });
 
@@ -78,7 +84,7 @@ export default function WalletDisplay() {
           leaveFrom="transform opacity-100 scale-100"
           leaveTo="transform opacity-0 scale-95"
         >
-          <Menu.Items className="absolute right-0 mt-2 -mr-1 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none">
+          <Menu.Items className="right-0 mt-2 -mr-1 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none">
             <div className="py-1">
               <Menu.Item key="Switch Network">
                 {({ active }) => (
