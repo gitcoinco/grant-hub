@@ -1,8 +1,6 @@
 // --- Types
 import {
-  DIDKitLib,
   RequestPayload,
-  VerifiableCredential,
   IssuedChallenge,
   CredentialResponseBody,
   VerifiableCredentialRecord,
@@ -13,36 +11,6 @@ import axios from "axios";
 
 // Keeping track of the hashing mechanism (algo + content)
 export const VERSION = "v0.0.0";
-
-// Verify that the provided credential is valid
-export const verifyCredential = async (
-  DIDKit: DIDKitLib,
-  credential: VerifiableCredential
-): Promise<boolean> => {
-  // extract expirationDate
-  const { expirationDate, proof } = credential;
-  // check that the credential is still valid
-  if (new Date(expirationDate) > new Date()) {
-    try {
-      // parse the result of attempting to verify
-      const verify = JSON.parse(
-        await DIDKit.verifyCredential(
-          JSON.stringify(credential),
-          `{"proofPurpose":"${proof.proofPurpose}"}`
-        )
-      ) as { checks: string[]; warnings: string[]; errors: string[] };
-
-      // did we get any errors when we attempted to verify?
-      return verify.errors.length === 0;
-    } catch (e) {
-      // if didkit throws, etc.
-      return false;
-    }
-  } else {
-    // past expiry :(
-    return false;
-  }
-};
 
 // Fetch a verifiable challenge credential
 export const fetchChallengeCredential = async (
