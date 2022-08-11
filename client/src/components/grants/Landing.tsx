@@ -1,8 +1,8 @@
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useEffect } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { useAccount } from "wagmi";
+import { useAccount, useNetwork } from "wagmi";
 import { RootState } from "../../reducers";
 import { slugs } from "../../routes";
 import CallbackModal from "../base/CallbackModal";
@@ -58,13 +58,18 @@ function Landing() {
     return <div />;
   }
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const props = useSelector((state: RootState) => ({
     web3Initialized: state.web3.initialized,
     web3Error: state.web3.error,
   }));
   const { address, isConnected } = useAccount();
-  // const { chain } = useNetwork();
+  const { chain } = useNetwork();
   // const { switchNetwork } = useSwitchNetwork();
+
+  useEffect(() => {
+    dispatch({ type: "WEB3_CHAIN_ID_LOADED", chainID: chain?.id });
+  }, [chain]);
 
   useEffect(() => {
     const isCallback =

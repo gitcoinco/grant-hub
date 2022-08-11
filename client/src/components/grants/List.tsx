@@ -34,7 +34,6 @@ function ProjectsList() {
   const props = useSelector(
     (state: RootState) => ({
       loading: state.projects.status === Status.Loading,
-      chainID: state.web3.chainID,
       rounds: state.rounds,
     }),
     shallowEqual

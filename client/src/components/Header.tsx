@@ -51,7 +51,9 @@ export default function Header() {
                 New Project
               </Button>
             </Link>
-            <div className="p-4 m-2">{chain?.name}</div>
+            <div className="p-4 m-2 border-solid border rounded border-primary-text text-white bg-blue-600">
+              {chain?.name}
+            </div>
             <WalletDisplay />
           </div>
         </div>
