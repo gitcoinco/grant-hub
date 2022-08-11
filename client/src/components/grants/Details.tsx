@@ -6,7 +6,7 @@ import Shield from "../icons/Shield";
 
 function Verified() {
   return (
-    <div className="flex rounded bg-green-text/25 px-2 py-0.5">
+    <div className="flex rounded bg-green-text/25 px-2 py-0.5 mt-1">
       <Shield dimension={16} color={colors["green-text"]} />{" "}
       <p className="pl-2 text-green-text text-xs font-bold">Verified</p>
     </div>
@@ -65,11 +65,11 @@ export default function Details({
         <a
           target="_blank"
           href={project?.website}
-          className="flex items-center text-sm mr-6"
+          className="flex items-center mr-6 text-primary-background"
           rel="noreferrer"
         >
           <LinkIcon color={colors["secondary-text"]} />{" "}
-          <p className="ml-1">{project?.website}</p>
+          <span className="ml-1">{project?.website}</span>
           {/* TODO add created at updated timestamp */}
         </a>
         <div>
@@ -78,24 +78,38 @@ export default function Details({
           </p>
         </div>
         {hasCredential(project?.credentials?.twitter) && (
-          <div className="flex justify-start">
+          <div className="flex justify-start items-center">
             <img
               className="h-3 mr-2 mt-1"
               src="./assets/twitter_logo.svg"
               alt="Twitter Logo"
             />
-            {project?.credentials?.twitter?.input}
+            <a
+              className="mr-2 text-primary-background"
+              target="_blank"
+              href={`https://github.com/${project?.credentials?.twitter?.input}`}
+              rel="noreferrer"
+            >
+              {project?.credentials?.twitter?.input}
+            </a>
             {project?.credentials?.twitter?.credential && <Verified />}
           </div>
         )}
         {hasCredential(project?.credentials?.github) && (
-          <div className="flex justify-start">
+          <div className="flex justify-start items-center">
             <img
-              className="h-3 mr-2 mt-1"
+              className="h-3 mr-2"
               src="./assets/github_logo.png"
               alt="Github Logo"
             />
-            {project?.credentials?.github?.input}
+            <a
+              className="mr-2"
+              target="_blank"
+              href={`https://github.com/${project?.credentials?.github?.input}`}
+              rel="noreferrer"
+            >
+              {project?.credentials?.github?.input}
+            </a>
             {project?.credentials?.github?.credential && <Verified />}
           </div>
         )}

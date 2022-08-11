@@ -56,12 +56,18 @@ export default function Preview({
     }
   }, [props.status]);
 
+  const { credentials } = props;
+  const project = {
+    ...props.metadata,
+    credentials,
+  };
+
   return (
     <div>
       <Details
         preview
         updatedAt={formatDate(Date.now() / 1000)}
-        project={props.metadata}
+        project={project}
         logoImg={props.metadata?.logoImg ?? "./icons/lightning.svg"}
         bannerImg={props.metadata?.bannerImg ?? "./assets/card-img.png"}
       />

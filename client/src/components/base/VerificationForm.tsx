@@ -51,7 +51,7 @@ export default function VerificationForm({
       <div className="flex items-center">
         <img
           className="h-12 mr-12"
-          src="./assets/gh_logo.png"
+          src="./assets/github_logo.png"
           alt="Github Logo"
         />
         <TextInput
