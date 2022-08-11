@@ -29,7 +29,6 @@ export default function Details({
   logoImg: string | Blob;
   preview?: boolean;
 }) {
-  console.log({ project });
   return (
     <div className={`w-full ${!preview && "md:w-2/3"} mb-40`}>
       <img
