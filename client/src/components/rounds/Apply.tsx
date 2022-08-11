@@ -10,6 +10,7 @@ import Button, { ButtonVariants } from "../base/Button";
 import ExitModal from "../base/ExitModal";
 import Cross from "../icons/Cross";
 import colors from "../../styles/colors";
+import useLocalStorage from "../../hooks/useLocalStorage";
 
 const formatDate = (unixTS: number) =>
   new Date(unixTS).toLocaleDateString(undefined);
@@ -18,6 +19,7 @@ function Apply() {
   const params = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [roundToApply, setRoundToApply] = useLocalStorage("roundToApply", null);
 
   const [modalOpen, toggleModal] = useState(false);
 
@@ -55,6 +57,16 @@ function Apply() {
     }
   }, [dispatch, props.id, props.round]);
 
+  useEffect(() => {
+    if (props.id) {
+      setRoundToApply(props.round?.address);
+    }
+  }, [props.roundState]);
+
+  useEffect(() => {
+    console.log("roundToApply", roundToApply);
+  }, [roundToApply]);
+
   if (props.roundStatus === RoundStatus.Error) {
     return <div>Error loading round data: {props.roundError}</div>;
   }
@@ -74,6 +86,7 @@ function Apply() {
   }
 
   if (props.applicationStatus === ApplicationStatus.Sent) {
+    setRoundToApply(null);
     return <div>Applied to round successfully.</div>;
   }
 

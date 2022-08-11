@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { ValidationError } from "yup";
+import { useAccount, useNetwork, useSigner } from "wagmi";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import {
   ChangeHandlers,
@@ -32,6 +33,9 @@ export default function Form({
   round: Round;
 }) {
   const dispatch = useDispatch();
+  const { address } = useAccount();
+  const { data: signer } = useSigner();
+  const { chain } = useNetwork();
 
   const props = useSelector(
     (state: RootState) => ({
@@ -84,7 +88,7 @@ export default function Form({
   }, [formInputs]);
 
   useEffect(() => {
-    dispatch(loadProjects(true));
+    dispatch(loadProjects(address!, signer, chain?.id!));
   }, [dispatch]);
 
   useEffect(() => {

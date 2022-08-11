@@ -135,6 +135,7 @@ export interface RoundApplication {
   }>;
 }
 
+
 export type ProviderID = "ClearTextTwitter" | "ClearTextGithubOrg";
 
 export type ProjectCredential = {
@@ -160,4 +161,24 @@ export enum ProjectFormStatus {
   Metadata,
   Verification,
   Preview,
+}
+
+/**
+ * Supported EVM networks
+ */
+export type Network = "goerli" | "optimism" | "optimism-kovan";
+
+export interface Web3Instance {
+  /**
+   * Currently selected address in ETH format i.e 0x...
+   */
+  address: string;
+  /**
+   * Chain ID & name of the currently connected network
+   */
+  chain: {
+    id: number;
+    name: string;
+    network: Network;
+  };
 }
