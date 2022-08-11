@@ -135,7 +135,6 @@ export interface RoundApplication {
   }>;
 }
 
-
 export type ProviderID = "ClearTextTwitter" | "ClearTextGithubOrg";
 
 export type ProjectCredential = {
