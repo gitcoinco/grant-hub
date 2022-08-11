@@ -1,22 +1,16 @@
 // ---- Mocked values and helpers
 import axios from "axios";
-import { DIDKitLib, VerifiableCredential } from "@gitcoinco/passport-sdk-types";
 import {
   MOCK_CHALLENGE_CREDENTIAL,
   MOCK_VERIFY_RESPONSE_BODY,
 } from "../__mocks__/axios";
-import * as mockDIDKit from "../__mocks__/didkit";
 
 // ---- Types
 import {
-  verifyCredential,
   fetchVerifiableCredential,
   GHOrgRequestPayload,
   fetchChallengeCredential,
 } from "../credentials";
-
-// ---- Set up DIDKit mock
-const DIDKit: DIDKitLib = mockDIDKit as unknown as DIDKitLib;
 
 jest.mock("axios");
 
@@ -136,68 +130,5 @@ describe("Fetch Credentials", () => {
     );
     // NOTE: the signMessage function was never called
     expect(MOCK_SIGNER.signMessage).not.toBeCalled();
-  });
-});
-
-describe("Verify Credentials", () => {
-  beforeEach(() => {
-    mockDIDKit.clearDidkitMocks();
-  });
-
-  it("cannot verify a valid but expired credential", async () => {
-    // create a date and move it into the past
-    const expired = new Date();
-    expired.setSeconds(expired.getSeconds() - 1);
-
-    // if the expiration date is in the past then this VC has expired
-    const credential = {
-      expirationDate: expired.toISOString(),
-    } as unknown as VerifiableCredential;
-
-    // before the credential is verified against DIDKit - we check its expiration date...
-    expect(await verifyCredential(DIDKit, credential)).toEqual(false);
-    // expect to have not called verify on didkit
-    expect(DIDKit.verifyCredential).not.toBeCalled();
-  });
-
-  it("returns false when DIDKit.verifyCredential returns with errors", async () => {
-    const futureExpirationDate = new Date();
-    futureExpirationDate.setFullYear(futureExpirationDate.getFullYear() + 1);
-    const credentialToVerify = {
-      expirationDate: futureExpirationDate.toISOString(),
-      proof: {
-        proofPurpose: "myProof",
-      },
-    } as VerifiableCredential;
-
-    // DIDKit.verifyCredential can return with a non-empty errors array
-    mockDIDKit.verifyCredential.mockResolvedValue(
-      JSON.stringify({
-        checks: ["proof"],
-        warnings: [],
-        errors: ["signature error"],
-      })
-    );
-
-    expect(await verifyCredential(DIDKit, credentialToVerify)).toEqual(false);
-    expect(DIDKit.verifyCredential).toHaveBeenCalled();
-  });
-
-  it("returns false when DIDKit.verifyCredential rejects with an exception", async () => {
-    const futureExpirationDate = new Date();
-    futureExpirationDate.setFullYear(futureExpirationDate.getFullYear() + 1);
-    const credentialToVerify = {
-      expirationDate: futureExpirationDate.toISOString(),
-      proof: {
-        proofPurpose: "myProof",
-      },
-    } as VerifiableCredential;
-
-    mockDIDKit.verifyCredential.mockRejectedValue(
-      new Error("something went wrong :(")
-    );
-
-    expect(await verifyCredential(DIDKit, credentialToVerify)).toEqual(false);
-    expect(DIDKit.verifyCredential).toHaveBeenCalled();
   });
 });
