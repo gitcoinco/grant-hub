@@ -3,18 +3,16 @@ import { useNavigate } from "react-router-dom";
 import { useNetwork } from "wagmi";
 import { ValidationError } from "yup";
 import fetchGrantData from "../../actions/grantsMetadata";
-import { publishGrant } from "../../actions/newGrant";
+import { metadataSaved } from "../../actions/projectForm";
 import { useClients } from "../../hooks/useDataClient";
 import { Status } from "../../reducers/newGrant";
 import { slugs } from "../../routes";
-import { ChangeHandlers } from "../../types";
+import { ChangeHandlers, FormInputs, ProjectFormStatus } from "../../types";
 import { TextArea, TextInput, WebsiteInput } from "../grants/inputs";
 import Button, { ButtonVariants } from "./Button";
 import ExitModal from "./ExitModal";
 import { validateProjectForm } from "./formValidation";
 import ImageInput from "./ImageInput";
-import Toast from "./Toast";
-import TXLoading from "./TXLoading";
 
 const initialFormValues = {
   title: "",
@@ -32,7 +30,7 @@ function ProjectForm({
   setVerifying,
 }: {
   currentProjectId?: string;
-  setVerifying: (verifying: boolean) => void;
+  setVerifying: (verifying: ProjectFormStatus) => void;
 }) {
   // const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -45,6 +43,7 @@ function ProjectForm({
       currentProject: grantMetadata?.metadata,
       status: state.newGrant.status,
       error: state.newGrant.error,
+      formMetaData: state.projectForm.metadata,
     };
   }, shallowEqual);
 */
@@ -53,13 +52,19 @@ function ProjectForm({
 
   const [grantData, setGrantData] = useState<any>();
   const [formValidation, setFormValidation] = useState(validation);
-  const [error, setError] = useState<string>();
   const [submitted, setSubmitted] = useState(false);
-  const [formInputs, setFormInputs] = useState(initialFormValues);
-  const [show, showToast] = useState(false);
   const [modalOpen, toggleModal] = useState(false);
 
+  const [logoImg, setLogoImg] = useState<Blob | undefined>();
+  const [bannerImg, setBannerImg] = useState<Blob | undefined>();
+  const [formInputs, setFormInputs] = useState<FormInputs>(initialFormValues);
+
   const { chain } = useNetwork();
+
+  const { grantHubClient } = useClients();
+
+  /*
+    
 
   const localResetStatus = () => {
     setSubmitted(false);
@@ -69,7 +74,7 @@ function ProjectForm({
   const [logoImg, setLogoImg] = useState<Blob | undefined>();
   const [bannerImg, setBannerImg] = useState<Blob | undefined>();
 
-  const { grantHubClient } = useClients();
+  
 
   const publishProject = async () => {
     setSubmitted(true);
@@ -87,7 +92,26 @@ function ProjectForm({
     });
     setError(
       "TODO(@DanieleSalatti): publish grant and then set status correctly"
+  */
+
+  const handleInput = (e: ChangeHandlers) => {
+    const { value } = e.target;
+    setFormInputs({
+      ...formInputs,
+      [e.target.name]: value,
+      bannerImg,
+      logoImg,
+    });
+    /*
+    dispatch(
+      metadataSaved({
+        ...props.formMetaData,
+        [e.target.name]: value,
+        bannerImg,
+        logoImg,
+      })
     );
+    */
     setStatus(Status.Completed);
   };
 
@@ -107,16 +131,10 @@ function ProjectForm({
     setLoading(false);
     console.log("DASA DATA", data);
   };
-  console.log(publishProject);
 
   useEffect(() => {
     getGrantData();
   }, []);
-
-  const handleInput = (e: ChangeHandlers) => {
-    const { value } = e.target;
-    setFormInputs({ ...formInputs, [e.target.name]: value });
-  };
 
   useEffect(() => {
     if (status === Status.Completed) {
@@ -127,6 +145,11 @@ function ProjectForm({
   // TODO: feels like this could be extracted to a component
   useEffect(() => {
     if (grantData) {
+      // dispatch(
+      metadataSaved({
+        ...grantData,
+      });
+      // );
       setFormInputs({
         title: grantData.title,
         description: grantData.description,
@@ -155,12 +178,12 @@ function ProjectForm({
     validate();
   }, [formInputs]);
 
-  // eslint-disable-next-line
-  useEffect(() => {
-    return () => {
-      localResetStatus();
-    };
-  }, []);
+  const nextStep = () => {
+    setSubmitted(true);
+    if (formValidation.valid) {
+      setVerifying(ProjectFormStatus.Verification);
+    }
+  };
 
   useEffect(() => {
     if (status === Status.Completed) {
@@ -195,7 +218,7 @@ function ProjectForm({
             height: 300,
           }}
           circle
-          currentProject={grantData}
+          existingImg={grantData.logoImg}
           imgHandler={(buffer: Blob) => setLogoImg(buffer)}
         />
         <ImageInput
@@ -204,7 +227,7 @@ function ProjectForm({
             width: 1500,
             height: 500,
           }}
-          currentProject={grantData}
+          existingImg={grantData.bannerImg}
           imgHandler={(buffer: Blob) => setBannerImg(buffer)}
         />
         <TextArea
@@ -221,7 +244,6 @@ function ProjectForm({
         )}
         <div className="flex w-full justify-end mt-6">
           <Button
-            disabled={!formValidation.valid && submitted}
             variant={ButtonVariants.outline}
             onClick={() => toggleModal(true)}
           >
@@ -230,20 +252,12 @@ function ProjectForm({
           <Button
             disabled={!formValidation.valid && submitted}
             variant={ButtonVariants.primary}
-            onClick={() => setVerifying(true)}
+            onClick={nextStep}
           >
             Next
           </Button>
         </div>
       </form>
-      <Toast
-        show={show}
-        fadeOut={status === Status.Completed}
-        onClose={() => showToast(false)}
-        error={status === Status.Error}
-      >
-        <TXLoading status={status} error={error} />
-      </Toast>
       <ExitModal modalOpen={modalOpen} toggleModal={toggleModal} />
     </div>
   );

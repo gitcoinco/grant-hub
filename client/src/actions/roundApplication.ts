@@ -57,6 +57,7 @@ const submitApplication = async (
       protocol: String(projectMetadata.protocol),
       pointer: projectMetadata.pointer,
     },
+    credentials: projectMetadata.credentials,
   };
 
   // FIXME: this is temporarily until the round manager adds the encrypted field

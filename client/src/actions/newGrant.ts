@@ -3,9 +3,10 @@ import { Dispatch } from "redux";
 import { useNetwork, useSigner } from "wagmi";
 import ProjectRegistryABI from "../contracts/abis/ProjectRegistry.json";
 import { addressesByChainID } from "../contracts/deployments";
+import { RootState } from "../reducers";
 import { NewGrant, Status } from "../reducers/newGrant";
-import { Images } from "../types";
 import PinataClient from "../services/pinata";
+import { Project } from "../types/index";
 
 export const NEW_GRANT_STATUS = "NEW_GRANT_STATUS";
 export interface NewGrantStatus {
@@ -54,23 +55,38 @@ export const grantCreated = ({
 });
 
 export const publishGrant =
-  (grantId: string | undefined, _content: any, images: Images) =>
-  async (dispatch: Dispatch) => {
-    const content = _content;
+  (grantId?: string) =>
+  //   (grantId: string | undefined, _content: any, images: Images) =>
+
+  async (dispatch: Dispatch, getState: () => RootState) => {
+    const state = getState();
+    const { metadata: formMetaData, credentials: formCredentials } =
+      state.projectForm;
+
+    if (formMetaData === undefined) {
+      return;
+    }
+    const application = {
+      ...formMetaData,
+    } as Project;
+
+    // const content = _content;
     const pinataClient = new PinataClient();
     dispatch(grantStatus(Status.UploadingImages, undefined));
-    if (images.bannerImg !== undefined) {
-      const resp = await pinataClient.pinFile(images.bannerImg);
-      content.bannerImg = resp.IpfsHash;
+    if (formMetaData?.bannerImg) {
+      const resp = await pinataClient.pinFile(formMetaData.bannerImg);
+      application.bannerImg = resp.IpfsHash;
     }
 
-    if (images.logoImg !== undefined) {
-      const resp = await pinataClient.pinFile(images.logoImg);
-      content.logoImg = resp.IpfsHash;
+    if (formMetaData?.logoImg) {
+      const resp = await pinataClient.pinFile(formMetaData.logoImg);
+      application.logoImg = resp.IpfsHash;
     }
+
+    application.credentials = formCredentials;
 
     dispatch(grantStatus(Status.UploadingJSON, undefined));
-    const resp = await pinataClient.pinJSON(content);
+    const resp = await pinataClient.pinJSON(application);
     const metadataCID = resp.IpfsHash;
 
     const { chain } = useNetwork();

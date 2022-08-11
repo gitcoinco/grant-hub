@@ -1,16 +1,16 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { grantsPath, editPath } from "../../routes";
 import fetchGrantData from "../../actions/grantsMetadata";
-import Button, { ButtonVariants } from "../base/Button";
-import Pencil from "../icons/Pencil";
+import { editPath, grantsPath } from "../../routes";
 import colors from "../../styles/colors";
-import LinkIcon from "../icons/LinkIcon";
-import Arrow from "../icons/Arrow";
-import { getProjectImage, ImgTypes } from "../../utils/components";
 import { Metadata } from "../../types";
+import { getProjectImage, ImgTypes } from "../../utils/components";
+import Button, { ButtonVariants } from "../base/Button";
+import Arrow from "../icons/Arrow";
+import Pencil from "../icons/Pencil";
 // import Calendar from "../icons/Calendar";
 import { useClients } from "../../hooks/useDataClient";
+import Details from "./Details";
 
 function Project() {
   const [loading, setLoading] = useState(true);
@@ -118,53 +118,12 @@ function Project() {
               </Link>
             )}
           </div>
-          <div className="w-full md:w-2/3 mb-40">
-            <img
-              className="w-full mb-4"
-              src={bannerImg}
-              onError={(e) => {
-                e.currentTarget.onerror = null;
-                e.currentTarget.src = "./assets/card-img.png";
-              }}
-              alt="project banner"
-            />
-            <div className="relative">
-              <div className="flex w-full justify-start absolute -top-14 left-8">
-                <div className="rounded-full h-20 w-20 bg-quaternary-text border border-tertiary-text flex justify-center items-center">
-                  <img
-                    className="rounded-full"
-                    src={logoImg}
-                    onError={(e) => {
-                      e.currentTarget.onerror = null;
-                      e.currentTarget.src = "./icons/lightning.svg";
-                    }}
-                    alt="project logo"
-                  />
-                </div>
-              </div>
-            </div>
-            <h4 className="mb-4 mt-14">{grantData.title}</h4>
-            <div className="flex justify-start border-b pb-6 mb-6">
-              <a
-                target="_blank"
-                href={grantData.website}
-                className="flex items-center text-sm mr-6"
-                rel="noreferrer"
-              >
-                <LinkIcon color={colors["secondary-text"]} />{" "}
-                <p className="ml-1">{grantData.website}</p>
-                {/* TODO add created at updated timestamp */}
-              </a>
-              <p className="flex text-sm">
-                {/* TODO add updated at timestamp 
-                <Calendar color={colors["secondary-text"]} /> {updatedAt}
-                */}
-              </p>
-            </div>
-
-            <p className="text-xs text-primary-text mb-1">Description</p>
-            <p className="mb-12">{grantData.description}</p>
-          </div>
+          <Details
+            project={grantData}
+            updatedAt={Date.now().toString()} // updatedAt} TODO add updated at timestamp
+            logoImg={logoImg}
+            bannerImg={bannerImg}
+          />
         </>
       )}
     </div>
