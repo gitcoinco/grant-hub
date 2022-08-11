@@ -87,13 +87,16 @@ function Landing() {
         <img alt="Gitcoin Logo Text" src="./assets/gitcoin-logo-text.svg" />
       </div>
       <div className="w-full md:w-1/2 flex flex-col absolute h-1/2 max-w-fit md:h-full justify-center container mx-10">
-        <h1 className="mb-8 hidden md:inline-block">Grant Hub</h1>
-        <h3 className="mb-4 pt-20 inline-block md:hidden">Grant Hub</h3>
-        <p>
-          Manage projects that generate maximum impact and receive funds
-          matching from Gitcoin, partner DAO, or independent grant program
-          rounds.
+        <h3 className="mb-8 hidden md:inline-block">Grant Hub</h3>
+        <h6 className="mb-4 pt-20 inline-block md:hidden">Grant Hub</h6>
+        <h1 className="md:inline-block hidden">Bring your project to life</h1>
+        <h4 className="md:hidden inline-block">Bring your project to life</h4>
+        <p className="text-black text-xl">
+          Build and fund your projects all in one place -- from creating a
+          project to applying for grants to creating impact with your project
+          starting today!
         </p>
+        {/* A modal to prompt the user when landing and not on OP mainnet */}
         <CallbackModal
           modalOpen={false}
           toggleModal={() => true}
@@ -129,15 +132,15 @@ function Landing() {
         )}
       </div>
       <img
-        className="w-1/2 hidden md:inline-block"
+        className="absolute w-1/2 md:inline-block inset-y-56 right-0"
         src="./assets/landing-background.svg"
         alt="Jungle Background"
       />
-      <img
-        className="h-1/2 w-full md:hidden"
+      {/* <img
+        className="h-1/2 w-full hidden"
         src="./assets/mobile-landing-background.svg"
         alt="Jungle Background"
-      />
+      /> */}
     </div>
   );
 }
