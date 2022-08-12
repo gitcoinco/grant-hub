@@ -84,7 +84,7 @@ export default function Details({
             <a
               className="mr-2 text-primary-background"
               target="_blank"
-              href={`https://github.com/${project?.projectTwitter}`}
+              href={`https://twitter.com/${project?.projectTwitter}`}
               rel="noreferrer"
             >
               {project?.projectTwitter}
