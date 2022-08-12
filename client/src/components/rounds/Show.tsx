@@ -1,14 +1,14 @@
 import { useEffect, useState } from "react";
+import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { Link, useParams } from "react-router-dom";
-import { shallowEqual, useSelector, useDispatch } from "react-redux";
-import { RootState } from "../../reducers";
-import { roundApplicationPath } from "../../routes";
 import { loadRound, unloadRounds } from "../../actions/rounds";
+// import useLocalStorage from "../../hooks/useLocalStorage";
+import { RootState } from "../../reducers";
 import { Status } from "../../reducers/rounds";
-import useLocalStorage from "../../hooks/useLocalStorage";
+import { roundApplicationPath } from "../../routes";
 import { useFetchRoundByAddress } from "../../services/graphqlClient";
-import { networkPrettyName } from "../../utils/wallet";
 import { formatDate } from "../../utils/components";
+import { networkPrettyName } from "../../utils/wallet";
 import Button, { ButtonVariants } from "../base/Button";
 
 function Round() {
@@ -16,7 +16,7 @@ function Round() {
 
   const params = useParams();
   const dispatch = useDispatch();
-  const [roundToApply, setRoundToApply] = useLocalStorage("roundToApply", null);
+  // const [roundToApply, setRoundToApply] = useLocalStorage("roundToApply", null);
   // const [roundInfo] = useState<RoundResponse | null>(null);
 
   const { roundId, chainId } = params;
@@ -39,14 +39,14 @@ function Round() {
     };
   }, shallowEqual);
 
-  const roundInfo = useFetchRoundByAddress(props.id!);
+  const roundInfo = useFetchRoundByAddress(props.round?.address!);
 
   console.log("Round Info", roundInfo);
 
   useEffect(() => {
     if (roundId !== undefined) {
       dispatch(unloadRounds());
-      dispatch(loadRound(roundId));
+      dispatch(loadRound(roundInfo!));
     }
   }, [dispatch, roundId]);
 

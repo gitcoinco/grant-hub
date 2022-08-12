@@ -1,5 +1,5 @@
 import colors from "../../styles/colors";
-import { Metadata, FormInputs, Project, ProjectCredential } from "../../types";
+import { Metadata, FormInputs, Project, ProjectCredentials } from "../../types";
 import Calendar from "../icons/Calendar";
 import LinkIcon from "../icons/LinkIcon";
 import Shield from "../icons/Shield";

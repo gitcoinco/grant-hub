@@ -62,7 +62,7 @@ function Apply() {
   }, [dispatch, roundId, props.round]);
 
   useEffect(() => {
-    if (props.id) {
+    if (props.round) {
       setRoundToApply(props.round?.address);
     }
   }, [props.roundState]);

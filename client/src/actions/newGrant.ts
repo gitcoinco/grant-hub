@@ -6,10 +6,8 @@ import { global } from "../global";
 import { RootState } from "../reducers";
 import ProjectRegistryABI from "../contracts/abis/ProjectRegistry.json";
 import { addressesByChainID } from "../contracts/deployments";
-import { RootState } from "../reducers";
 import { NewGrant, Status } from "../reducers/newGrant";
 import PinataClient from "../services/pinata";
-import { Project } from "../types/index";
 
 export const NEW_GRANT_STATUS = "NEW_GRANT_STATUS";
 export interface NewGrantStatus {
@@ -66,9 +64,6 @@ export const publishGrant =
 
     if (formMetaData === undefined) {
       return;
-
-    if (formMetaData === undefined) {
-      return;
     }
     const application = {
       ...formMetaData,
@@ -85,9 +80,6 @@ export const publishGrant =
       const resp = await pinataClient.pinFile(formMetaData.logoImg);
       application.logoImg = resp.IpfsHash;
     }
-    const application = {
-      ...formMetaData,
-    } as Project;
 
     application.credentials = formCredentials;
 
@@ -117,55 +109,23 @@ export const publishGrant =
         dispatch(grantStatus(Status.Error, "transaction error"));
         console.error("tx error", e);
         return;
-
       }
-
-      application.credentials = formCredentials;
-
-      dispatch(grantStatus(Status.UploadingJSON, undefined));
-      const resp = await pinataClient.pinJSON(application);
-      const metadataCID = resp.IpfsHash;
-
-      const { chain } = useNetwork();
-      const addresses = addressesByChainID(chain?.id!);
-      const { data: signer } = useSigner();
-      const projectRegistry = new ethers.Contract(
-        addresses.projectRegistry,
-        ProjectRegistryABI,
-        signer!
-      );
-
-      dispatch(grantStatus(Status.WaitingForSignature, undefined));
-      let projectTx;
-
-      if (grantId !== undefined) {
-        try {
-          projectTx = await projectRegistry.updateProjectMetadata(grantId, {
-            protocol: 1,
-            pointer: metadataCID,
-          });
-        } catch (e) {
-          dispatch(grantStatus(Status.Error, "transaction error"));
-          console.error("tx error", e);
-          return;
-        }
-      } else {
-        try {
-          projectTx = await projectRegistry.createProject({
-            protocol: 1,
-            pointer: metadataCID,
-          });
-        } catch (e) {
-          dispatch(grantStatus(Status.Error, "transaction error"));
-          console.error("tx error", e);
-          return;
-        }
+    } else {
+      try {
+        projectTx = await projectRegistry.createProject({
+          protocol: 1,
+          pointer: metadataCID,
+        });
+      } catch (e) {
+        dispatch(grantStatus(Status.Error, "transaction error"));
+        console.error("tx error", e);
+        return;
       }
+    }
 
-      dispatch(grantStatus(Status.TransactionInitiated, undefined));
-      const txStatus = await projectTx.wait();
-      if (txStatus.status) {
-        dispatch(grantStatus(Status.Completed, undefined));
-      }
-    };
-  };
+    dispatch(grantStatus(Status.TransactionInitiated, undefined));
+    const txStatus = await projectTx.wait();
+    if (txStatus.status) {
+      dispatch(grantStatus(Status.Completed, undefined));
+    }
+};
