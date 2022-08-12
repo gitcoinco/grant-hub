@@ -5,15 +5,8 @@ type ButtonProps = {
 };
 export const Button = tw.button`
   bg-violet-400 text-white
-  py-2.5 px-10
+  py-1 px-5
   rounded
-  transition-colors
-  focus:shadow-outline
-  hover:brightness-125
-  disabled:bg-slate-100
-  disabled:text-slate-500
-  disabled:border-slate-200
-  disabled:shadow-none
   ${(p: ButtonProps) =>
     p.$variant === "outline"
       ? "bg-white text-grey-500 border border-grey-100"
