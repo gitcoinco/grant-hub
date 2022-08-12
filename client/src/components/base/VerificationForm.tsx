@@ -41,14 +41,8 @@ export default function VerificationForm({
   const saveAndPreview = () => {
     dispatch(
       credentialsSaved({
-        github: {
-          input: formInputs.github,
-          credential: ghVerification,
-        },
-        twitter: {
-          input: formInputs.twitter,
-          credential: twitterVerification,
-        },
+        github: ghVerification,
+        twitter: twitterVerification,
       })
     );
     setVerifying(ProjectFormStatus.Preview);

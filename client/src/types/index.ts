@@ -16,6 +16,9 @@ export interface Metadata {
   website: string;
   bannerImg?: string;
   logoImg?: string;
+  userGithub?: string;
+  projectGithub?: string;
+  projectTwitter?: string;
   credentials?: ProjectCredentials;
 }
 
@@ -28,6 +31,9 @@ export interface Project {
   bannerImg?: string;
   logoImg?: string;
   metaPtr: MetaPtr;
+  userGithub?: string;
+  projectGithub?: string;
+  projectTwitter?: string;
   credentials?: ProjectCredentials;
 }
 
@@ -137,14 +143,9 @@ export interface RoundApplication {
 
 export type ProviderID = "ClearTextTwitter" | "ClearTextGithubOrg";
 
-export type ProjectCredential = {
-  input: string;
-  credential?: VerifiableCredential;
-};
-
 export type ProjectCredentials = {
-  github?: ProjectCredential;
-  twitter?: ProjectCredential;
+  github?: VerifiableCredential;
+  twitter?: VerifiableCredential;
 };
 
 export type FormInputs = {
