@@ -70,7 +70,8 @@ export default function Details({
         </a>
         <div>
           <p className="flex text-sm">
-            <Calendar color={colors["secondary-text"]} /> {updatedAt}
+            <Calendar color={colors["secondary-text"]} />{" "}
+            <span className="ml-2">{updatedAt}</span>
           </p>
         </div>
         {project?.projectTwitter && (
@@ -94,12 +95,12 @@ export default function Details({
         {project?.projectGithub && (
           <div className="flex justify-start items-center">
             <img
-              className="h-3 mr-2"
+              className="h-3 mr-2 mt-1"
               src="./assets/github_logo.png"
               alt="Github Logo"
             />
             <a
-              className="mr-2"
+              className="mr-2 text-primary-background"
               target="_blank"
               href={`https://github.com/${project?.projectGithub}`}
               rel="noreferrer"
@@ -107,6 +108,23 @@ export default function Details({
               {project?.projectGithub}
             </a>
             {project?.credentials?.github && <Verified />}
+          </div>
+        )}
+        {project?.projectGithub && (
+          <div className="flex justify-start items-center">
+            <img
+              className="h-3 mr-2 mt-1"
+              src="./assets/github_logo.png"
+              alt="Github Logo"
+            />
+            <a
+              className="mr-2 text-primary-background"
+              target="_blank"
+              href={`https://github.com/${project?.userGithub}`}
+              rel="noreferrer"
+            >
+              {project?.userGithub}
+            </a>
           </div>
         )}
       </div>
