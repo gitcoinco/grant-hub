@@ -46,7 +46,6 @@ function ProjectForm({
 
   const handleInput = (e: ChangeHandlers) => {
     const { value } = e.target;
-    console.log({ value }, e.target.name);
     dispatch(
       metadataSaved({
         ...props.formMetaData,

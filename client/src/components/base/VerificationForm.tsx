@@ -1,12 +1,13 @@
 import { VerifiableCredential } from "@gitcoinco/passport-sdk-types";
 import { useState } from "react";
-import { useDispatch } from "react-redux";
+import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { credentialsSaved } from "../../actions/projectForm";
 import { ChangeHandlers, ProjectFormStatus } from "../../types";
 import Button, { ButtonVariants } from "./Button";
 import { TextInput } from "../grants/inputs";
 import Github from "../providers/Github";
 import Twitter from "../providers/Twitter";
+import { RootState } from "../../reducers";
 
 const initialFormValues = {
   github: "",
@@ -19,6 +20,13 @@ export default function VerificationForm({
   setVerifying: (verifying: ProjectFormStatus) => void;
 }) {
   const dispatch = useDispatch();
+
+  const props = useSelector(
+    (state: RootState) => ({
+      formMetaData: state.projectForm.metadata,
+    }),
+    shallowEqual
+  );
 
   const [formInputs, setFormInputs] = useState(initialFormValues);
   const [ghVerification, setGHVerification] = useState<VerifiableCredential>();
@@ -55,15 +63,16 @@ export default function VerificationForm({
           alt="Github Logo"
         />
         <TextInput
+          disabled
           label="Github"
           info="Connect your project’s GitHub account to verify (Optional)"
           name="github"
           placeholder="What's the project name?"
-          value={formInputs.github}
+          value={props.formMetaData.projectGithub}
           changeHandler={handleInput}
         />
         <Github
-          org={formInputs.github}
+          org={props.formMetaData.projectGithub ?? ""}
           verificationComplete={setGHVerification}
           verificationError={(providerError) => setError(providerError)}
         />
@@ -76,15 +85,16 @@ export default function VerificationForm({
           alt="Twitter Logo"
         />
         <TextInput
+          disabled
           label="Twitter"
           info="Connect your project’s Twitter account to verify (Optional)"
           name="twitter"
           placeholder="What's the project name?"
-          value={formInputs.twitter}
+          value={props.formMetaData.projectTwitter}
           changeHandler={handleInput}
         />
         <Twitter
-          handle={formInputs.twitter}
+          handle={props.formMetaData.projectTwitter ?? ""}
           verificationComplete={setTwitterVerification}
           verificationError={(providerError) => setError(providerError)}
         />
