@@ -39,12 +39,15 @@ export default function NetworkSelector(): JSX.Element {
     },
   });
 
+  // todo: update when we get the chainId in the uri JR
+  const colorScheme: string = "white";
+
   return (
     <div className="p-2 m-2 mb-2">
       <Menu>
         <MenuButton as={Button2} rightIcon={<ChevronDownIcon />}>
           <div className="">
-            <Tag size="lg" colorScheme="white" borderRadius="full">
+            <Tag size="lg" colorScheme={colorScheme} borderRadius="full">
               {chain?.id === 69 && (
                 <Avatar
                   src="./assets/optimism-logo.png"

@@ -1,45 +1,39 @@
-import { Dialog, Transition } from "@headlessui/react";
-import { ChevronDownIcon, XIcon } from "@heroicons/react/solid";
-import { Menu, MenuButton, MenuList, MenuItem, Image } from "@chakra-ui/react";
-import { Fragment, useState } from "react";
+import { Menu, MenuButton, MenuItem, MenuList } from "@chakra-ui/react";
+// import { Dialog, Transition } from "@headlessui/react";
+import { ChevronDownIcon } from "@heroicons/react/solid";
+// import { Fragment, useState } from "react";
 import { useDispatch } from "react-redux";
-import {
-  useAccount,
-  useDisconnect,
-  useEnsName,
-  useNetwork,
-  useSigner,
-  useSwitchNetwork,
-} from "wagmi";
-import { loadProjects } from "../../actions/projects";
-import { loadAccountData, web3ChainIDLoaded } from "../../actions/web3";
+import { useAccount, useDisconnect, useEnsName } from "wagmi";
+// import { loadProjects } from "../../actions/projects";
+// import { loadAccountData, web3ChainIDLoaded } from "../../actions/web3";
 import { shortAddress } from "../../utils/wallet";
+// import { BaseModal } from "./BaseModal";
 import { Button } from "./styles";
 
 export default function WalletDisplay(): JSX.Element {
-  const [open, setOpen] = useState(false);
+  // const [open, setOpen] = useState(false);
   const dispatch = useDispatch();
   const { address } = useAccount();
-  const { data: signer } = useSigner();
-  const { chain } = useNetwork();
-  const {
-    chains,
-    error: networkError,
-    isLoading,
-    pendingChainId,
-    switchNetwork,
-  } = useSwitchNetwork({
-    onSuccess(data) {
-      setOpen(false);
-      dispatch<any>(web3ChainIDLoaded(data?.id));
-      dispatch<any>(loadAccountData(address!));
-      dispatch<any>(loadProjects(address!, signer, chain?.id!));
-    },
-    onError(error) {
-      console.log("switch network error", error);
-      dispatch({ type: "WEB3_ERROR", error });
-    },
-  });
+  // const { data: signer } = useSigner();
+  // const { chain } = useNetwork();
+  // const {
+  //   chains,
+  //   error: networkError,
+  //   isLoading,
+  //   pendingChainId,
+  //   switchNetwork,
+  // } = useSwitchNetwork({
+  //   onSuccess(data) {
+  //     setOpen(false);
+  //     dispatch<any>(web3ChainIDLoaded(data?.id));
+  //     dispatch<any>(loadAccountData(address!));
+  //     dispatch<any>(loadProjects(address!, signer, chain?.id!));
+  //   },
+  //   onError(error) {
+  //     console.log("switch network error", error);
+  //     dispatch({ type: "WEB3_ERROR", error });
+  //   },
+  // });
   const { disconnect } = useDisconnect({
     onSuccess() {
       dispatch({
@@ -72,37 +66,26 @@ export default function WalletDisplay(): JSX.Element {
   return (
     <div className="p-2 m-2 mb-2 mt-3">
       <Menu>
-        <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
-          {/* {address ? shortAddress(address) : "Connect Wallet"} */}
+        <MenuButton
+          as={Button}
+          rightIcon={<ChevronDownIcon className="text-black" />}
+        >
           {ensName ?? isValidAddress()
             ? shortAddress(address!)
             : "Connect Wallet"}
         </MenuButton>
         <MenuList>
-          <MenuItem minH="48px" onClick={() => setOpen(true)}>
-            <Image
-              boxSize="2rem"
-              borderRadius="full"
-              src="https://placekitten.com/100/100"
-              alt="Switch Network"
-              mr="12px"
-            />
+          {/* <MenuItem minH="48px" onClick={() => setOpen(true)}>
             <span>Switch Network</span>
-          </MenuItem>
+          </MenuItem> */}
           <MenuItem minH="40px" onClick={() => disconnect()}>
-            <Image
-              boxSize="2rem"
-              borderRadius="full"
-              src="https://placekitten.com/120/120"
-              alt="Disconnect"
-              mr="12px"
-            />
             <span>Disconnect</span>
           </MenuItem>
         </MenuList>
       </Menu>
-      {/* todo: redo this modal using our base setup */}
-      <Transition.Root show={open} as={Fragment}>
+      {/* todo: redo this modal using our base setup 
+      <BaseModal isOpen={open} onClose={() => {}} /> */}
+      {/* <Transition.Root show={open} as={Fragment}>
         <Dialog as="div" className="relative z-10" onClose={setOpen}>
           <Transition.Child
             as={Fragment}
@@ -115,7 +98,6 @@ export default function WalletDisplay(): JSX.Element {
           >
             <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
           </Transition.Child>
-
           <div className="fixed z-10 inset-0">
             <div className="flex items-end sm:items-center justify-center min-h-full p-4 text-center sm:p-0">
               <Transition.Child
@@ -162,7 +144,7 @@ export default function WalletDisplay(): JSX.Element {
             </div>
           </div>
         </Dialog>
-      </Transition.Root>
+      </Transition.Root> */}
     </div>
   );
 }

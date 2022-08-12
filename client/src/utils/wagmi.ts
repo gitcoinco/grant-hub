@@ -9,7 +9,7 @@ const alchemyId = process.env.ALCHEMY_ID;
 const infuraId = process.env.INFURA_ID;
 
 export const { chains, provider } = configureChains(
-  [chain.goerli, chain.optimismKovan, chain.optimism, chain.mainnet],
+  [chain.goerli, chain.optimismKovan, chain.optimism],
   [
     infuraProvider({ apiKey: infuraId, priority: 0 }),
     alchemyProvider({ apiKey: alchemyId, priority: 1 }),
