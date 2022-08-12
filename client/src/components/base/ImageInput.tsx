@@ -141,7 +141,9 @@ export default function ImageInput({
   return (
     <>
       <div className="mt-6 w-full">
-        <label htmlFor={label}>{label}</label>
+        <label className="text-sm" htmlFor={label}>
+          {label}
+        </label>
         <div className="flex">
           <input
             ref={fileInput}

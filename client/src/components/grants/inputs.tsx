@@ -10,8 +10,10 @@ export function TextInput({
   changeHandler,
 }: InputProps) {
   return (
-    <div className="w-full sm:w-1/2">
-      <label htmlFor={name}>{label}</label>
+    <div className="mt-6 w-full sm:w-1/2">
+      <label className="text-sm" htmlFor={name}>
+        {label}
+      </label>
       <legend>{info}</legend>
       <input
         type="text"
@@ -41,7 +43,10 @@ export function WebsiteInput({
   };
   return (
     <div className="mt-6 w-full sm:w-2/3">
-      <label htmlFor={name}> {label} </label>
+      <label className="text-sm" htmlFor={name}>
+        {" "}
+        {label}{" "}
+      </label>
       <div className="flex">
         {/* <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
           {" "}
@@ -73,7 +78,9 @@ export function TextArea({
 }: InputProps) {
   return (
     <div className="mt-6">
-      <label htmlFor={name}>{label}</label>
+      <label className="text-sm" htmlFor={name}>
+        {label}
+      </label>
       <legend>{info}</legend>
       <textarea
         id={label}
@@ -101,7 +108,9 @@ export function Select({
 }: SelectInputProps) {
   return (
     <div>
-      <label htmlFor={name}>{label}</label>
+      <label className="text-sm" htmlFor={name}>
+        {label}
+      </label>
       <legend>{info}</legend>
       <select
         id={name}

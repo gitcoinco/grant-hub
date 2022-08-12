@@ -47,15 +47,15 @@ export default function VerificationForm({
   };
 
   return (
-    <div className="border-0 sm:border sm:border-solid border-tertiary-text rounded text-primary-text p-0 sm:p-4">
-      <div className="flex items-center">
+    <div className="border-0 sm:border sm:border-solid border-tertiary-text rounded text-primary-text px-4">
+      <div className="flex items-center mb-6">
         <img
           className="h-12 mr-12"
           src="./assets/github_logo.png"
           alt="Github Logo"
         />
         <TextInput
-          label="Project Name"
+          label="Github"
           info="Connect your project’s GitHub account to verify (Optional)"
           name="github"
           placeholder="What's the project name?"
@@ -69,14 +69,14 @@ export default function VerificationForm({
         />
       </div>
       <hr className="my-4" />
-      <div className="flex items-center">
+      <div className="flex items-center mb-6">
         <img
           className="h-12 mr-9"
           src="./assets/twitter_logo.svg"
           alt="Twitter Logo"
         />
         <TextInput
-          label="Project Name"
+          label="Twitter"
           info="Connect your project’s Twitter account to verify (Optional)"
           name="twitter"
           placeholder="What's the project name?"
