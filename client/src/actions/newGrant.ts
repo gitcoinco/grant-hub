@@ -1,6 +1,9 @@
 import { ethers } from "ethers";
 import { Dispatch } from "redux";
 import { useNetwork, useSigner } from "wagmi";
+import { Project } from "../types/index";
+import { global } from "../global";
+import { RootState } from "../reducers";
 import ProjectRegistryABI from "../contracts/abis/ProjectRegistry.json";
 import { addressesByChainID } from "../contracts/deployments";
 import { RootState } from "../reducers";
@@ -63,25 +66,58 @@ export const publishGrant =
 
     if (formMetaData === undefined) {
       return;
+
+    if (formMetaData === undefined) {
+      return;
     }
     const application = {
       ...formMetaData,
     } as Project;
 
-    // eslint:no-unused-expressions
-    async (): Promise<void> => {
-      // _content: any, images: Images
-      // const content = _content;
-      const pinataClient = new PinataClient();
-      dispatch(grantStatus(Status.UploadingImages, undefined));
-      if (formMetaData?.bannerImg) {
-        const resp = await pinataClient.pinFile(formMetaData.bannerImg);
-        application.bannerImg = resp.IpfsHash;
-      }
+    const pinataClient = new PinataClient();
+    dispatch(grantStatus(Status.UploadingImages, undefined));
+    if (formMetaData?.bannerImg) {
+      const resp = await pinataClient.pinFile(formMetaData.bannerImg);
+      application.bannerImg = resp.IpfsHash;
+    }
 
-      if (formMetaData?.logoImg) {
-        const resp = await pinataClient.pinFile(formMetaData.logoImg);
-        application.logoImg = resp.IpfsHash;
+    if (formMetaData?.logoImg) {
+      const resp = await pinataClient.pinFile(formMetaData.logoImg);
+      application.logoImg = resp.IpfsHash;
+    }
+    const application = {
+      ...formMetaData,
+    } as Project;
+
+    application.credentials = formCredentials;
+
+    dispatch(grantStatus(Status.UploadingJSON, undefined));
+    const resp = await pinataClient.pinJSON(application);
+    const metadataCID = resp.IpfsHash;
+
+    const { chainID } = state.web3;
+    const addresses = addressesByChainID(chainID!);
+    const signer = global.web3Provider?.getSigner();
+    const projectRegistry = new ethers.Contract(
+      addresses.projectRegistry,
+      ProjectRegistryABI,
+      signer
+    );
+
+    dispatch(grantStatus(Status.WaitingForSignature, undefined));
+    let projectTx;
+
+    if (grantId !== undefined) {
+      try {
+        projectTx = await projectRegistry.updateProjectMetadata(grantId, {
+          protocol: 1,
+          pointer: metadataCID,
+        });
+      } catch (e) {
+        dispatch(grantStatus(Status.Error, "transaction error"));
+        console.error("tx error", e);
+        return;
+
       }
 
       application.credentials = formCredentials;

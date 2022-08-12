@@ -7,6 +7,7 @@ import { loadRound, unloadRounds } from "../../actions/rounds";
 import { Status } from "../../reducers/rounds";
 import useLocalStorage from "../../hooks/useLocalStorage";
 import { useFetchRoundByAddress } from "../../services/graphqlClient";
+import { networkPrettyName } from "../../utils/wallet";
 import { formatDate } from "../../utils/components";
 import Button, { ButtonVariants } from "../base/Button";
 
@@ -18,19 +19,23 @@ function Round() {
   const [roundToApply, setRoundToApply] = useLocalStorage("roundToApply", null);
   // const [roundInfo] = useState<RoundResponse | null>(null);
 
+  const { roundId, chainId } = params;
+
   const props = useSelector((state: RootState) => {
-    const { id } = params;
-    const roundState = state.rounds[id!];
+    const roundState = state.rounds[roundId!];
     const status = roundState ? roundState.status : Status.Undefined;
     const error = roundState ? roundState.error : undefined;
     const round = roundState ? roundState.round : undefined;
+    const web3ChainId = state.web3.chainID;
+    const roundChainId = Number(chainId);
+
     return {
-      id,
       roundState,
       status,
       error,
       round,
-      chainID: state.web3.chainID,
+      web3ChainId,
+      roundChainId,
     };
   }, shallowEqual);
 
@@ -39,21 +44,21 @@ function Round() {
   console.log("Round Info", roundInfo);
 
   useEffect(() => {
-    if (props.id !== undefined && roundInfo) {
+    if (roundId !== undefined) {
       dispatch(unloadRounds());
-      dispatch(loadRound(roundInfo));
+      dispatch(loadRound(roundId));
     }
-  }, [dispatch, props.id, roundInfo?.round.id]);
+  }, [dispatch, roundId]);
 
-  useEffect(() => {
-    if (props.id) {
-      setRoundToApply(props.id);
-    }
-  }, [props.roundState]);
-
-  useEffect(() => {
-    console.log("roundToApply", roundToApply);
-  }, [roundToApply]);
+  if (props.web3ChainId !== props.roundChainId) {
+    return (
+      <p>
+        This application has been deployed to{" "}
+        {networkPrettyName(props.roundChainId)} and you are connected to{" "}
+        {networkPrettyName(props.web3ChainId ?? 1)}
+      </p>
+    );
+  }
 
   useEffect(() => {
     if (props.round) {
@@ -62,15 +67,15 @@ function Round() {
   }, [props.round]);
 
   if (props.status === Status.Error) {
-    return <div>Error: {props.error}</div>;
+    return <p>Error: {props.error}</p>;
   }
 
   if (props.status !== Status.Loaded) {
-    return <div>loading...</div>;
+    return <p>loading...</p>;
   }
 
   if (props.roundState === undefined || props.round === undefined) {
-    return <div>something went wrong</div>;
+    return <p>something went wrong</p>;
   }
 
   return (
@@ -83,7 +88,7 @@ function Round() {
             Date: {formatDate(roundData?.applicationsStartTime)} -{" "}
             {formatDate(roundData?.applicationsEndTime)}
           </p>
-          <Link to={roundApplicationPath(props.id!)}>
+          <Link to={roundApplicationPath(chainId!, roundId!)}>
             <Button
               styles={["w-full justify-center"]}
               variant={ButtonVariants.primary}
