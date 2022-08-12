@@ -65,7 +65,6 @@ function Landing() {
   }));
   const { address, isConnected } = useAccount();
   const { chain } = useNetwork();
-  // const { switchNetwork } = useSwitchNetwork();
 
   useEffect(() => {
     dispatch({ type: "WEB3_CHAIN_ID_LOADED", chainID: chain?.id });

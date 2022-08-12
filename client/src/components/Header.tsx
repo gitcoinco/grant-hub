@@ -1,16 +1,17 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { useNetwork } from "wagmi";
+// import { useNetwork } from "wagmi";
 import { grantsPath, newGrantPath } from "../routes";
 import colors from "../styles/colors";
 import Button, { ButtonVariants } from "./base/Button";
+import NetworkSelector from "./base/NetworkSelector";
 import WalletDisplay from "./base/WalletDisplay";
 import Hamburger from "./icons/Hamburger";
 import Plus from "./icons/Plus";
 
 export default function Header() {
   const [navbarOpen, setNavbarOpen] = React.useState(false);
-  const { chain } = useNetwork();
+  // const { chain } = useNetwork();
 
   return (
     <header className="flex items-center justify-between px-4 sm:px-2 mb-3 text-primary-text w-full border-0 sm:border-b container mx-auto h-1/8">
@@ -23,6 +24,7 @@ export default function Header() {
                 alt="Gitcoin Logo"
                 src="./assets/gitcoin-logo.svg"
               />
+              {/* todo: add the other image logo */}
               <h3 className="ml-6 mt-1">Grant Hub</h3>
             </div>
           </Link>
@@ -51,9 +53,11 @@ export default function Header() {
                 New Project
               </Button>
             </Link>
-            <div className="p-2 m-2 mb-2 border-solid border rounded border-primary-text text-white bg-blue-600">
+            {/* todo: set up this to be a network selector */}
+            {/* <div className="p-2 m-2 mb-2 border-solid border rounded border-primary-text text-white bg-blue-600">
               {chain?.name}
-            </div>
+            </div> */}
+            <NetworkSelector />
             <WalletDisplay />
           </div>
         </div>

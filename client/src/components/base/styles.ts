@@ -1,16 +1,21 @@
 import tw from "tailwind-styled-components";
 
-type ButtonProps = {
-  $variant: "solid" | "outline";
-};
+// type ButtonProps = {
+//   $variant: "solid" | "outline";
+// };
+
+// type ButtonProps2 = {
+//   $variant: "solid" | "outline";
+// };
+
 export const Button = tw.button`
-  bg-violet-400 text-white
+  text-black
   py-1 px-5
-  rounded
-  ${(p: ButtonProps) =>
-    p.$variant === "outline"
-      ? "bg-white text-grey-500 border border-grey-100"
-      : "bg-violet-400 text-white"}
+`;
+
+export const Button2 = tw.button`
+  text-black
+  py-1 px-5
 `;
 
 type InputProps = {
