@@ -46,6 +46,7 @@ function ProjectForm({
 
   const handleInput = (e: ChangeHandlers) => {
     const { value } = e.target;
+    console.log({ value }, e.target.name);
     dispatch(
       metadataSaved({
         ...props.formMetaData,
@@ -145,6 +146,27 @@ function ProjectForm({
           }}
           existingImg={props.currentProject?.bannerImg}
           imgHandler={(buffer: Blob) => setBannerImg(buffer)}
+        />
+        <TextInput
+          label="Project Twitter"
+          name="projectTwitter"
+          placeholder="twitterusername"
+          value={props.formMetaData.projectTwitter}
+          changeHandler={handleInput}
+        />
+        <TextInput
+          label="Your Github Username"
+          name="userGithub"
+          placeholder="githubusername"
+          value={props.formMetaData.userGithub}
+          changeHandler={handleInput}
+        />
+        <TextInput
+          label="Project Github Organization"
+          name="projectGithub"
+          placeholder="githuborgname"
+          value={props.formMetaData.projectGithub}
+          changeHandler={handleInput}
         />
         <TextArea
           label="Project Description"

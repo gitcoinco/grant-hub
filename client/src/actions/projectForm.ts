@@ -28,6 +28,9 @@ export const metadataSaved = ({
   website,
   bannerImg,
   logoImg,
+  projectTwitter,
+  userGithub,
+  projectGithub,
 }: FormInputs): ProjectFormActions => ({
   type: METADATA_SAVED,
   metadata: {
@@ -36,6 +39,9 @@ export const metadataSaved = ({
     website,
     bannerImg,
     logoImg,
+    projectTwitter,
+    userGithub,
+    projectGithub,
   },
 });
 

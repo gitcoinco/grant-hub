@@ -151,6 +151,9 @@ export type FormInputs = {
   title?: string;
   description?: string;
   website?: string;
+  projectTwitter?: string;
+  userGithub?: string;
+  projectGithub?: string;
   bannerImg?: Blob;
   logoImg?: Blob;
   credentials?: ProjectCredentials;
