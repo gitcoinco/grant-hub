@@ -65,7 +65,9 @@ function Round() {
       <h4>Round #{roundId} Application</h4>
       <p>Raw Round</p>
       <pre>{JSON.stringify(props.round, null, 2)}</pre>
-      <Link to={roundApplicationPath(roundId!)}>Apply to this round</Link>
+      <Link to={roundApplicationPath(chainId, roundId!)}>
+        Apply to this round
+      </Link>
     </div>
   );
 }
