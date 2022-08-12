@@ -62,18 +62,20 @@ export default function NetworkSelector(): JSX.Element {
           </div>
         </MenuButton>
         <MenuList>
-          {chains.map((x) => (
-            <Button
-              type="button"
-              className="inline-flex justify-center w-full sm:text-sm mt-4"
-              disabled={!switchNetwork}
-              key={x.id}
-              onClick={() => switchNetwork?.(x.id)}
-            >
-              {x.name}
-              {isLoading && pendingChainId === x.id && " (switching)"}
-            </Button>
-          ))}
+          {chains
+            .filter((c) => c.id !== chain?.id)
+            .map((x) => (
+              <Button
+                type="button"
+                className="inline-flex justify-center w-full sm:text-sm mt-4"
+                disabled={!switchNetwork}
+                key={x.id}
+                onClick={() => switchNetwork?.(x.id)}
+              >
+                {x.name}
+                {isLoading && pendingChainId === x.id && " (switching)"}
+              </Button>
+            ))}
           {networkError?.message && (
             <div className="text-sm text-red-600 my-4">
               {networkError.message}
