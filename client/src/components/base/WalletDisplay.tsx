@@ -68,6 +68,10 @@ export default function WalletDisplay() {
     },
   });
 
+  // function isValidAddress() {
+  //   return address && address !== "0x0000000000000000000000000000000000000000";
+  // }
+
   return (
     <div className="relative z-0 inline-flex shadow-sm rounded-md">
       <Button
@@ -81,7 +85,6 @@ export default function WalletDisplay() {
       </Button>
       <Menu as="div" className="-ml-px relative block">
         <Menu.Button className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-grey-100 text-sm text-white focus:z-10">
-          <span className="sr-only">Open options</span>
           <ChevronDownIcon className="h-5 w-5 text-black" aria-hidden="true" />
         </Menu.Button>
         <Transition
@@ -93,7 +96,7 @@ export default function WalletDisplay() {
           leaveFrom="transform opacity-100 scale-100"
           leaveTo="transform opacity-0 scale-95"
         >
-          <Menu.Items className="right-0 mt-2 -mr-1 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none">
+          <Menu.Items className="right-0 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none">
             <div className="py-1">
               <Menu.Item key="Switch Network">
                 {({ active }) => (
@@ -142,7 +145,7 @@ export default function WalletDisplay() {
             <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
           </Transition.Child>
 
-          <div className="fixed z-10 inset-0 overflow-y-auto">
+          <div className="fixed z-10 inset-0">
             <div className="flex items-end sm:items-center justify-center min-h-full p-4 text-center sm:p-0">
               <Transition.Child
                 as={Fragment}
