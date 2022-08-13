@@ -18,28 +18,15 @@ const validation = {
 function ProjectForm({
   currentProjectId,
   setVerifying,
+  setFormInputs,
+  formInputs,
 }: {
   currentProjectId?: string;
   setVerifying: (verifying: ProjectFormStatus) => void;
+  setFormInputs: (inputs: FormInputs) => void;
+  formInputs: FormInputs | null;
 }) {
-  // const dispatch = useDispatch();
-  // const navigate = useNavigate();
-
-  /*
-  const props = useSelector((state: RootState) => {
-    const grantMetadata = state.grantsMetadata[Number(currentProjectId)];
-    return {
-      id: currentProjectId,
-      loading: grantMetadata ? grantMetadata.loading : false,
-      currentProject: grantMetadata?.metadata,
-      status: state.newGrant.status,
-      error: state.newGrant.error,
-      formMetaData: state.projectForm.metadata,
-    };
-  }, shallowEqual);
-*/
   const [loading, setLoading] = useState(currentProjectId !== undefined);
-  // const [status, setStatus] = useState(Status.Undefined);
 
   const [grantData, setGrantData] = useState<any>();
   const [formValidation, setFormValidation] = useState(validation);
@@ -48,47 +35,12 @@ function ProjectForm({
 
   const [logoImg, setLogoImg] = useState<Blob | undefined>();
   const [bannerImg, setBannerImg] = useState<Blob | undefined>();
-  const [formInputs, setFormInputs] = useState<FormInputs | null>(null);
 
   const { chain } = useNetwork();
 
   const { grantHubClient } = useClients();
 
-  /*
-    
-
-  const localResetStatus = () => {
-    setSubmitted(false);
-    setFormValidation(validation);
-    // dispatch(resetStatus());
-  };
-  const [logoImg, setLogoImg] = useState<Blob | undefined>();
-  const [bannerImg, setBannerImg] = useState<Blob | undefined>();
-
-  
-
-  const publishProject = async () => {
-    setSubmitted(true);
-    if (!formValidation.valid) return;
-    localResetStatus();
-    showToast(true);
-
-    console.log(
-      "TODO(@DanieleSalatti): publish grant and then set status correctly"
-    );
-    // TODO(@DanieleSalatti): publish grant and then set status correctly
-    publishGrant(currentProjectId, formInputs, {
-      bannerImg,
-      logoImg,
-    });
-    setError(
-      "TODO(@DanieleSalatti): publish grant and then set status correctly"
-  */
-
   const handleInput = (e: ChangeHandlers) => {
-    console.log("DASA handleInput", e.target.name);
-    console.log("DASA handleInput", e.target);
-
     const { value } = e.target;
     setFormInputs({
       ...formInputs,
@@ -96,17 +48,6 @@ function ProjectForm({
       bannerImg,
       logoImg,
     });
-    /*
-    dispatch(
-      metadataSaved({
-        ...props.formMetaData,
-        [e.target.name]: value,
-        bannerImg,
-        logoImg,
-      })
-    );
-    */
-    // setStatus(Status.Completed);
   };
 
   const getGrantData = async () => {
@@ -122,23 +63,9 @@ function ProjectForm({
   useEffect(() => {
     getGrantData();
   }, []);
-  /*
-  useEffect(() => {
-    if (status === Status.Completed) {
-      setTimeout(() => navigate(slugs.grants), 1500);
-    }
-  }, [status]);
-*/
-  // TODO: feels like this could be extracted to a component
 
   useEffect(() => {
     if (grantData) {
-      /*
-      metadataSaved({
-        ...grantData,
-      });
-      */
-
       if (formInputs) {
         return;
       }
@@ -176,13 +103,6 @@ function ProjectForm({
       setVerifying(ProjectFormStatus.Verification);
     }
   };
-  /*
-  useEffect(() => {
-    if (status === Status.Completed) {
-      setFormInputs(initialFormValues);
-    }
-  }, [status]);
-  */
 
   if (loading) {
     return <>Loading grant data from IPFS... </>;
