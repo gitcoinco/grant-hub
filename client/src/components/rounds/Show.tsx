@@ -21,17 +21,19 @@ function Round() {
   const { chain } = useNetwork();
   const params = useParams();
 
-  const { roundManagerClient } = useClients();
+  const { roundId, chainId } = params;
+
+  const { roundManagerClient } = useClients(Number(chainId));
 
   async function fetchRound() {
     if (!roundManagerClient) return;
     const roundInfo = await useFetchRoundByAddress(
       roundManagerClient,
-      params.id!
+      roundId!
     );
 
     if (!roundInfo) {
-      console.error("Cannot load round", params.id);
+      console.error("Cannot load round", roundId);
       return;
     }
 
@@ -40,7 +42,7 @@ function Round() {
     );
 
     if (!roundApplicationMetadata) {
-      console.error("Cannot load round application metadata", params.id);
+      console.error("Cannot load round application metadata", roundId);
       return;
     }
 
@@ -49,7 +51,7 @@ function Round() {
     );
 
     if (!roundMetadata) {
-      console.error("Cannot load round metadata", params.id);
+      console.error("Cannot load round metadata", roundId);
       return;
     }
     roundInfo.round.applicationMetadata = roundApplicationMetadata;
@@ -61,13 +63,13 @@ function Round() {
 
   useEffect(() => {
     fetchRound();
-  }, [params.id, roundManagerClient]);
+  }, [roundId, roundManagerClient]);
 
   useEffect(() => {
-    if (params.id) {
-      setRoundToApply(params.id);
+    if (roundId) {
+      setRoundToApply(roundId);
     }
-  }, [params.id]);
+  }, [roundId]);
 
   useEffect(() => {
     console.log("roundToApply", roundToApply);
@@ -86,7 +88,7 @@ function Round() {
               Date: {formatDate(roundData?.applicationsStartTime)} -{" "}
               {formatDate(roundData?.applicationsEndTime)}
             </p>
-            <Link to={roundApplicationPath(chain?.id.toString(), params.id!)}>
+            <Link to={roundApplicationPath(chain?.id.toString(), roundId!)}>
               <Button
                 styles={["w-full justify-center"]}
                 variant={ButtonVariants.primary}

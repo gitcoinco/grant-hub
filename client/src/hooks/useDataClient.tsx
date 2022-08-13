@@ -7,10 +7,14 @@ import {
   roundManagerOptimismKovanClient,
 } from "../services/graphqlClient";
 
-export function useGranthubClient(): ApolloClient<NormalizedCacheObject> | null {
+export function useGranthubClient(
+  chainId?: number
+): ApolloClient<NormalizedCacheObject> | null {
   const { chain: currentChain } = useNetwork();
 
-  switch (currentChain?.id) {
+  const id = chainId || currentChain?.id;
+
+  switch (id) {
     case chain.optimismKovan.id:
       return optimismKovanClient;
     case chain.goerli.id:
@@ -20,10 +24,14 @@ export function useGranthubClient(): ApolloClient<NormalizedCacheObject> | null 
   }
 }
 
-export function useRoundManagerClient(): ApolloClient<NormalizedCacheObject> | null {
+export function useRoundManagerClient(
+  chainId?: number
+): ApolloClient<NormalizedCacheObject> | null {
   const { chain: currentChain } = useNetwork();
 
-  switch (currentChain?.id) {
+  const id = chainId || currentChain?.id;
+
+  switch (id) {
     case chain.optimismKovan.id:
       return roundManagerOptimismKovanClient;
     case chain.goerli.id:
@@ -34,12 +42,12 @@ export function useRoundManagerClient(): ApolloClient<NormalizedCacheObject> | n
 }
 
 // Get all required subgraph clients
-export function useClients(): {
+export function useClients(chainId?: number): {
   grantHubClient: ApolloClient<NormalizedCacheObject> | null;
   roundManagerClient: ApolloClient<NormalizedCacheObject> | null;
 } {
-  const grantHubClient = useGranthubClient();
-  const roundManagerClient = useRoundManagerClient();
+  const grantHubClient = useGranthubClient(chainId);
+  const roundManagerClient = useRoundManagerClient(chainId);
   return {
     grantHubClient,
     roundManagerClient,

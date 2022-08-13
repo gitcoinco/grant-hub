@@ -4,6 +4,7 @@ import { ValidationError } from "yup";
 import loadProjects from "../../actions/projects";
 import submitApplication from "../../actions/roundApplication";
 import { useClients } from "../../hooks/useDataClient";
+import { Status } from "../../reducers/newGrant";
 import {
   ChangeHandlers,
   ProjectOption,
@@ -14,6 +15,8 @@ import {
 import Button, { ButtonVariants } from "../base/Button";
 import { validateApplication } from "../base/formValidation";
 import TextLoading from "../base/TextLoading";
+import Toast from "../base/Toast";
+import TXLoading from "../base/TXLoading";
 import { Select, TextArea, TextInput } from "../grants/inputs";
 import Radio from "../grants/Radio";
 
@@ -42,7 +45,9 @@ export default function Form({
   const [preview, setPreview] = useState(false);
   const [formValidation, setFormValidation] = useState(validation);
   const [projectOptions, setProjectOptions] = useState<ProjectOption[]>();
-
+  const [status, setStatus] = useState<Status>(Status.Undefined);
+  const [show, showToast] = useState(false);
+  const [error, setError] = useState<string | undefined>();
   const [schema, setSchema] = useState<RoundApplicationQuestion[]>([]);
 
   const handleInput = (e: ChangeHandlers) => {
@@ -58,9 +63,9 @@ export default function Form({
         valid: true,
       });
     } catch (e) {
-      const error = e as ValidationError;
+      const err = e as ValidationError;
       setFormValidation({
-        message: error.message,
+        message: err.message,
         valid: false,
       });
     }
@@ -70,13 +75,16 @@ export default function Form({
     setSubmitted(true);
     await validate();
     if (roundManagerClient && formValidation.valid) {
+      showToast(true);
       await submitApplication(roundManagerClient, round.address, formInputs)
         .then(() => {
           console.log("Application submitted");
-          // TODO: confirmation modal?
+          // TODO @DanieleSalatti: toast is grant creation specific - fix
+          setStatus(Status.Completed);
         })
-        .catch(() => {
-          console.log("exception during application submission");
+        .catch((e) => {
+          setStatus(Status.Error);
+          setError(e.message);
         });
     }
   };
@@ -240,6 +248,14 @@ export default function Form({
           )}
         </div>
       </form>
+      <Toast
+        show={show}
+        fadeOut={status === Status.Completed}
+        onClose={() => showToast(false)}
+        error={status === Status.Error}
+      >
+        <TXLoading status={status} error={error} />
+      </Toast>
     </div>
   );
 }
