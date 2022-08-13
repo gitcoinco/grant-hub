@@ -3,7 +3,7 @@ import { XIcon } from "@heroicons/react/solid";
 import { Fragment, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Connector, useAccount, useConnect, useNetwork } from "wagmi";
-import { initializeWeb3, loadAccountData } from "../../actions/web3";
+import { loadAccountData } from "../../actions/web3";
 import { Button } from "./styles";
 
 interface ButtonProps {
@@ -22,14 +22,14 @@ export default function WalletConnectionButton({
     useConnect();
   useAccount({
     onConnect({ address }) {
-      dispatch<any>(loadAccountData(address || ""));
+      dispatch<any>(loadAccountData(address!));
       // dispatch({ type: "WEB3_ACCOUNT_LOADED", account: address });
     },
   });
 
   const connectHandler = (connector: Connector<any, any, any>) => {
     connect({ connector });
-    dispatch<any>(initializeWeb3(chain?.id!));
+    // dispatch<any>(initializeWeb3(chain?.id!));
   };
 
   return (

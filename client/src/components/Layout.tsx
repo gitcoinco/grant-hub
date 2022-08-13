@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { useAccount, useNetwork } from "wagmi";
-import { initializeWeb3, loadAccountData } from "../actions/web3";
+import { loadAccountData } from "../actions/web3";
 import { RootState } from "../reducers";
 import colors from "../styles/colors";
 import Toast from "./base/Toast";
@@ -28,15 +28,15 @@ function Layout(ownProps: Props) {
     onConnect({ address: addr, connector, isReconnected }) {
       console.log("Connected =>", { addr, connector, isReconnected });
       dispatch<any>(loadAccountData(addr!));
-      dispatch<any>(initializeWeb3(chain?.id!));
-      if (!props.chainId) {
-        dispatch<any>({ type: "WEB3_CHAIN_ID_LOADED", chainID: chain?.id });
-      }
+      // dispatch<any>(initializeWeb3(chain?.id!));
     },
   });
 
   useEffect(() => {
     showToast(isConnected);
+    if (!props.chainId) {
+      dispatch<any>({ type: "WEB3_CHAIN_ID_LOADED", chainID: chain?.id });
+    }
   }, [isConnected]);
 
   const { children } = ownProps;
