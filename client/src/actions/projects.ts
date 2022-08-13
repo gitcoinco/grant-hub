@@ -1,102 +1,33 @@
-import { Dispatch } from "redux";
-import { ethers, BigNumber } from "ethers";
-import ProjectRegistryABI from "../contracts/abis/ProjectRegistry.json";
-import { addressesByChainID } from "../contracts/deployments";
-import { ProjectEvent } from "../types";
-import { fetchGrantData } from "./grantsMetadata";
+import { ApolloClient, NormalizedCacheObject } from "@apollo/client";
+import {
+  BaseProject,
+  fetchProjectsByAccountAddress,
+} from "../services/graphqlClient";
+import fetchGrantData from "./grantsMetadata";
 
-export const PROJECTS_LOADING = "PROJECTS_LOADING";
-interface ProjectsLoadingAction {
-  type: typeof PROJECTS_LOADING;
-}
+const loadProjects = async (
+  client: ApolloClient<NormalizedCacheObject>,
+  address: string,
+  withMetadata: boolean = false
+): Promise<BaseProject[]> => {
+  const projectResponse = await fetchProjectsByAccountAddress(client, address);
 
-export const PROJECTS_LOADED = "PROJECTS_LOADED";
-interface ProjectsLoadedAction {
-  type: typeof PROJECTS_LOADED;
-  projects: ProjectEvent[];
-}
+  if (!projectResponse) {
+    return [];
+  }
 
-export const PROJECTS_UNLOADED = "PROJECTS_UNLOADED";
-export interface ProjectsUnloadedAction {
-  type: typeof PROJECTS_UNLOADED;
-}
+  if (withMetadata) {
+    const projects = await Promise.all(
+      projectResponse.projects.map(async (project) => {
+        const metadata = await fetchGrantData(client, Number(project.id));
 
-export type ProjectsActions =
-  | ProjectsLoadingAction
-  | ProjectsLoadedAction
-  | ProjectsUnloadedAction;
-
-const projectsLoading = () => ({
-  type: PROJECTS_LOADING,
-});
-
-const projectsLoaded = (projects: Event[]) => ({
-  type: PROJECTS_LOADED,
-  projects,
-});
-
-const projectsUnload = () => ({
-  type: PROJECTS_UNLOADED,
-});
-
-export function aggregateEvents(
-  created: ProjectEvent[],
-  updated: ProjectEvent[]
-): Event[] {
-  const result = [...created, ...updated].reduce(
-    (prev: any, cur: ProjectEvent) => {
-      const value = prev;
-      if (value[cur.id] === undefined || cur.block > value[cur.id].block) {
-        value[cur.id] = cur;
-      }
-      return value;
-    },
-    {}
-  );
-
-  return Object.values(result);
-}
-
-// todo: get updated loading logic from graph
-export const loadProjects =
-  (address: string, signer: any, chainId: number, withMetaData?: boolean) =>
-  async (dispatch: Dispatch) => {
-    dispatch(projectsLoading());
-
-    const addresses = addressesByChainID(chainId!);
-    const contract = new ethers.Contract(
-      addresses.projectRegistry,
-      ProjectRegistryABI,
-      signer
+        return metadata ? { ...project, metadata } : project;
+      })
     );
+    return projects;
+  }
 
-    const createdFilter = contract.filters.ProjectCreated(address);
-    const createdEvents = await contract.queryFilter(createdFilter);
+  return projectResponse.projects;
+};
 
-    const createdIds: ProjectEvent[] = createdEvents.map((event: any) => ({
-      id: BigNumber.from(event.args[1]).toNumber(),
-      block: event.blockNumber,
-    }));
-
-    if (createdIds.length === 0) {
-      dispatch(projectsLoaded([]));
-      return;
-    }
-
-    const ids = createdIds.map((item) => ethers.utils.hexlify(item.id));
-    const metadataFilter = contract.filters.MetadataUpdated(ids);
-    const metadataEvents = await contract.queryFilter(metadataFilter);
-
-    const updateIds: ProjectEvent[] = metadataEvents.map((event: any) => ({
-      id: BigNumber.from(event.args[0]).toNumber(),
-      block: event.blockNumber,
-    }));
-    const events = aggregateEvents(createdIds, updateIds);
-    if (withMetaData) {
-      ids.map((id) => dispatch(fetchGrantData(Number(id)) as any));
-    }
-
-    dispatch(projectsLoaded(events));
-  };
-
-export const unloadProjects = () => projectsUnload();
+export default loadProjects;

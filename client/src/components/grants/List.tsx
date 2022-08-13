@@ -1,57 +1,79 @@
 import { useEffect, useState } from "react";
 import { useDatadogRum } from "react-datadog";
 import { Link, useNavigate } from "react-router-dom";
-import { shallowEqual, useSelector, useDispatch } from "react-redux";
-import { useAccount, useNetwork, useSigner } from "wagmi";
-import { RootState } from "../../reducers";
+import { useAccount, useNetwork } from "wagmi";
 import { newGrantPath, slugs } from "../../routes";
-import { loadProjects } from "../../actions/projects";
-import Globe from "../icons/Globe";
-import Button, { ButtonVariants } from "../base/Button";
-import Card from "./Card";
 import colors from "../../styles/colors";
-import { Status } from "../../reducers/projects";
+import Button, { ButtonVariants } from "../base/Button";
+import Globe from "../icons/Globe";
+import Card from "./Card";
+
+import { getRoundMetadata } from "../../actions/rounds";
+import { useClients } from "../../hooks/useDataClient";
+import useLocalStorage from "../../hooks/useLocalStorage";
 import {
-  useFetchedProjects,
+  fetchProjectsByAccountAddress,
+  ProjectsResponse,
+  RoundResponse,
   useFetchedSubgraphStatus,
   useFetchRoundByAddress,
 } from "../../services/graphqlClient";
-import useLocalStorage from "../../hooks/useLocalStorage";
 import CallbackModal from "../base/CallbackModal";
-import { loadRound } from "../../actions/rounds";
 
 function ProjectsList() {
+  const [loading, setLoading] = useState(true);
+  const [projectsQueryResult, setProjectsQueryResult] =
+    useState<ProjectsResponse>();
   const dataDog = useDatadogRum();
   const navigate = useNavigate();
-  const dispatch = useDispatch();
   const [toggleModal, setToggleModal] = useState<boolean>(false);
   const [roundToApply] = useLocalStorage("roundToApply", null);
-  const roundInfo = useFetchRoundByAddress(roundToApply);
-  const { data: signer } = useSigner();
-  const { address } = useAccount();
+  const [roundInfo, setRoundInfo] = useState<RoundResponse | null>(null);
   const { chain } = useNetwork();
-
-  const props = useSelector(
-    (state: RootState) => ({
-      loading: state.projects.status === Status.Loading,
-      chainID: state.web3.chainID,
-      rounds: state.rounds,
-    }),
-    shallowEqual
-  );
+  const { address } = useAccount();
+  const { grantHubClient, roundManagerClient } = useClients();
 
   const subgraphStatus = useFetchedSubgraphStatus();
-  const projectsQueryResult = useFetchedProjects();
 
-  useEffect(() => {
-    if (roundInfo) {
-      dispatch(loadRound(roundInfo));
+  async function fetchProjectsFromGraph() {
+    const result = await fetchProjectsByAccountAddress(
+      grantHubClient!,
+      address!
+    );
+
+    if (result) {
+      setProjectsQueryResult(result!);
     }
-  }, [roundInfo?.round.id]);
+    setLoading(false);
+  }
 
   useEffect(() => {
-    dispatch(loadProjects(address!, signer, chain?.id!));
-  }, [address]);
+    if (grantHubClient && address) {
+      fetchProjectsFromGraph();
+    }
+  }, [address, chain, grantHubClient]);
+
+  async function fetchRoundInfo() {
+    if (roundToApply && roundManagerClient) {
+      const fetchedRoundInfo = await useFetchRoundByAddress(
+        roundManagerClient,
+        roundToApply
+      );
+      if (fetchedRoundInfo) {
+        const metadata = await getRoundMetadata(
+          fetchedRoundInfo?.round.roundMetaPtr.pointer
+        );
+        if (metadata) {
+          fetchedRoundInfo.round.metadata = metadata;
+        }
+        setRoundInfo(fetchedRoundInfo);
+      }
+    }
+  }
+
+  useEffect(() => {
+    fetchRoundInfo();
+  }, [roundToApply, roundManagerClient]);
 
   useEffect(() => {
     if (!subgraphStatus.available) {
@@ -76,22 +98,17 @@ function ProjectsList() {
     if (
       roundToApply !== null &&
       projectsQueryResult &&
-      projectsQueryResult.projects.length > 0 &&
-      props.rounds[roundToApply]?.round?.roundMetadata.name
+      projectsQueryResult.projects.length > 0
     ) {
       setToggleModal(true);
     }
-  }, [
-    projectsQueryResult?.projects.length,
-    roundToApply,
-    props.rounds[roundToApply],
-  ]);
+  }, [projectsQueryResult?.projects.length, roundToApply]);
 
   return (
     <div className="flex flex-col flex-grow h-full mx-4 sm:mx-0">
-      {props.loading && <>loading...</>}
+      {loading && <>loading...</>}
 
-      {!props.loading && (
+      {!loading && (
         <>
           <div className="flex flex-col mt-4 mb-4">
             <h3>My Projects</h3>
@@ -103,11 +120,7 @@ function ProjectsList() {
             {projectsQueryResult?.projects.length ? (
               <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
                 {projectsQueryResult.projects.map((project) => (
-                  <Card
-                    projectId={Number(project.id)}
-                    metaPtr={project.metaPtr}
-                    key={project.id}
-                  />
+                  <Card projectId={Number(project.id)} key={project.id} />
                 ))}
               </div>
             ) : (
@@ -149,9 +162,9 @@ function ProjectsList() {
           <p className="mb-4 ">
             Congratulations on creating your project on Grant Hub! Continue to
             apply for{" "}
-            {props.rounds[roundToApply] === undefined
+            {roundInfo === null || roundInfo.round.metadata === null
               ? "the round"
-              : props.rounds[roundToApply].round?.roundMetadata.name}
+              : roundInfo.round.metadata?.name}
           </p>
         </>
       </CallbackModal>
