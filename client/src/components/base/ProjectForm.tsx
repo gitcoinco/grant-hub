@@ -1,24 +1,14 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { useNetwork } from "wagmi";
 import { ValidationError } from "yup";
 import fetchGrantData from "../../actions/grantsMetadata";
-import { metadataSaved } from "../../actions/projectForm";
 import { useClients } from "../../hooks/useDataClient";
-import { Status } from "../../reducers/newGrant";
-import { slugs } from "../../routes";
 import { ChangeHandlers, FormInputs, ProjectFormStatus } from "../../types";
 import { TextArea, TextInput, WebsiteInput } from "../grants/inputs";
 import Button, { ButtonVariants } from "./Button";
 import ExitModal from "./ExitModal";
 import { validateProjectForm } from "./formValidation";
 import ImageInput from "./ImageInput";
-
-const initialFormValues = {
-  title: "",
-  description: "",
-  website: "",
-};
 
 const validation = {
   message: "",
@@ -33,7 +23,8 @@ function ProjectForm({
   setVerifying: (verifying: ProjectFormStatus) => void;
 }) {
   // const dispatch = useDispatch();
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
+
   /*
   const props = useSelector((state: RootState) => {
     const grantMetadata = state.grantsMetadata[Number(currentProjectId)];
@@ -48,7 +39,7 @@ function ProjectForm({
   }, shallowEqual);
 */
   const [loading, setLoading] = useState(currentProjectId !== undefined);
-  const [status, setStatus] = useState(Status.Undefined);
+  // const [status, setStatus] = useState(Status.Undefined);
 
   const [grantData, setGrantData] = useState<any>();
   const [formValidation, setFormValidation] = useState(validation);
@@ -57,7 +48,7 @@ function ProjectForm({
 
   const [logoImg, setLogoImg] = useState<Blob | undefined>();
   const [bannerImg, setBannerImg] = useState<Blob | undefined>();
-  const [formInputs, setFormInputs] = useState<FormInputs>(initialFormValues);
+  const [formInputs, setFormInputs] = useState<FormInputs | null>(null);
 
   const { chain } = useNetwork();
 
@@ -95,6 +86,9 @@ function ProjectForm({
   */
 
   const handleInput = (e: ChangeHandlers) => {
+    console.log("DASA handleInput", e.target.name);
+    console.log("DASA handleInput", e.target);
+
     const { value } = e.target;
     setFormInputs({
       ...formInputs,
@@ -112,12 +106,8 @@ function ProjectForm({
       })
     );
     */
-    setStatus(Status.Completed);
+    // setStatus(Status.Completed);
   };
-
-  useEffect(() => {
-    console.log("grantData", grantData);
-  }, [grantData]);
 
   const getGrantData = async () => {
     if (!chain || !currentProjectId || !grantHubClient) {
@@ -132,21 +122,26 @@ function ProjectForm({
   useEffect(() => {
     getGrantData();
   }, []);
-
+  /*
   useEffect(() => {
     if (status === Status.Completed) {
       setTimeout(() => navigate(slugs.grants), 1500);
     }
   }, [status]);
-
+*/
   // TODO: feels like this could be extracted to a component
+
   useEffect(() => {
     if (grantData) {
-      // dispatch(
+      /*
       metadataSaved({
         ...grantData,
       });
-      // );
+      */
+
+      if (formInputs) {
+        return;
+      }
       setFormInputs({
         title: grantData.title,
         description: grantData.description,
@@ -157,7 +152,7 @@ function ProjectForm({
 
   const validate = async () => {
     try {
-      await validateProjectForm(formInputs);
+      await validateProjectForm(formInputs!);
       setFormValidation({
         message: "",
         valid: true,
@@ -181,12 +176,13 @@ function ProjectForm({
       setVerifying(ProjectFormStatus.Verification);
     }
   };
-
+  /*
   useEffect(() => {
     if (status === Status.Completed) {
       setFormInputs(initialFormValues);
     }
   }, [status]);
+  */
 
   if (loading) {
     return <>Loading grant data from IPFS... </>;
@@ -199,13 +195,13 @@ function ProjectForm({
           label="Project Name"
           name="title"
           placeholder="What's the project name?"
-          value={formInputs.title}
+          value={formInputs?.title}
           changeHandler={handleInput}
         />
         <WebsiteInput
           label="Project Website"
           name="website"
-          value={formInputs.website}
+          value={formInputs?.website}
           changeHandler={handleInput}
         />
         <ImageInput
@@ -231,7 +227,7 @@ function ProjectForm({
           label="Project Description"
           name="description"
           placeholder="What is the project about and what kind of impact does it aim to have?"
-          value={formInputs.description}
+          value={formInputs?.description}
           changeHandler={handleInput}
         />
         {!formValidation.valid && submitted && (
