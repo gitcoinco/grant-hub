@@ -11,7 +11,6 @@ const getProjectById = async (
   const res = await fetchProjectById(client, projectId);
 
   if (!res) {
-    console.log("DASA project not found", res);
     throw new Error("Project not found");
   }
 
@@ -92,12 +91,12 @@ const fetchGrantData = async (
   try {
     project = await getProjectById(client, id);
   } catch (e) {
-    console.error("DASA error fetching project by id", e);
+    console.error("error fetching project by id", e);
     return null;
   }
 
   if (!project.metadata.protocol) {
-    console.error("DASA project not found");
+    console.error("project not found");
     return null;
   }
 
@@ -105,7 +104,7 @@ const fetchGrantData = async (
   const item = await getMetadata(id, project, cacheKey, bypassCache);
 
   if (item === null) {
-    console.log("DASA item is null");
+    console.log("item is null");
     return null;
   }
 

@@ -90,12 +90,8 @@ const submitApplication = async (
   const projectUniqueID = ethers.utils.formatBytes32String(
     projectId.toString()
   );
-  try {
-    await contract.applyToRound(projectUniqueID, metaPtr);
-    // return true;
-  } catch (e) {
-    console.error("error calling applyToRound:", e);
-  }
+
+  await contract.applyToRound(projectUniqueID, metaPtr);
 };
 
 export default submitApplication;

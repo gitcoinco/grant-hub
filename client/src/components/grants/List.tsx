@@ -33,10 +33,6 @@ function ProjectsList() {
   const { address } = useAccount();
   const { grantHubClient, roundManagerClient } = useClients();
 
-  useEffect(() => {
-    console.log("DASA grantHubClient", grantHubClient);
-  }, [grantHubClient]);
-
   const subgraphStatus = useFetchedSubgraphStatus();
 
   async function fetchProjectsFromGraph() {
@@ -45,7 +41,6 @@ function ProjectsList() {
       address!
     );
 
-    console.log("projectsQueryResult", result);
     if (result) {
       setProjectsQueryResult(result!);
     }
@@ -53,9 +48,7 @@ function ProjectsList() {
   }
 
   useEffect(() => {
-    console.log("DASA 1", grantHubClient, address);
     if (grantHubClient && address) {
-      console.log("DASA 2");
       fetchProjectsFromGraph();
     }
   }, [address, chain, grantHubClient]);

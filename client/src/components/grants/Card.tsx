@@ -19,18 +19,10 @@ function Card({ projectId }: { projectId: number }) {
 
   const { grantHubClient } = useClients();
 
-  useEffect(() => {
-    console.log("DASA grantHubClient 2", grantHubClient);
-  }, [grantHubClient]);
-
   const getGrantData = async () => {
-    console.log("DASA 10");
     if (!grantHubClient) {
-      console.log("DASA 11");
-      console.log("DASA grantHubClient is ", grantHubClient);
       return;
     }
-    console.log("DASA 12", projectId);
     const data = await fetchGrantData(grantHubClient, projectId);
 
     if (data) {
@@ -39,7 +31,6 @@ function Card({ projectId }: { projectId: number }) {
       setBannerImg(getProjectImage(false, ImgTypes.bannerImg, data));
       setLoading(false);
     }
-    console.log("DASA DATA", data);
   };
 
   useEffect(() => {

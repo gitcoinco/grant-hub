@@ -9,6 +9,7 @@ import {
   ProjectOption,
   Round,
   RoundApplicationMetadata,
+  RoundApplicationQuestion,
 } from "../../types";
 import Button, { ButtonVariants } from "../base/Button";
 import { validateApplication } from "../base/formValidation";
@@ -42,7 +43,7 @@ export default function Form({
   const [formValidation, setFormValidation] = useState(validation);
   const [projectOptions, setProjectOptions] = useState<ProjectOption[]>();
 
-  const schema = roundApplication.applicationSchema;
+  const [schema, setSchema] = useState<RoundApplicationQuestion[]>([]);
 
   const handleInput = (e: ChangeHandlers) => {
     const { value } = e.target;
@@ -69,7 +70,14 @@ export default function Form({
     setSubmitted(true);
     await validate();
     if (roundManagerClient && formValidation.valid) {
-      submitApplication(roundManagerClient, round.address, formInputs);
+      await submitApplication(roundManagerClient, round.address, formInputs)
+        .then(() => {
+          console.log("Application submitted");
+          // TODO: confirmation modal?
+        })
+        .catch(() => {
+          console.log("exception during application submission");
+        });
     }
   };
 
@@ -92,6 +100,17 @@ export default function Form({
     currentOptions.unshift({ id: undefined, title: "" });
 
     setProjectOptions(currentOptions);
+
+    const projectQuestion: RoundApplicationQuestion = {
+      id: roundApplication.applicationSchema.length,
+      question: "Select a project you would like to apply for funding:",
+      type: "PROJECT", // this will be a limited set [TEXT, TEXTAREA, RADIO, MULTIPLE]
+      required: true,
+      info: "",
+      choices: currentOptions?.map((option) => option.title!),
+    };
+
+    setSchema([projectQuestion, ...roundApplication.applicationSchema]);
 
     setLoading(false);
   }
@@ -119,7 +138,7 @@ export default function Form({
                     changeHandler={handleInput}
                   />
                   <p className="text-xs mt-4 mb-1">
-                    To complete your application to ${round.roundMetadata.name},
+                    To complete your application to {round.roundMetadata.name},
                     a little more info is needed:
                   </p>
                   <hr />

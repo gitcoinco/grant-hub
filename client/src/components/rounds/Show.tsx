@@ -18,14 +18,11 @@ function Round() {
 
   const params = useParams();
   const [roundToApply, setRoundToApply] = useLocalStorage("roundToApply", null);
-  // const [roundInfo] = useState<RoundResponse | null>(null);
 
   const { roundManagerClient } = useClients();
 
   async function fetchRound() {
-    console.log("DASA 2");
     if (!roundManagerClient) return;
-    console.log("DASA 3");
     const roundInfo = await useFetchRoundByAddress(
       roundManagerClient,
       params.id!
@@ -56,13 +53,11 @@ function Round() {
     roundInfo.round.applicationMetadata = roundApplicationMetadata;
     roundInfo.round.metadata = roundMetadata;
 
-    console.log("DASA 4", roundInfo);
     setRoundData(roundInfo.round);
     setLoading(false);
   }
 
   useEffect(() => {
-    console.log("DASA 1");
     fetchRound();
   }, [params.id, roundManagerClient]);
 

@@ -121,15 +121,12 @@ function ProjectForm({
 
   const getGrantData = async () => {
     if (!chain || !currentProjectId || !grantHubClient) {
-      console.log("DASA chain is ", chain);
-      console.log("DASA currentProjectId is ", currentProjectId);
       return;
     }
     const data = await fetchGrantData(grantHubClient, Number(currentProjectId));
 
     setGrantData(data);
     setLoading(false);
-    console.log("DASA DATA", data);
   };
 
   useEffect(() => {

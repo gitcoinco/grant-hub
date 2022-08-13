@@ -101,6 +101,7 @@ function Apply() {
       console.error("Cannot load round metadata", params.id);
       return;
     }
+
     roundInfo.round.applicationMetadata = roundApplicationMetadata;
     roundInfo.round.metadata = roundMetadata;
     setRoundData(roundInfo.round);

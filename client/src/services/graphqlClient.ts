@@ -365,14 +365,6 @@ export async function fetchProjectsByAccountAddress(
     },
   });
 
-  console.log("DASA fetchProjectsByAccountAddress", {
-    client,
-    address,
-    loading,
-    error,
-    data,
-  });
-
   const parsed = data?.projects;
 
   if (loading) {
@@ -402,8 +394,6 @@ export async function fetchProjectById(
     },
   });
 
-  console.log("DASA fetchProjectById", { client, hexId, loading, error, data });
-
   const parsed = data?.project;
 
   if (loading) {
@@ -429,14 +419,6 @@ export async function useFetchRoundByAddress(
     variables: {
       id: address.toLowerCase(),
     },
-  });
-
-  console.log("DASA useFetchRoundByAddress", {
-    client,
-    address,
-    loading,
-    error,
-    data,
   });
 
   const parsed = data?.round;

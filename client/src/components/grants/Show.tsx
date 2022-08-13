@@ -30,7 +30,6 @@ function Project() {
 
   const getGrantData = async () => {
     if (!grantHubClient) {
-      console.log("DASA grantHubClient is ", grantHubClient);
       return;
     }
     const data = await fetchGrantData(grantHubClient, Number(params.id));
@@ -40,7 +39,6 @@ function Project() {
       setLoading(false);
       setGrantData(data);
     }
-    console.log("DASA DATA", data);
   };
 
   useEffect(() => {
@@ -50,10 +48,6 @@ function Project() {
   useEffect(() => {
     getGrantData();
   }, [params.id]);
-
-  useEffect(() => {
-    console.log("grantData", grantData);
-  }, [grantData]);
 
   /*
   useEffect(() => {

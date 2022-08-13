@@ -1,5 +1,5 @@
 import { ApolloClient, NormalizedCacheObject } from "@apollo/client";
-import { useNetwork, chain } from "wagmi";
+import { chain, useNetwork } from "wagmi";
 import {
   goerliClient,
   optimismKovanClient,
@@ -9,8 +9,6 @@ import {
 
 export function useGranthubClient(): ApolloClient<NormalizedCacheObject> | null {
   const { chain: currentChain } = useNetwork();
-
-  console.log("DASA currentChain", currentChain);
 
   switch (currentChain?.id) {
     case chain.optimismKovan.id:
@@ -24,8 +22,6 @@ export function useGranthubClient(): ApolloClient<NormalizedCacheObject> | null 
 
 export function useRoundManagerClient(): ApolloClient<NormalizedCacheObject> | null {
   const { chain: currentChain } = useNetwork();
-
-  console.log("DASA currentChain", currentChain);
 
   switch (currentChain?.id) {
     case chain.optimismKovan.id:
