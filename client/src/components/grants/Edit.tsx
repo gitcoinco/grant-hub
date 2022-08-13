@@ -1,13 +1,13 @@
-import { useParams } from "react-router-dom";
 import { useState } from "react";
-import ProjectForm from "../base/ProjectForm";
-import Button, { ButtonVariants } from "../base/Button";
+import { useParams } from "react-router-dom";
 import colors from "../../styles/colors";
-import Cross from "../icons/Cross";
+import { FormInputs, ProjectFormStatus } from "../../types";
+import Button, { ButtonVariants } from "../base/Button";
 import ExitModal from "../base/ExitModal";
-import VerificationForm from "../base/VerificationForm";
-import { ProjectFormStatus } from "../../types";
 import Preview from "../base/Preview";
+import ProjectForm from "../base/ProjectForm";
+import VerificationForm from "../base/VerificationForm";
+import Cross from "../icons/Cross";
 
 function EditProject() {
   const params = useParams();
@@ -15,6 +15,7 @@ function EditProject() {
   const [formStatus, setFormStatus] = useState<ProjectFormStatus>(
     ProjectFormStatus.Metadata
   );
+  const [formInputs, setFormInputs] = useState<FormInputs | null>(null);
 
   const currentForm = (status: ProjectFormStatus) => {
     switch (status) {
@@ -23,12 +24,16 @@ function EditProject() {
           <ProjectForm
             setVerifying={(verifyUpdate) => setFormStatus(verifyUpdate)}
             currentProjectId={params.id}
+            setFormInputs={setFormInputs}
+            formInputs={formInputs}
           />
         );
       case ProjectFormStatus.Verification:
         return (
           <VerificationForm
             setVerifying={(verifyUpdate) => setFormStatus(verifyUpdate)}
+            setFormInputs={setFormInputs}
+            formInputs={formInputs}
           />
         );
       case ProjectFormStatus.Preview:
@@ -36,12 +41,15 @@ function EditProject() {
           <Preview
             currentProjectId={params.id}
             setVerifying={(verifyUpdate) => setFormStatus(verifyUpdate)}
+            formInputs={formInputs!}
           />
         );
       default:
         return (
           <ProjectForm
             setVerifying={(verifyUpdate) => setFormStatus(verifyUpdate)}
+            setFormInputs={setFormInputs}
+            formInputs={formInputs}
           />
         );
     }

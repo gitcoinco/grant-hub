@@ -1,18 +1,19 @@
 import { useState } from "react";
 import colors from "../../styles/colors";
+import { FormInputs, ProjectFormStatus } from "../../types";
 import Button, { ButtonVariants } from "../base/Button";
-import ProjectForm from "../base/ProjectForm";
-import Cross from "../icons/Cross";
 import ExitModal from "../base/ExitModal";
-import VerificationForm from "../base/VerificationForm";
-import { ProjectFormStatus } from "../../types";
 import Preview from "../base/Preview";
+import ProjectForm from "../base/ProjectForm";
+import VerificationForm from "../base/VerificationForm";
+import Cross from "../icons/Cross";
 
 function NewProject() {
   const [modalOpen, toggleModal] = useState(false);
   const [formStatus, setFormStatus] = useState<ProjectFormStatus>(
     ProjectFormStatus.Metadata
   );
+  const [formInputs, setFormInputs] = useState<FormInputs | null>(null);
 
   const currentForm = (status: ProjectFormStatus) => {
     switch (status) {
@@ -20,24 +21,31 @@ function NewProject() {
         return (
           <ProjectForm
             setVerifying={(verifyUpdate) => setFormStatus(verifyUpdate)}
+            setFormInputs={setFormInputs}
+            formInputs={formInputs}
           />
         );
       case ProjectFormStatus.Verification:
         return (
           <VerificationForm
             setVerifying={(verifyUpdate) => setFormStatus(verifyUpdate)}
+            setFormInputs={setFormInputs}
+            formInputs={formInputs}
           />
         );
       case ProjectFormStatus.Preview:
         return (
           <Preview
             setVerifying={(verifyUpdate) => setFormStatus(verifyUpdate)}
+            formInputs={formInputs!}
           />
         );
       default:
         return (
           <ProjectForm
             setVerifying={(verifyUpdate) => setFormStatus(verifyUpdate)}
+            setFormInputs={setFormInputs}
+            formInputs={formInputs}
           />
         );
     }
