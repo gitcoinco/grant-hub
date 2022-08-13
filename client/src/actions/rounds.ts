@@ -1,8 +1,8 @@
 import { Dispatch } from "redux";
+import { Round, RoundMetadata, RoundApplicationMetadata } from "../types";
+import PinataClient from "../services/pinata";
 import { Status } from "../reducers/rounds";
 import { RoundResponse } from "../services/graphqlClient";
-import PinataClient from "../services/pinata";
-import { Round, RoundApplicationMetadata, RoundMetadata } from "../types";
 
 const projectQuestion = {
   question: "Select a project you would like to apply for funding:",
@@ -66,32 +66,6 @@ const loadingError = (address: string, error: string): RoundsActions => ({
 });
 
 export const unloadRounds = () => roundsUnloaded();
-
-export const getRoundMetadata = async (
-  pointer: string
-): Promise<RoundMetadata | null> => {
-  const pinataClient = new PinataClient();
-  try {
-    const resp = await pinataClient.fetchText(pointer);
-    return JSON.parse(resp) as RoundMetadata;
-  } catch (e) {
-    console.error(e);
-    return null;
-  }
-};
-
-export const getRoundApplicationMetadata = async (
-  pointer: string
-): Promise<RoundApplicationMetadata | null> => {
-  const pinataClient = new PinataClient();
-  try {
-    const resp = await pinataClient.fetchText(pointer);
-    return JSON.parse(resp) as RoundApplicationMetadata;
-  } catch (e) {
-    console.error(e);
-    return null;
-  }
-};
 
 export const loadRound =
   (roundInfo: RoundResponse) => async (dispatch: Dispatch) => {

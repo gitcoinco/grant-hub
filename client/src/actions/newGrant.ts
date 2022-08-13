@@ -1,12 +1,13 @@
 import { ethers } from "ethers";
 import { Dispatch } from "redux";
+import { Project } from "../types/index";
+import { global } from "../global";
+import { RootState } from "../reducers";
 import { useNetwork, useSigner } from "wagmi";
 import ProjectRegistryABI from "../contracts/abis/ProjectRegistry.json";
 import { addressesByChainID } from "../contracts/deployments";
-import { RootState } from "../reducers";
 import { NewGrant, Status } from "../reducers/newGrant";
 import PinataClient from "../services/pinata";
-import { Project } from "../types/index";
 
 export const NEW_GRANT_STATUS = "NEW_GRANT_STATUS";
 export interface NewGrantStatus {
@@ -56,8 +57,6 @@ export const grantCreated = ({
 
 export const publishGrant =
   (grantId?: string) =>
-  //   (grantId: string | undefined, _content: any, images: Images) =>
-
   async (dispatch: Dispatch, getState: () => RootState) => {
     const state = getState();
     const { metadata: formMetaData, credentials: formCredentials } =
@@ -70,7 +69,10 @@ export const publishGrant =
       ...formMetaData,
     } as Project;
 
-    // const content = _content;
+
+  (grantId: string | undefined, _content: any, images: Images) =>
+  async (dispatch: Dispatch) => {
+    const content = _content;
     const pinataClient = new PinataClient();
     dispatch(grantStatus(Status.UploadingImages, undefined));
     if (formMetaData?.bannerImg) {
