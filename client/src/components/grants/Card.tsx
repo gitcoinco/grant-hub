@@ -1,55 +1,48 @@
-import { useEffect } from "react";
-import { shallowEqual, useSelector, useDispatch } from "react-redux";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { RootState } from "../../reducers";
-import { fetchGrantData } from "../../actions/grantsMetadata";
+import fetchGrantData from "../../actions/grantsMetadata";
+import { useClients } from "../../hooks/useDataClient";
 import { grantPath } from "../../routes";
-import TextLoading from "../base/TextLoading";
+import { Metadata } from "../../types";
 import { getProjectImage, ImgTypes } from "../../utils/components";
+import TextLoading from "../base/TextLoading";
 
-function Card({
-  projectId,
-  metaPtr,
-}: {
-  projectId: number;
-  metaPtr: { id: string; pointer: string; protocol: string };
-}) {
-  const dispatch = useDispatch();
-  const props = useSelector((state: RootState) => {
-    const grantMetadata = state.grantsMetadata[projectId];
-    const loading = grantMetadata ? grantMetadata.loading : true;
-    const project = grantMetadata?.metadata;
-    const bannerImg = getProjectImage(loading, ImgTypes.bannerImg, project);
-    const logoImg = getProjectImage(loading, ImgTypes.logoImg, project);
+function Card({ projectId }: { projectId: number }) {
+  const [loading, setLoading] = useState(true);
+  const [grantData, setGrantData] = useState<Metadata>();
+  const [logoImg, setLogoImg] = useState<string>(
+    getProjectImage(true, ImgTypes.logoImg)
+  );
+  const [bannerImg, setBannerImg] = useState<string>(
+    getProjectImage(true, ImgTypes.bannerImg)
+  );
 
-    return {
-      id: projectId,
-      loading,
-      currentProject: project,
-      bannerImg,
-      logoImg,
-    };
-  }, shallowEqual);
+  const { grantHubClient } = useClients();
 
-  useEffect(() => {
-    // called twice
-    // 1 - when it loads or projectId changes (it checks if it's cached in local storage)
-    // 2 - when ipfs is initialized (it fetches it if not loaded yet)
-    if (projectId !== undefined && props.currentProject === undefined) {
-      dispatch(fetchGrantData(projectId));
+  const getGrantData = async () => {
+    if (!grantHubClient) {
+      return;
     }
-  }, [dispatch, projectId, props.currentProject]);
+    const data = await fetchGrantData(grantHubClient, projectId);
+
+    if (data) {
+      setGrantData(data);
+      setLogoImg(getProjectImage(false, ImgTypes.logoImg, data));
+      setBannerImg(getProjectImage(false, ImgTypes.bannerImg, data));
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    dispatch(fetchGrantData(projectId, true));
-  }, [metaPtr.pointer]);
+    getGrantData();
+  }, [grantHubClient, projectId]);
 
   return (
     <div className="max-w-sm rounded overflow-hidden shadow-lg my-6">
       <Link to={grantPath(projectId)}>
         <img
           className="w-full h-32 object-cover"
-          src={props.bannerImg}
+          src={bannerImg}
           onError={(e) => {
             e.currentTarget.onerror = null;
             e.currentTarget.src = "./assets/card-img.png";
@@ -61,7 +54,7 @@ function Card({
             <div className="rounded-full h-12 w-12 bg-quaternary-text border border-tertiary-text flex justify-center items-center">
               <img
                 className="rounded-full"
-                src={props.logoImg}
+                src={logoImg}
                 onError={(e) => {
                   e.currentTarget.onerror = null;
                   e.currentTarget.src = "./icons/lightning.svg";
@@ -70,15 +63,15 @@ function Card({
               />
             </div>
           </div>
-          {props.loading ? (
+          {loading || !grantData ? (
             <TextLoading />
           ) : (
             <div className="pt-4">
               <div className="font-semi-bold text-xl mb-2">
-                {props.currentProject?.title}
+                {grantData.title}
               </div>
               <p className="text-gray-700 text-base h-20">
-                {props.currentProject?.description}
+                {grantData.description}
               </p>
             </div>
           )}

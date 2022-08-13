@@ -1,20 +1,21 @@
 import { useEffect, useState } from "react";
+import { useAccount } from "wagmi";
 import { ValidationError } from "yup";
-import { useAccount, useNetwork, useSigner } from "wagmi";
-import { shallowEqual, useDispatch, useSelector } from "react-redux";
+import loadProjects from "../../actions/projects";
+import submitApplication from "../../actions/roundApplication";
+import { useClients } from "../../hooks/useDataClient";
 import {
   ChangeHandlers,
-  RoundApplicationMetadata,
   ProjectOption,
   Round,
+  RoundApplicationMetadata,
+  RoundApplicationQuestion,
 } from "../../types";
-import { Select, TextArea, TextInput } from "../grants/inputs";
-import { validateApplication } from "../base/formValidation";
-import Radio from "../grants/Radio";
 import Button, { ButtonVariants } from "../base/Button";
-import { RootState } from "../../reducers";
-import { loadProjects } from "../../actions/projects";
-import { submitApplication } from "../../actions/roundApplication";
+import { validateApplication } from "../base/formValidation";
+import TextLoading from "../base/TextLoading";
+import { Select, TextArea, TextInput } from "../grants/inputs";
+import Radio from "../grants/Radio";
 
 interface DynamicFormInputs {
   [key: string]: string;
@@ -32,18 +33,9 @@ export default function Form({
   roundApplication: RoundApplicationMetadata;
   round: Round;
 }) {
-  const dispatch = useDispatch();
+  const [loading, setLoading] = useState(true);
   const { address } = useAccount();
-  const { data: signer } = useSigner();
-  const { chain } = useNetwork();
-
-  const props = useSelector(
-    (state: RootState) => ({
-      projects: state.projects.projects,
-      allProjectMetadata: state.grantsMetadata,
-    }),
-    shallowEqual
-  );
+  const { grantHubClient, roundManagerClient } = useClients();
 
   const [formInputs, setFormInputs] = useState<DynamicFormInputs>({});
   const [submitted, setSubmitted] = useState(false);
@@ -51,7 +43,7 @@ export default function Form({
   const [formValidation, setFormValidation] = useState(validation);
   const [projectOptions, setProjectOptions] = useState<ProjectOption[]>();
 
-  const schema = roundApplication.applicationSchema;
+  const [schema, setSchema] = useState<RoundApplicationQuestion[]>([]);
 
   const handleInput = (e: ChangeHandlers) => {
     const { value } = e.target;
@@ -77,8 +69,15 @@ export default function Form({
   const handleSubmitApplication = async () => {
     setSubmitted(true);
     await validate();
-    if (formValidation.valid) {
-      dispatch(submitApplication(round.address, formInputs));
+    if (roundManagerClient && formValidation.valid) {
+      await submitApplication(roundManagerClient, round.address, formInputs)
+        .then(() => {
+          console.log("Application submitted");
+          // TODO: confirmation modal?
+        })
+        .catch(() => {
+          console.log("exception during application submission");
+        });
     }
   };
 
@@ -87,23 +86,42 @@ export default function Form({
     validate();
   }, [formInputs]);
 
-  useEffect(() => {
-    dispatch(loadProjects(address!, signer, chain?.id!));
-  }, [dispatch]);
+  async function fetchAllProjects() {
+    if (!grantHubClient) return;
 
-  useEffect(() => {
-    const currentOptions = props.projects.map(
+    const allProjects = await loadProjects(grantHubClient, address!, true);
+
+    const currentOptions = allProjects.map(
       (project): ProjectOption => ({
-        id: project.id,
-        title: props.allProjectMetadata[project.id].metadata?.title,
+        id: Number(project.id),
+        title: project.metadata?.title,
       })
     );
     currentOptions.unshift({ id: undefined, title: "" });
 
     setProjectOptions(currentOptions);
-  }, [props.allProjectMetadata]);
 
-  return (
+    const projectQuestion: RoundApplicationQuestion = {
+      id: roundApplication.applicationSchema.length,
+      question: "Select a project you would like to apply for funding:",
+      type: "PROJECT", // this will be a limited set [TEXT, TEXTAREA, RADIO, MULTIPLE]
+      required: true,
+      info: "",
+      choices: currentOptions?.map((option) => option.title!),
+    };
+
+    setSchema([projectQuestion, ...roundApplication.applicationSchema]);
+
+    setLoading(false);
+  }
+
+  useEffect(() => {
+    fetchAllProjects();
+  }, [grantHubClient]);
+
+  return loading ? (
+    <TextLoading />
+  ) : (
     <div className="border-0 sm:border sm:border-solid border-tertiary-text rounded text-primary-text p-0 sm:p-4">
       <form onSubmit={(e) => e.preventDefault()}>
         {schema.map((input) => {
@@ -120,7 +138,7 @@ export default function Form({
                     changeHandler={handleInput}
                   />
                   <p className="text-xs mt-4 mb-1">
-                    To complete your application to ${round.roundMetadata.name},
+                    To complete your application to {round.roundMetadata.name},
                     a little more info is needed:
                   </p>
                   <hr />

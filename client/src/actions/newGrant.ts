@@ -1,13 +1,11 @@
 import { ethers } from "ethers";
 import { Dispatch } from "redux";
-import { useNetwork, useSigner } from "wagmi";
-import { Project } from "../types/index";
-import { global } from "../global";
-import { RootState } from "../reducers";
 import ProjectRegistryABI from "../contracts/abis/ProjectRegistry.json";
 import { addressesByChainID } from "../contracts/deployments";
+import { RootState } from "../reducers";
 import { NewGrant, Status } from "../reducers/newGrant";
 import PinataClient from "../services/pinata";
+import { Project } from "../types/index";
 
 export const NEW_GRANT_STATUS = "NEW_GRANT_STATUS";
 export interface NewGrantStatus {
@@ -57,6 +55,8 @@ export const grantCreated = ({
 
 export const publishGrant =
   (grantId?: string) =>
+  //   (grantId: string | undefined, _content: any, images: Images) =>
+
   async (dispatch: Dispatch, getState: () => RootState) => {
     const state = getState();
     const { metadata: formMetaData, credentials: formCredentials } =
@@ -69,6 +69,7 @@ export const publishGrant =
       ...formMetaData,
     } as Project;
 
+    // const content = _content;
     const pinataClient = new PinataClient();
     dispatch(grantStatus(Status.UploadingImages, undefined));
     if (formMetaData?.bannerImg) {
@@ -89,7 +90,7 @@ export const publishGrant =
 
     const { chainID } = state.web3;
     const addresses = addressesByChainID(chainID!);
-    const signer = global.web3Provider?.getSigner();
+    const signer = (global as any).web3Provider?.getSigner();
     const projectRegistry = new ethers.Contract(
       addresses.projectRegistry,
       ProjectRegistryABI,
@@ -128,4 +129,4 @@ export const publishGrant =
     if (txStatus.status) {
       dispatch(grantStatus(Status.Completed, undefined));
     }
-};
+  };

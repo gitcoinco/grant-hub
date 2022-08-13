@@ -1,13 +1,8 @@
 import { Menu, MenuButton, MenuItem, MenuList } from "@chakra-ui/react";
-// import { Dialog, Transition } from "@headlessui/react";
 import { ChevronDownIcon } from "@heroicons/react/solid";
-// import { Fragment, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useAccount, useDisconnect, useEnsName } from "wagmi";
-// import { loadProjects } from "../../actions/projects";
-// import { loadAccountData, web3ChainIDLoaded } from "../../actions/web3";
 import { shortAddress } from "../../utils/wallet";
-// import { BaseModal } from "./BaseModal";
 import { Button } from "./styles";
 
 export default function WalletDisplay(): JSX.Element {

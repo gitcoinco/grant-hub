@@ -1,103 +1,102 @@
 import { useEffect, useState } from "react";
-import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { Link, useParams } from "react-router-dom";
-import { loadRound, unloadRounds } from "../../actions/rounds";
-// import useLocalStorage from "../../hooks/useLocalStorage";
-import { RootState } from "../../reducers";
-import { Status } from "../../reducers/rounds";
+import { useNetwork } from "wagmi";
+import {
+  getRoundApplicationMetadata,
+  getRoundMetadata,
+} from "../../actions/rounds";
+import { useClients } from "../../hooks/useDataClient";
+import useLocalStorage from "../../hooks/useLocalStorage";
 import { roundApplicationPath } from "../../routes";
 import { useFetchRoundByAddress } from "../../services/graphqlClient";
 import { formatDate } from "../../utils/components";
-import { networkPrettyName } from "../../utils/wallet";
+
 import Button, { ButtonVariants } from "../base/Button";
+import TextLoading from "../base/TextLoading";
 
 function Round() {
+  const [loading, setLoading] = useState(true);
   const [roundData, setRoundData] = useState<any>();
-
+  const [roundToApply, setRoundToApply] = useLocalStorage("roundToApply", null);
+  const { chain } = useNetwork();
   const params = useParams();
-  const dispatch = useDispatch();
-  // const [roundToApply, setRoundToApply] = useLocalStorage("roundToApply", null);
-  // const [roundInfo] = useState<RoundResponse | null>(null);
 
-  const { roundId, chainId } = params;
+  const { roundManagerClient } = useClients();
 
-  const props = useSelector((state: RootState) => {
-    const roundState = state.rounds[roundId!];
-    const status = roundState ? roundState.status : Status.Undefined;
-    const error = roundState ? roundState.error : undefined;
-    const round = roundState ? roundState.round : undefined;
-    const web3ChainId = state.web3.chainID;
-    const roundChainId = Number(chainId);
-
-    return {
-      roundState,
-      status,
-      error,
-      round,
-      web3ChainId,
-      roundChainId,
-    };
-  }, shallowEqual);
-
-  const roundInfo = useFetchRoundByAddress(props.round?.address!);
-
-  console.log("Round Info", roundInfo);
-
-  useEffect(() => {
-    if (roundId !== undefined) {
-      dispatch(unloadRounds());
-      dispatch(loadRound(roundInfo!));
-    }
-  }, [dispatch, roundId]);
-
-  if (props.web3ChainId !== props.roundChainId) {
-    return (
-      <p>
-        This application has been deployed to{" "}
-        {networkPrettyName(props.roundChainId)} and you are connected to{" "}
-        {networkPrettyName(props.web3ChainId ?? 1)}
-      </p>
+  async function fetchRound() {
+    if (!roundManagerClient) return;
+    const roundInfo = await useFetchRoundByAddress(
+      roundManagerClient,
+      params.id!
     );
+
+    if (!roundInfo) {
+      console.error("Cannot load round", params.id);
+      return;
+    }
+
+    const roundApplicationMetadata = await getRoundApplicationMetadata(
+      roundInfo.round.applicationMetaPtr.pointer
+    );
+
+    if (!roundApplicationMetadata) {
+      console.error("Cannot load round application metadata", params.id);
+      return;
+    }
+
+    const roundMetadata = await getRoundMetadata(
+      roundInfo.round.roundMetaPtr.pointer
+    );
+
+    if (!roundMetadata) {
+      console.error("Cannot load round metadata", params.id);
+      return;
+    }
+    roundInfo.round.applicationMetadata = roundApplicationMetadata;
+    roundInfo.round.metadata = roundMetadata;
+
+    setRoundData(roundInfo.round);
+    setLoading(false);
   }
 
   useEffect(() => {
-    if (props.round) {
-      setRoundData(props.round);
+    fetchRound();
+  }, [params.id, roundManagerClient]);
+
+  useEffect(() => {
+    if (params.id) {
+      setRoundToApply(params.id);
     }
-  }, [props.round]);
+  }, [params.id]);
 
-  if (props.status === Status.Error) {
-    return <p>Error: {props.error}</p>;
-  }
-
-  if (props.status !== Status.Loaded) {
-    return <p>loading...</p>;
-  }
-
-  if (props.roundState === undefined || props.round === undefined) {
-    return <p>something went wrong</p>;
-  }
+  useEffect(() => {
+    console.log("roundToApply", roundToApply);
+  }, [roundToApply]);
 
   return (
     <div className="h-full w-full absolute flex flex-col justify-center items-center">
-      <div className="w-full lg:w-1/3 sm:w-2/3">
-        <h2 className="text-center">{roundData?.roundMetadata.name}</h2>
-        <h4 className="text-center">{roundData?.roundMetadata.description}</h4>
-        <div className="p-8 flex flex-col">
-          <p className="mt-4 mb-12 w-full text-center">
-            Date: {formatDate(roundData?.applicationsStartTime)} -{" "}
-            {formatDate(roundData?.applicationsEndTime)}
-          </p>
-          <Link to={roundApplicationPath(chainId!, roundId!)}>
-            <Button
-              styles={["w-full justify-center"]}
-              variant={ButtonVariants.primary}
-            >
-              Apply to this round
-            </Button>
-          </Link>
+      {loading ? (
+        <TextLoading />
+      ) : (
+        <div className="w-full lg:w-1/3 sm:w-2/3">
+          <h2 className="text-center">{roundData?.metadata.name}</h2>
+          <h4 className="text-center">{roundData?.metadata.description}</h4>
+          <div className="p-8 flex flex-col">
+            <p className="mt-4 mb-12 w-full text-center">
+              Date: {formatDate(roundData?.applicationsStartTime)} -{" "}
+              {formatDate(roundData?.applicationsEndTime)}
+            </p>
+            <Link to={roundApplicationPath(chain?.id.toString(), params.id!)}>
+              <Button
+                styles={["w-full justify-center"]}
+                variant={ButtonVariants.primary}
+              >
+                Apply to this round
+              </Button>
+            </Link>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

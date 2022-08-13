@@ -1,4 +1,5 @@
 import {
+  Avatar,
   Button,
   // Image,
   Menu,
@@ -7,19 +8,16 @@ import {
   MenuList,
   Tag,
   TagLabel,
-  Avatar,
 } from "@chakra-ui/react";
 import { ChevronDownIcon } from "@heroicons/react/solid";
 import { useDispatch } from "react-redux";
-import { useAccount, useNetwork, useSigner, useSwitchNetwork } from "wagmi";
-import { loadProjects } from "../../actions/projects";
+import { useAccount, useNetwork, useSwitchNetwork } from "wagmi";
 import { loadAccountData, web3ChainIDLoaded } from "../../actions/web3";
 import { Button2 } from "./styles";
 
 export default function NetworkSelector(): JSX.Element {
   const dispatch = useDispatch();
   const { address } = useAccount();
-  const { data: signer } = useSigner();
   const { chain } = useNetwork();
   const {
     chains,
@@ -31,7 +29,6 @@ export default function NetworkSelector(): JSX.Element {
     onSuccess(data) {
       dispatch<any>(web3ChainIDLoaded(data?.id));
       dispatch<any>(loadAccountData(address!));
-      dispatch<any>(loadProjects(address!, signer, chain?.id!));
     },
     onError(error) {
       console.log("switch network error", error);
