@@ -2,16 +2,16 @@ import { useEffect, useState } from "react";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { publishGrant, resetStatus } from "../../actions/newGrant";
-import { formReset } from "../../actions/projectForm";
 import { RootState } from "../../reducers";
 import { Status } from "../../reducers/newGrant";
-import { slugs } from "../../routes";
-import { ProjectFormStatus } from "../../types";
 import { formatDate } from "../../utils/components";
+import { slugs } from "../../routes";
 import Details from "../grants/Details";
 import Button, { ButtonVariants } from "./Button";
 import Toast from "./Toast";
 import TXLoading from "./TXLoading";
+import { ProjectFormStatus } from "../../types";
+import { formReset } from "../../actions/projectForm";
 
 export default function Preview({
   currentProjectId,

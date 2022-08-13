@@ -1,24 +1,15 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useNetwork } from "wagmi";
+import { shallowEqual, useSelector, useDispatch } from "react-redux";
 import { ValidationError } from "yup";
-import fetchGrantData from "../../actions/grantsMetadata";
-import { metadataSaved } from "../../actions/projectForm";
-import { useClients } from "../../hooks/useDataClient";
-import { Status } from "../../reducers/newGrant";
-import { slugs } from "../../routes";
-import { ChangeHandlers, FormInputs, ProjectFormStatus } from "../../types";
 import { TextArea, TextInput, WebsiteInput } from "../grants/inputs";
-import Button, { ButtonVariants } from "./Button";
-import ExitModal from "./ExitModal";
-import { validateProjectForm } from "./formValidation";
 import ImageInput from "./ImageInput";
-
-const initialFormValues = {
-  title: "",
-  description: "",
-  website: "",
-};
+import { RootState } from "../../reducers";
+import { fetchGrantData } from "../../actions/grantsMetadata";
+import Button, { ButtonVariants } from "./Button";
+import { validateProjectForm } from "./formValidation";
+import ExitModal from "./ExitModal";
+import { ChangeHandlers, FormInputs, ProjectFormStatus } from "../../types";
+import { metadataSaved } from "../../actions/projectForm";
 
 const validation = {
   message: "",
@@ -32,9 +23,8 @@ function ProjectForm({
   currentProjectId?: string;
   setVerifying: (verifying: ProjectFormStatus) => void;
 }) {
-  // const dispatch = useDispatch();
-  const navigate = useNavigate();
-  /*
+  const dispatch = useDispatch();
+
   const props = useSelector((state: RootState) => {
     const grantMetadata = state.grantsMetadata[Number(currentProjectId)];
     return {
@@ -46,63 +36,16 @@ function ProjectForm({
       formMetaData: state.projectForm.metadata,
     };
   }, shallowEqual);
-*/
-  const [loading, setLoading] = useState(currentProjectId !== undefined);
-  const [status, setStatus] = useState(Status.Undefined);
 
-  const [grantData, setGrantData] = useState<any>();
   const [formValidation, setFormValidation] = useState(validation);
   const [submitted, setSubmitted] = useState(false);
   const [modalOpen, toggleModal] = useState(false);
 
   const [logoImg, setLogoImg] = useState<Blob | undefined>();
   const [bannerImg, setBannerImg] = useState<Blob | undefined>();
-  const [formInputs, setFormInputs] = useState<FormInputs>(initialFormValues);
-
-  const { chain } = useNetwork();
-
-  const { grantHubClient } = useClients();
-
-  /*
-    
-
-  const localResetStatus = () => {
-    setSubmitted(false);
-    setFormValidation(validation);
-    // dispatch(resetStatus());
-  };
-  const [logoImg, setLogoImg] = useState<Blob | undefined>();
-  const [bannerImg, setBannerImg] = useState<Blob | undefined>();
-
-  
-
-  const publishProject = async () => {
-    setSubmitted(true);
-    if (!formValidation.valid) return;
-    localResetStatus();
-    showToast(true);
-
-    console.log(
-      "TODO(@DanieleSalatti): publish grant and then set status correctly"
-    );
-    // TODO(@DanieleSalatti): publish grant and then set status correctly
-    publishGrant(currentProjectId, formInputs, {
-      bannerImg,
-      logoImg,
-    });
-    setError(
-      "TODO(@DanieleSalatti): publish grant and then set status correctly"
-  */
 
   const handleInput = (e: ChangeHandlers) => {
     const { value } = e.target;
-    setFormInputs({
-      ...formInputs,
-      [e.target.name]: value,
-      bannerImg,
-      logoImg,
-    });
-    /*
     dispatch(
       metadataSaved({
         ...props.formMetaData,
@@ -111,61 +54,37 @@ function ProjectForm({
         logoImg,
       })
     );
-    */
-    setStatus(Status.Completed);
   };
 
   useEffect(() => {
-    console.log("grantData", grantData);
-  }, [grantData]);
-
-  const getGrantData = async () => {
-    if (!chain || !currentProjectId || !grantHubClient) {
-      return;
+    // called twice
+    // 1 - when it loads or id changes (it checks if it's cached in local storage)
+    if (currentProjectId !== undefined && props.currentProject === undefined) {
+      dispatch(fetchGrantData(Number(currentProjectId)));
     }
-    const data = await fetchGrantData(grantHubClient, Number(currentProjectId));
 
-    setGrantData(data);
-    setLoading(false);
-  };
+    const currentProject = props.currentProject as FormInputs;
 
-  useEffect(() => {
-    getGrantData();
-  }, []);
-
-  useEffect(() => {
-    if (status === Status.Completed) {
-      setTimeout(() => navigate(slugs.grants), 1500);
+    if (currentProject) {
+      dispatch(
+        metadataSaved({
+          ...currentProject,
+        })
+      );
     }
-  }, [status]);
-
-  // TODO: feels like this could be extracted to a component
-  useEffect(() => {
-    if (grantData) {
-      // dispatch(
-      metadataSaved({
-        ...grantData,
-      });
-      // );
-      setFormInputs({
-        title: grantData.title,
-        description: grantData.description,
-        website: grantData.website,
-      });
-    }
-  }, [currentProjectId, grantData]);
+  }, [dispatch, currentProjectId, props.currentProject]);
 
   const validate = async () => {
     try {
-      await validateProjectForm(formInputs);
+      await validateProjectForm(props.formMetaData);
       setFormValidation({
         message: "",
         valid: true,
       });
     } catch (e) {
-      const validationError = e as ValidationError;
+      const error = e as ValidationError;
       setFormValidation({
-        message: validationError.message,
+        message: error.message,
         valid: false,
       });
     }
@@ -173,7 +92,7 @@ function ProjectForm({
   // perform validation after the fields state is updated
   useEffect(() => {
     validate();
-  }, [formInputs]);
+  }, [props.formMetaData]);
 
   const nextStep = () => {
     setSubmitted(true);
@@ -182,13 +101,13 @@ function ProjectForm({
     }
   };
 
-  useEffect(() => {
-    if (status === Status.Completed) {
-      setFormInputs(initialFormValues);
-    }
-  }, [status]);
-
-  if (loading) {
+  if (
+    // if it's undefined we don't have anything to load
+    currentProjectId !== undefined &&
+    props.currentProject === undefined &&
+    props.loading &&
+    props.currentProject === undefined
+  ) {
     return <>Loading grant data from IPFS... </>;
   }
 
@@ -199,13 +118,13 @@ function ProjectForm({
           label="Project Name"
           name="title"
           placeholder="What's the project name?"
-          value={formInputs.title}
+          value={props.formMetaData.title}
           changeHandler={handleInput}
         />
         <WebsiteInput
           label="Project Website"
           name="website"
-          value={formInputs.website}
+          value={props.formMetaData.website}
           changeHandler={handleInput}
         />
         <ImageInput
@@ -215,7 +134,7 @@ function ProjectForm({
             height: 300,
           }}
           circle
-          existingImg={grantData.logoImg}
+          existingImg={props.currentProject?.logoImg}
           imgHandler={(buffer: Blob) => setLogoImg(buffer)}
         />
         <ImageInput
@@ -224,14 +143,14 @@ function ProjectForm({
             width: 1500,
             height: 500,
           }}
-          existingImg={grantData.bannerImg}
+          existingImg={props.currentProject?.bannerImg}
           imgHandler={(buffer: Blob) => setBannerImg(buffer)}
         />
         <TextArea
           label="Project Description"
           name="description"
           placeholder="What is the project about and what kind of impact does it aim to have?"
-          value={formInputs.description}
+          value={props.formMetaData.description}
           changeHandler={handleInput}
         />
         {!formValidation.valid && submitted && (

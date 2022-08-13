@@ -1,55 +1,62 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import fetchGrantData from "../../actions/grantsMetadata";
-import { editPath, grantsPath } from "../../routes";
-import colors from "../../styles/colors";
-import { Metadata } from "../../types";
-import { getProjectImage, ImgTypes } from "../../utils/components";
+import { shallowEqual, useSelector, useDispatch } from "react-redux";
+import { useAccount, useNetwork, useSigner } from "wagmi";
+import { grantsPath, editPath } from "../../routes";
+import { RootState } from "../../reducers";
+import { fetchGrantData } from "../../actions/grantsMetadata";
 import Button, { ButtonVariants } from "../base/Button";
-import Arrow from "../icons/Arrow";
+import { global } from "../../global";
 import Pencil from "../icons/Pencil";
-// import Calendar from "../icons/Calendar";
-import { useClients } from "../../hooks/useDataClient";
+import colors from "../../styles/colors";
+import Arrow from "../icons/Arrow";
+import { getProjectImage, ImgTypes } from "../../utils/components";
+import { ProjectEvent } from "../../types";
+import { loadProjects } from "../../actions/projects";
 import Details from "./Details";
 
 function Project() {
-  const [loading, setLoading] = useState(true);
-  // const [updatedAt, setUpdated] = useState("");
-  const [grantData, setGrantData] = useState<Metadata>();
-  const [logoImg, setLogoImg] = useState<string>(
-    getProjectImage(true, ImgTypes.logoImg)
-  );
-  const [bannerImg, setBannerImg] = useState<string>(
-    getProjectImage(true, ImgTypes.bannerImg)
-  );
+  const [updatedAt, setUpdated] = useState("");
+  const { data: signer } = useSigner();
+  const { address } = useAccount();
+  const { chain } = useNetwork();
 
+  const dispatch = useDispatch();
   // FIXME: params.id doesn't change if the location hash is changed manually.
   const params = useParams();
 
-  const { grantHubClient } = useClients();
-
-  const getGrantData = async () => {
-    if (!grantHubClient) {
-      return;
-    }
-    const data = await fetchGrantData(grantHubClient, Number(params.id));
-    if (data) {
-      setLogoImg(getProjectImage(false, ImgTypes.logoImg, data));
-      setBannerImg(getProjectImage(false, ImgTypes.bannerImg, data));
-      setLoading(false);
-      setGrantData(data);
-    }
-  };
+  const props = useSelector((state: RootState) => {
+    const grantMetadata = state.grantsMetadata[Number(params.id)];
+    const loading = grantMetadata ? grantMetadata.loading : false;
+    const bannerImg = getProjectImage(
+      loading,
+      ImgTypes.bannerImg,
+      grantMetadata?.metadata
+    );
+    const logoImg = getProjectImage(
+      loading,
+      ImgTypes.logoImg,
+      grantMetadata?.metadata
+    );
+    return {
+      id: params.id,
+      loading,
+      bannerImg,
+      logoImg,
+      currentProject: grantMetadata?.metadata,
+      projects: state.projects.projects,
+    };
+  }, shallowEqual);
 
   useEffect(() => {
-    getGrantData();
-  }, []);
+    // called twice
+    // 1 - when it loads or id changes (it checks if it's cached in local storage)
+    // 2 - when ipfs is initialized (it fetches it if not loaded yet)
+    if (params.id !== undefined && props.currentProject === undefined) {
+      dispatch(fetchGrantData(Number(params.id)));
+    }
+  }, [dispatch, params.id, props.currentProject]);
 
-  useEffect(() => {
-    getGrantData();
-  }, [params.id]);
-
-  /*
   useEffect(() => {
     async function fetchTimeStamp(projects: ProjectEvent[], projectId: string) {
       if (global) {
@@ -76,15 +83,19 @@ function Project() {
       // If user reloads Show projects will not exist
       dispatch(loadProjects(address!, signer, chain?.id!));
     }
-  }, [grantData]);
-*/
-  if (loading) {
+  }, [props.id, props.currentProject, global, dispatch]);
+
+  if (
+    props.currentProject === undefined &&
+    props.loading &&
+    props.currentProject
+  ) {
     return <>Loading grant data from IPFS... </>;
   }
 
   return (
     <div>
-      {grantData && (
+      {props.currentProject && (
         <>
           <div className="flex justify-between items-center mb-6">
             <Link to={grantsPath()}>
@@ -95,9 +106,9 @@ function Project() {
                 Project Details
               </h3>
             </Link>
-            {grantData.id && (
+            {props.id && (
               <Link
-                to={editPath(grantData.id)}
+                to={editPath(props.id)}
                 className="sm:w-auto mx-w-full ml-0"
               >
                 <Button
@@ -113,10 +124,10 @@ function Project() {
             )}
           </div>
           <Details
-            project={grantData}
-            updatedAt={Date.now().toString()} // updatedAt} TODO add updated at timestamp
-            logoImg={logoImg}
-            bannerImg={bannerImg}
+            project={props.currentProject}
+            updatedAt={updatedAt}
+            logoImg={props.logoImg}
+            bannerImg={props.bannerImg}
           />
         </>
       )}

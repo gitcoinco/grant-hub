@@ -1,48 +1,55 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
+import { shallowEqual, useSelector, useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
-import fetchGrantData from "../../actions/grantsMetadata";
-import { useClients } from "../../hooks/useDataClient";
+import { RootState } from "../../reducers";
+import { fetchGrantData } from "../../actions/grantsMetadata";
 import { grantPath } from "../../routes";
-import { Metadata } from "../../types";
-import { getProjectImage, ImgTypes } from "../../utils/components";
 import TextLoading from "../base/TextLoading";
+import { getProjectImage, ImgTypes } from "../../utils/components";
 
-function Card({ projectId }: { projectId: number }) {
-  const [loading, setLoading] = useState(true);
-  const [grantData, setGrantData] = useState<Metadata>();
-  const [logoImg, setLogoImg] = useState<string>(
-    getProjectImage(true, ImgTypes.logoImg)
-  );
-  const [bannerImg, setBannerImg] = useState<string>(
-    getProjectImage(true, ImgTypes.bannerImg)
-  );
+function Card({
+  projectId,
+  metaPtr,
+}: {
+  projectId: number;
+  metaPtr: { id: string; pointer: string; protocol: string };
+}) {
+  const dispatch = useDispatch();
+  const props = useSelector((state: RootState) => {
+    const grantMetadata = state.grantsMetadata[projectId];
+    const loading = grantMetadata ? grantMetadata.loading : true;
+    const project = grantMetadata?.metadata;
+    const bannerImg = getProjectImage(loading, ImgTypes.bannerImg, project);
+    const logoImg = getProjectImage(loading, ImgTypes.logoImg, project);
 
-  const { grantHubClient } = useClients();
-
-  const getGrantData = async () => {
-    if (!grantHubClient) {
-      return;
-    }
-    const data = await fetchGrantData(grantHubClient, projectId);
-
-    if (data) {
-      setGrantData(data);
-      setLogoImg(getProjectImage(false, ImgTypes.logoImg, data));
-      setBannerImg(getProjectImage(false, ImgTypes.bannerImg, data));
-      setLoading(false);
-    }
-  };
+    return {
+      id: projectId,
+      loading,
+      currentProject: project,
+      bannerImg,
+      logoImg,
+    };
+  }, shallowEqual);
 
   useEffect(() => {
-    getGrantData();
-  }, [grantHubClient, projectId]);
+    // called twice
+    // 1 - when it loads or projectId changes (it checks if it's cached in local storage)
+    // 2 - when ipfs is initialized (it fetches it if not loaded yet)
+    if (projectId !== undefined && props.currentProject === undefined) {
+      dispatch(fetchGrantData(projectId));
+    }
+  }, [dispatch, projectId, props.currentProject]);
+
+  useEffect(() => {
+    dispatch(fetchGrantData(projectId, true));
+  }, [metaPtr.pointer]);
 
   return (
     <div className="max-w-sm rounded overflow-hidden shadow-lg my-6">
       <Link to={grantPath(projectId)}>
         <img
           className="w-full h-32 object-cover"
-          src={bannerImg}
+          src={props.bannerImg}
           onError={(e) => {
             e.currentTarget.onerror = null;
             e.currentTarget.src = "./assets/card-img.png";
@@ -54,7 +61,7 @@ function Card({ projectId }: { projectId: number }) {
             <div className="rounded-full h-12 w-12 bg-quaternary-text border border-tertiary-text flex justify-center items-center">
               <img
                 className="rounded-full"
-                src={logoImg}
+                src={props.logoImg}
                 onError={(e) => {
                   e.currentTarget.onerror = null;
                   e.currentTarget.src = "./icons/lightning.svg";
@@ -63,15 +70,15 @@ function Card({ projectId }: { projectId: number }) {
               />
             </div>
           </div>
-          {loading || !grantData ? (
+          {props.loading ? (
             <TextLoading />
           ) : (
             <div className="pt-4">
               <div className="font-semi-bold text-xl mb-2">
-                {grantData.title}
+                {props.currentProject?.title}
               </div>
               <p className="text-gray-700 text-base h-20">
-                {grantData.description}
+                {props.currentProject?.description}
               </p>
             </div>
           )}
