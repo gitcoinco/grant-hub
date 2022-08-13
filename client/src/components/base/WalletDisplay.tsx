@@ -1,5 +1,5 @@
 import { Menu, MenuButton, MenuItem, MenuList } from "@chakra-ui/react";
-import { ChevronDownIcon } from "@heroicons/react/solid";
+// import { ChevronDownIcon } from "@heroicons/react/solid";
 import { useDispatch } from "react-redux";
 import { useAccount, useDisconnect, useEnsName } from "wagmi";
 import { shortAddress } from "../../utils/wallet";
@@ -61,10 +61,7 @@ export default function WalletDisplay(): JSX.Element {
   return (
     <div className="p-2 m-2 mb-2 mt-3">
       <Menu>
-        <MenuButton
-          as={Button}
-          rightIcon={<ChevronDownIcon className="text-black" />}
-        >
+        <MenuButton as={Button}>
           {ensName ?? isValidAddress()
             ? shortAddress(address!)
             : "Connect Wallet"}

@@ -9,7 +9,7 @@ import {
   Tag,
   TagLabel,
 } from "@chakra-ui/react";
-import { ChevronDownIcon } from "@heroicons/react/solid";
+// import { ChevronDownIcon } from "@heroicons/react/solid";
 import { useDispatch } from "react-redux";
 import { useAccount, useNetwork, useSwitchNetwork } from "wagmi";
 import { loadAccountData, web3ChainIDLoaded } from "../../actions/web3";
@@ -42,7 +42,7 @@ export default function NetworkSelector(): JSX.Element {
   return (
     <div className="p-2 m-2 mb-2">
       <Menu>
-        <MenuButton as={Button2} rightIcon={<ChevronDownIcon />}>
+        <MenuButton as={Button2}>
           <div className="">
             <Tag size="lg" colorScheme={colorScheme} borderRadius="full">
               {chain?.id === 69 && (

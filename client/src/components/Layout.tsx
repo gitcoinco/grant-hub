@@ -19,6 +19,7 @@ function Layout(ownProps: Props) {
   const props = useSelector(
     (state: RootState) => ({
       web3Error: state.web3.error,
+      chainId: state.web3.chainID,
     }),
     shallowEqual
   );
@@ -28,6 +29,9 @@ function Layout(ownProps: Props) {
       console.log("Connected =>", { addr, connector, isReconnected });
       dispatch<any>(loadAccountData(addr!));
       dispatch<any>(initializeWeb3(chain?.id!));
+      if (!props.chainId) {
+        dispatch<any>({ type: "WEB3_CHAIN_ID_LOADED", chainID: chain?.id });
+      }
     },
   });
 
