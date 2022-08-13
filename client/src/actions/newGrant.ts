@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
 import { Dispatch } from "redux";
-import { useNetwork, useSigner } from "wagmi";
+// import { useNetwork, useSigner } from "wagmi";
 import { Project } from "../types/index";
 import { global } from "../global";
 import { RootState } from "../reducers";
@@ -128,4 +128,4 @@ export const publishGrant =
     if (txStatus.status) {
       dispatch(grantStatus(Status.Completed, undefined));
     }
-};
+  };
