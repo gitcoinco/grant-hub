@@ -1,9 +1,9 @@
 import { ethers } from "ethers";
 import { Dispatch } from "redux";
+import { useNetwork, useSigner } from "wagmi";
 import { Project } from "../types/index";
 import { global } from "../global";
 import { RootState } from "../reducers";
-import { useNetwork, useSigner } from "wagmi";
 import ProjectRegistryABI from "../contracts/abis/ProjectRegistry.json";
 import { addressesByChainID } from "../contracts/deployments";
 import { NewGrant, Status } from "../reducers/newGrant";
@@ -69,10 +69,6 @@ export const publishGrant =
       ...formMetaData,
     } as Project;
 
-
-  (grantId: string | undefined, _content: any, images: Images) =>
-  async (dispatch: Dispatch) => {
-    const content = _content;
     const pinataClient = new PinataClient();
     dispatch(grantStatus(Status.UploadingImages, undefined));
     if (formMetaData?.bannerImg) {
@@ -91,13 +87,13 @@ export const publishGrant =
     const resp = await pinataClient.pinJSON(application);
     const metadataCID = resp.IpfsHash;
 
-    const { chain } = useNetwork();
-    const addresses = addressesByChainID(chain?.id!);
-    const { data: signer } = useSigner();
+    const { chainID } = state.web3;
+    const addresses = addressesByChainID(chainID!);
+    const signer = global.web3Provider?.getSigner();
     const projectRegistry = new ethers.Contract(
       addresses.projectRegistry,
       ProjectRegistryABI,
-      signer!
+      signer
     );
 
     dispatch(grantStatus(Status.WaitingForSignature, undefined));
@@ -132,4 +128,4 @@ export const publishGrant =
     if (txStatus.status) {
       dispatch(grantStatus(Status.Completed, undefined));
     }
-  };
+};

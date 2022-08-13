@@ -1,16 +1,15 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { useNetwork } from "wagmi";
+import { Button } from "@chakra-ui/react";
 import { grantsPath, newGrantPath } from "../routes";
 import colors from "../styles/colors";
-import Button, { ButtonVariants } from "./base/Button";
+import NetworkSelector from "./base/NetworkSelector";
 import WalletDisplay from "./base/WalletDisplay";
 import Hamburger from "./icons/Hamburger";
 import Plus from "./icons/Plus";
 
 export default function Header() {
   const [navbarOpen, setNavbarOpen] = React.useState(false);
-  const { chain } = useNetwork();
 
   return (
     <header className="flex items-center justify-between px-4 sm:px-2 mb-3 text-primary-text w-full border-0 sm:border-b container mx-auto h-1/8">
@@ -23,6 +22,7 @@ export default function Header() {
                 alt="Gitcoin Logo"
                 src="./assets/gitcoin-logo.svg"
               />
+              {/* todo: add the other image logo */}
               <h3 className="ml-6 mt-1">Grant Hub</h3>
             </div>
           </Link>
@@ -44,14 +44,14 @@ export default function Header() {
         >
           <div className="flex flex-col lg:flex-row list-none lg:ml-auto">
             <Link to={newGrantPath()}>
-              <Button variant={ButtonVariants.primary}>
+              <Button colorScheme="purple" className="mt-4">
                 <i className="icon">
                   <Plus color={colors["quaternary-text"]} />
                 </i>
                 New Project
               </Button>
             </Link>
-            <div className="p-4 m-2">{chain?.name}</div>
+            <NetworkSelector />
             <WalletDisplay />
           </div>
         </div>

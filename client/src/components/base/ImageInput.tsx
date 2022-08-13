@@ -25,6 +25,7 @@ export default function ImageInput({
   dimensions,
   existingImg,
   circle,
+  info,
   imgHandler,
 }: {
   label: string;
@@ -34,6 +35,7 @@ export default function ImageInput({
   };
   existingImg?: string;
   circle?: Boolean;
+  info?: string;
   imgHandler: (file: Blob) => void;
 }) {
   const fileInput = useRef<HTMLInputElement>(null);
@@ -141,7 +143,10 @@ export default function ImageInput({
   return (
     <>
       <div className="mt-6 w-full">
-        <label htmlFor={label}>{label}</label>
+        <label className="text-sm" htmlFor={label}>
+          {label}
+        </label>
+        <legend>{info}</legend>
         <div className="flex">
           <input
             ref={fileInput}

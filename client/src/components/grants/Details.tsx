@@ -1,5 +1,5 @@
 import colors from "../../styles/colors";
-import { Metadata, FormInputs, Project, ProjectCredential } from "../../types";
+import { Metadata, FormInputs, Project, ProjectCredentials } from "../../types";
 import Calendar from "../icons/Calendar";
 import LinkIcon from "../icons/LinkIcon";
 import Shield from "../icons/Shield";
@@ -12,9 +12,6 @@ function Verified() {
     </div>
   );
 }
-
-const hasCredential = (credential?: ProjectCredential) =>
-  credential && credential.input.length > 0;
 
 export default function Details({
   project,
@@ -73,10 +70,11 @@ export default function Details({
         </a>
         <div>
           <p className="flex text-sm">
-            <Calendar color={colors["secondary-text"]} /> {updatedAt}
+            <Calendar color={colors["secondary-text"]} />{" "}
+            <span className="ml-2">{updatedAt}</span>
           </p>
         </div>
-        {hasCredential(project?.credentials?.twitter) && (
+        {project?.projectTwitter && (
           <div className="flex justify-start items-center">
             <img
               className="h-3 mr-2 mt-1"
@@ -86,30 +84,47 @@ export default function Details({
             <a
               className="mr-2 text-primary-background"
               target="_blank"
-              href={`https://github.com/${project?.credentials?.twitter?.input}`}
+              href={`https://twitter.com/${project?.projectTwitter}`}
               rel="noreferrer"
             >
-              {project?.credentials?.twitter?.input}
+              {project?.projectTwitter}
             </a>
-            {project?.credentials?.twitter?.credential && <Verified />}
+            {project?.credentials?.twitter && <Verified />}
           </div>
         )}
-        {hasCredential(project?.credentials?.github) && (
+        {project?.projectGithub && (
           <div className="flex justify-start items-center">
             <img
-              className="h-3 mr-2"
+              className="h-3 mr-2 mt-1"
               src="./assets/github_logo.png"
               alt="Github Logo"
             />
             <a
-              className="mr-2"
+              className="mr-2 text-primary-background"
               target="_blank"
-              href={`https://github.com/${project?.credentials?.github?.input}`}
+              href={`https://github.com/${project?.projectGithub}`}
               rel="noreferrer"
             >
-              {project?.credentials?.github?.input}
+              {project?.projectGithub}
             </a>
-            {project?.credentials?.github?.credential && <Verified />}
+            {project?.credentials?.github && <Verified />}
+          </div>
+        )}
+        {project?.projectGithub && (
+          <div className="flex justify-start items-center">
+            <img
+              className="h-3 mr-2 mt-1"
+              src="./assets/github_logo.png"
+              alt="Github Logo"
+            />
+            <a
+              className="mr-2 text-primary-background"
+              target="_blank"
+              href={`https://github.com/${project?.userGithub}`}
+              rel="noreferrer"
+            >
+              {project?.userGithub}
+            </a>
           </div>
         )}
       </div>

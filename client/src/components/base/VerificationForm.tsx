@@ -1,12 +1,13 @@
 import { VerifiableCredential } from "@gitcoinco/passport-sdk-types";
 import { useState } from "react";
-import { useDispatch } from "react-redux";
+import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { credentialsSaved } from "../../actions/projectForm";
 import { ChangeHandlers, ProjectFormStatus } from "../../types";
 import Button, { ButtonVariants } from "./Button";
 import { TextInput } from "../grants/inputs";
 import Github from "../providers/Github";
 import Twitter from "../providers/Twitter";
+import { RootState } from "../../reducers";
 
 const initialFormValues = {
   github: "",
@@ -19,6 +20,12 @@ export default function VerificationForm({
   setVerifying: (verifying: ProjectFormStatus) => void;
 }) {
   const dispatch = useDispatch();
+  const props = useSelector(
+    (state: RootState) => ({
+      formMetaData: state.projectForm.metadata,
+    }),
+    shallowEqual
+  );
 
   const [formInputs, setFormInputs] = useState(initialFormValues);
   const [ghVerification, setGHVerification] = useState<VerifiableCredential>();
@@ -33,58 +40,54 @@ export default function VerificationForm({
   const saveAndPreview = () => {
     dispatch(
       credentialsSaved({
-        github: {
-          input: formInputs.github,
-          credential: ghVerification,
-        },
-        twitter: {
-          input: formInputs.twitter,
-          credential: twitterVerification,
-        },
+        github: ghVerification,
+        twitter: twitterVerification,
       })
     );
     setVerifying(ProjectFormStatus.Preview);
   };
 
   return (
-    <div className="border-0 sm:border sm:border-solid border-tertiary-text rounded text-primary-text p-0 sm:p-4">
-      <div className="flex items-center">
+    <div className="border-0 sm:border sm:border-solid border-tertiary-text rounded text-primary-text px-4">
+      <div className="flex items-center mb-6">
         <img
           className="h-12 mr-12"
           src="./assets/github_logo.png"
           alt="Github Logo"
         />
         <TextInput
-          label="Project Name"
+          disabled
+          label="Github"
           info="Connect your project’s GitHub account to verify (Optional)"
           name="github"
           placeholder="What's the project name?"
-          value={formInputs.github}
+          value={props.formMetaData.projectGithub}
           changeHandler={handleInput}
         />
         <Github
-          org={formInputs.github}
+          org={props.formMetaData.projectGithub ?? ""}
           verificationComplete={setGHVerification}
           verificationError={(providerError) => setError(providerError)}
         />
       </div>
       <hr className="my-4" />
-      <div className="flex items-center">
+      <div className="flex items-center mb-6">
         <img
           className="h-12 mr-9"
           src="./assets/twitter_logo.svg"
           alt="Twitter Logo"
         />
         <TextInput
-          label="Project Name"
+          disabled
+          label="Twitter"
           info="Connect your project’s Twitter account to verify (Optional)"
           name="twitter"
           placeholder="What's the project name?"
-          value={formInputs.twitter}
+          value={props.formMetaData.projectTwitter}
           changeHandler={handleInput}
         />
         <Twitter
-          handle={formInputs.twitter}
+          handle={props.formMetaData.projectTwitter ?? ""}
           verificationComplete={setTwitterVerification}
           verificationError={(providerError) => setError(providerError)}
         />

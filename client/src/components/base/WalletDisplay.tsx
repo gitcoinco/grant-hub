@@ -1,48 +1,39 @@
-import { Dialog, Menu, Transition } from "@headlessui/react";
-import { ChevronDownIcon, XIcon } from "@heroicons/react/solid";
-import { Fragment, useState } from "react";
+import { Menu, MenuButton, MenuItem, MenuList } from "@chakra-ui/react";
+// import { Dialog, Transition } from "@headlessui/react";
+import { ChevronDownIcon } from "@heroicons/react/solid";
+// import { Fragment, useState } from "react";
 import { useDispatch } from "react-redux";
-import {
-  useAccount,
-  useDisconnect,
-  useEnsName,
-  useNetwork,
-  useSigner,
-  useSwitchNetwork,
-} from "wagmi";
-import { loadProjects } from "../../actions/projects";
-import { loadAccountData, web3ChainIDLoaded } from "../../actions/web3";
+import { useAccount, useDisconnect, useEnsName } from "wagmi";
+// import { loadProjects } from "../../actions/projects";
+// import { loadAccountData, web3ChainIDLoaded } from "../../actions/web3";
 import { shortAddress } from "../../utils/wallet";
+// import { BaseModal } from "./BaseModal";
 import { Button } from "./styles";
 
-function classNames(...classes: string[]) {
-  return classes.filter(Boolean).join(" ");
-}
-
-export default function WalletDisplay() {
-  const [open, setOpen] = useState(false);
+export default function WalletDisplay(): JSX.Element {
+  // const [open, setOpen] = useState(false);
   const dispatch = useDispatch();
   const { address } = useAccount();
-  const { data: signer } = useSigner();
-  const { chain } = useNetwork();
-  const {
-    chains,
-    error: networkError,
-    isLoading,
-    pendingChainId,
-    switchNetwork,
-  } = useSwitchNetwork({
-    onSuccess(data) {
-      setOpen(false);
-      dispatch<any>(web3ChainIDLoaded(data?.id));
-      dispatch<any>(loadAccountData(address!));
-      dispatch<any>(loadProjects(address!, signer, chain?.id!));
-    },
-    onError(error) {
-      console.log("switch network error", error);
-      dispatch({ type: "WEB3_ERROR", error });
-    },
-  });
+  // const { data: signer } = useSigner();
+  // const { chain } = useNetwork();
+  // const {
+  //   chains,
+  //   error: networkError,
+  //   isLoading,
+  //   pendingChainId,
+  //   switchNetwork,
+  // } = useSwitchNetwork({
+  //   onSuccess(data) {
+  //     setOpen(false);
+  //     dispatch<any>(web3ChainIDLoaded(data?.id));
+  //     dispatch<any>(loadAccountData(address!));
+  //     dispatch<any>(loadProjects(address!, signer, chain?.id!));
+  //   },
+  //   onError(error) {
+  //     console.log("switch network error", error);
+  //     dispatch({ type: "WEB3_ERROR", error });
+  //   },
+  // });
   const { disconnect } = useDisconnect({
     onSuccess() {
       dispatch({
@@ -68,67 +59,33 @@ export default function WalletDisplay() {
     },
   });
 
-  return (
-    <div className="relative z-0 inline-flex shadow-sm rounded-md">
-      <Button
-        type="button"
-        $variant="outline"
-        className="relative inline-flex items-center px-4 py-0 rounded-l-md text-sm w-[150px] bg-grey-500 text-white"
-      >
-        <div className="truncate text-black">
-          {address ? shortAddress(address) : "Connect Wallet"}
-        </div>
-      </Button>
-      <Menu as="div" className="-ml-px relative block">
-        <Menu.Button className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-grey-100 text-sm text-white focus:z-10">
-          <span className="sr-only">Open options</span>
-          <ChevronDownIcon className="h-5 w-5 text-black" aria-hidden="true" />
-        </Menu.Button>
-        <Transition
-          as={Fragment}
-          enter="transition ease-out duration-100"
-          enterFrom="transform opacity-0 scale-95"
-          enterTo="transform opacity-100 scale-100"
-          leave="transition ease-in duration-75"
-          leaveFrom="transform opacity-100 scale-100"
-          leaveTo="transform opacity-0 scale-95"
-        >
-          <Menu.Items className="right-0 mt-2 -mr-1 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none">
-            <div className="py-1">
-              <Menu.Item key="Switch Network">
-                {({ active }) => (
-                  <button
-                    type="button"
-                    className={classNames(
-                      active ? "bg-gray-100 text-gray-900" : "text-gray-700",
-                      "block px-4 py-2 text-sm w-full text-left"
-                    )}
-                    onClick={() => setOpen(true)}
-                  >
-                    Switch Network
-                  </button>
-                )}
-              </Menu.Item>
-              <Menu.Item key="Disconnect">
-                {({ active }) => (
-                  <button
-                    type="button"
-                    className={classNames(
-                      active ? "bg-gray-100 text-gray-900" : "text-gray-700",
-                      "block px-4 py-2 text-sm w-full text-left"
-                    )}
-                    onClick={() => disconnect()}
-                  >
-                    Disconnect
-                  </button>
-                )}
-              </Menu.Item>
-            </div>
-          </Menu.Items>
-        </Transition>
-      </Menu>
+  function isValidAddress(): boolean {
+    return address !== "0x0000000000000000000000000000000000000000";
+  }
 
-      <Transition.Root show={open} as={Fragment}>
+  return (
+    <div className="p-2 m-2 mb-2 mt-3">
+      <Menu>
+        <MenuButton
+          as={Button}
+          rightIcon={<ChevronDownIcon className="text-black" />}
+        >
+          {ensName ?? isValidAddress()
+            ? shortAddress(address!)
+            : "Connect Wallet"}
+        </MenuButton>
+        <MenuList>
+          {/* <MenuItem minH="48px" onClick={() => setOpen(true)}>
+            <span>Switch Network</span>
+          </MenuItem> */}
+          <MenuItem minH="40px" onClick={() => disconnect()}>
+            <span>Disconnect</span>
+          </MenuItem>
+        </MenuList>
+      </Menu>
+      {/* todo: redo this modal using our base setup 
+      <BaseModal isOpen={open} onClose={() => {}} /> */}
+      {/* <Transition.Root show={open} as={Fragment}>
         <Dialog as="div" className="relative z-10" onClose={setOpen}>
           <Transition.Child
             as={Fragment}
@@ -141,8 +98,7 @@ export default function WalletDisplay() {
           >
             <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
           </Transition.Child>
-
-          <div className="fixed z-10 inset-0 overflow-y-auto">
+          <div className="fixed z-10 inset-0">
             <div className="flex items-end sm:items-center justify-center min-h-full p-4 text-center sm:p-0">
               <Transition.Child
                 as={Fragment}
@@ -188,7 +144,7 @@ export default function WalletDisplay() {
             </div>
           </div>
         </Dialog>
-      </Transition.Root>
+      </Transition.Root> */}
     </div>
   );
 }

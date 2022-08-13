@@ -3,9 +3,11 @@ import { Dispatch } from "redux";
 // import { chains } from "../contracts/deployments";
 import { global } from "../global";
 import { RootState } from "../reducers";
+import { chains } from "../contracts/deployments";
+import { networkPrettyNames } from "../utils/wallet";
 
-// const chainIds = Object.keys(chains);
-// const chainNames = Object.values(chains);
+const chainIds = Object.keys(chains);
+const chainNames = Object.values(networkPrettyNames);
 
 enum Web3Type {
   Generic,
