@@ -25,48 +25,20 @@ function Apply() {
   const params = useParams();
   // const navigate = useNavigate();
   const [roundToApply, setRoundToApply] = useLocalStorage("roundToApply", null);
-  const { roundManagerClient } = useClients();
   const [loading, setLoading] = useState(true);
   const [roundData, setRoundData] = useState<BaseRound>();
 
   const [modalOpen, toggleModal] = useState(false);
 
-  // const { roundId, chainId } = params;
+  const { roundId, chainId } = params;
 
-  /*
-  const props = useSelector((state: RootState) => {
-    const roundState = state.rounds[roundId!];
-    const roundStatus = roundState ? roundState.status : RoundStatus.Undefined;
-    const applicationState = state.roundApplication[roundId!];
-    const applicationStatus: ApplicationStatus = applicationState
-      ? applicationState.status
-      : ApplicationStatus.Undefined;
-    const roundError = roundState ? roundState.error : undefined;
-    const round = roundState ? roundState.round : undefined;
-
-    const applicationError = applicationState
-      ? applicationState.error
-      : undefined;
-
-    return {
-      roundState,
-      roundStatus,
-      roundError,
-      round,
-      applicationStatus,
-      applicationError,
-      applicationMetadata: round?.applicationMetadata,
-    };
-  }, shallowEqual);
-  */
+  const { roundManagerClient } = useClients(Number(chainId));
 
   useEffect(() => {
-    if (params.id !== undefined) {
-      // && props.round === undefined) {
-      // navigate(roundPath(params.id));
-      setRoundToApply(params.id);
+    if (roundId) {
+      setRoundToApply(roundId);
     }
-  }, [params.id]);
+  }, [roundId]);
 
   useEffect(() => {
     console.log("roundToApply", roundToApply);
@@ -76,11 +48,11 @@ function Apply() {
     if (!roundManagerClient) return;
     const roundInfo = await useFetchRoundByAddress(
       roundManagerClient,
-      params.id!
+      roundId!
     );
 
     if (!roundInfo) {
-      console.error("Cannot load round", params.id);
+      console.error("Cannot load round", roundId);
       return;
     }
 
@@ -89,7 +61,7 @@ function Apply() {
     );
 
     if (!roundApplicationMetadata) {
-      console.error("Cannot load round application metadata", params.id);
+      console.error("Cannot load round application metadata", roundId);
       return;
     }
 
@@ -98,7 +70,7 @@ function Apply() {
     );
 
     if (!roundMetadata) {
-      console.error("Cannot load round metadata", params.id);
+      console.error("Cannot load round metadata", roundId);
       return;
     }
 
@@ -110,7 +82,7 @@ function Apply() {
 
   useEffect(() => {
     fetchRound();
-  }, [params.id, roundManagerClient]);
+  }, [roundId, roundManagerClient]);
 
   /*
   if (props.roundStatus === RoundStatus.Error) {
