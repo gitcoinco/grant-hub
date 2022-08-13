@@ -44,6 +44,7 @@ export default function WalletDisplay(): JSX.Element {
 
   const { data: ensName } = useEnsName({
     address,
+    chainId: 1,
     onSuccess() {
       dispatch({ type: "ENS_NAME_LOADED", ens: ensName });
       console.log("ensName", ensName);

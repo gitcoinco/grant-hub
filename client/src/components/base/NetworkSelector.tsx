@@ -27,7 +27,8 @@ export default function NetworkSelector(): JSX.Element {
     switchNetwork,
   } = useSwitchNetwork({
     onSuccess(data) {
-      dispatch<any>(web3ChainIDLoaded(data?.id));
+      console.log("data", data);
+      dispatch<any>(web3ChainIDLoaded(chain?.id!));
       dispatch<any>(loadAccountData(address!));
     },
     onError(error) {
@@ -36,7 +37,7 @@ export default function NetworkSelector(): JSX.Element {
     },
   });
 
-  // todo: update when we get the chainId in the uri JR
+  // todo: set this based on round and current chain
   const colorScheme: string = "white";
 
   return (
