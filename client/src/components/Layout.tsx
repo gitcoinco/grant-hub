@@ -28,7 +28,6 @@ function Layout(ownProps: Props) {
     onConnect({ address: addr, connector, isReconnected }) {
       console.log("Connected =>", { addr, connector, isReconnected });
       dispatch<any>(loadAccountData(addr!));
-      // dispatch<any>(initializeWeb3(chain?.id!));
     },
   });
 

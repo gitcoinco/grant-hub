@@ -4,11 +4,11 @@ import {
   // Image,
   Menu,
   MenuButton,
-  // MenuItem,
   MenuList,
   Tag,
   TagLabel,
 } from "@chakra-ui/react";
+//! Couldn't get the damn chevron to display 🤬
 // import { ChevronDownIcon } from "@heroicons/react/solid";
 import { useDispatch } from "react-redux";
 import { useAccount, useNetwork, useSwitchNetwork } from "wagmi";
@@ -46,7 +46,7 @@ export default function NetworkSelector(): JSX.Element {
         <MenuButton as={Button2}>
           <div className="">
             <Tag size="lg" colorScheme={colorScheme} borderRadius="full">
-              {chain?.id === 69 && (
+              {(chain?.id === 69 || chain?.id === 10) && (
                 <Avatar
                   src="./assets/optimism-logo.png"
                   size="xs"

@@ -1,4 +1,5 @@
 import { Menu, MenuButton, MenuItem, MenuList } from "@chakra-ui/react";
+//! I couldn't get this damn chevron to display 🤬
 // import { ChevronDownIcon } from "@heroicons/react/solid";
 import { useDispatch } from "react-redux";
 import { useAccount, useDisconnect, useEnsName } from "wagmi";
@@ -20,7 +21,7 @@ export default function WalletDisplay(): JSX.Element {
   // } = useSwitchNetwork({
   //   onSuccess(data) {
   //     setOpen(false);
-  //     dispatch<any>(web3ChainIDLoaded(data?.id));
+  //     dispatch({ type: "WEB3_CHAIN_ID_LOADED", chainID: data?.id }));
   //     dispatch<any>(loadAccountData(address!));
   //     dispatch<any>(loadProjects(address!, signer, chain?.id!));
   //   },
@@ -78,66 +79,6 @@ export default function WalletDisplay(): JSX.Element {
       </Menu>
       {/* todo: redo this modal using our base setup 
       <BaseModal isOpen={open} onClose={() => {}} /> */}
-      {/* <Transition.Root show={open} as={Fragment}>
-        <Dialog as="div" className="relative z-10" onClose={setOpen}>
-          <Transition.Child
-            as={Fragment}
-            enter="ease-out duration-300"
-            enterFrom="opacity-0"
-            enterTo="opacity-100"
-            leave="ease-in duration-200"
-            leaveFrom="opacity-100"
-            leaveTo="opacity-0"
-          >
-            <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
-          </Transition.Child>
-          <div className="fixed z-10 inset-0">
-            <div className="flex items-end sm:items-center justify-center min-h-full p-4 text-center sm:p-0">
-              <Transition.Child
-                as={Fragment}
-                enter="ease-out duration-300"
-                enterFrom="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-                enterTo="opacity-100 translate-y-0 sm:scale-100"
-                leave="ease-in duration-200"
-                leaveFrom="opacity-100 translate-y-0 sm:scale-100"
-                leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-              >
-                <Dialog.Panel className="relative bg-white rounded-lg px-4 pt-5 pb-4 text-left shadow-xl transform transition-all">
-                  <div className="hidden sm:block absolute top-0 right-0 py-4 pr-4">
-                    <button
-                      type="button"
-                      className="text-grey-300 hover:text-grey-400 absolute top-0 right-0 py-4 pr-4"
-                      onClick={() => setOpen(false)}
-                    >
-                      <span className="sr-only">Close</span>
-                      <XIcon className="h-6 w-6" aria-hidden="true" />
-                    </button>
-                  </div>
-                  <div className="mt-4">
-                    {chains.map((x) => (
-                      <Button
-                        type="button"
-                        className="inline-flex justify-center w-full sm:text-sm mt-4"
-                        disabled={!switchNetwork}
-                        key={x.id}
-                        onClick={() => switchNetwork?.(x.id)}
-                      >
-                        {x.name}
-                        {isLoading && pendingChainId === x.id && " (switching)"}
-                      </Button>
-                    ))}
-                    {networkError?.message && (
-                      <div className="text-sm text-red-600 my-4">
-                        {networkError.message}
-                      </div>
-                    )}
-                  </div>
-                </Dialog.Panel>
-              </Transition.Child>
-            </div>
-          </div>
-        </Dialog>
-      </Transition.Root> */}
     </div>
   );
 }
