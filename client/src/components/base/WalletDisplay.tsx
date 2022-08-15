@@ -1,16 +1,22 @@
-import { Menu, MenuButton, MenuItem, MenuList } from "@chakra-ui/react";
+import {
+  Avatar,
+  AvatarBadge,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
+} from "@chakra-ui/react";
 //! I couldn't get this damn chevron to display 🤬
 // import { ChevronDownIcon } from "@heroicons/react/solid";
 import { useDispatch } from "react-redux";
 import { useAccount, useDisconnect, useEnsName } from "wagmi";
-import Blockies from "react-blockies";
 import { shortAddress } from "../../utils/wallet";
 import { Button } from "./styles";
 
 export default function WalletDisplay(): JSX.Element {
   // const [open, setOpen] = useState(false);
   const dispatch = useDispatch();
-  const { address } = useAccount();
+  const { address, isConnected } = useAccount();
   // const { data: signer } = useSigner();
   // const { chain } = useNetwork();
   // const {
@@ -61,13 +67,16 @@ export default function WalletDisplay(): JSX.Element {
     return address !== "0x0000000000000000000000000000000000000000";
   }
 
+  // 🤔 could use also as a signal that user is on the right network
+  const avatarBg = isConnected ? "green.500" : "red.500";
+
   return (
     <div className="p-2 m-2 mb-2 mt-3">
       <Menu>
-        <MenuButton
-          as={Button}
-          leftIcon={<Blockies seed={address!} size={3} />}
-        >
+        <MenuButton as={Button}>
+          <Avatar size="xs">
+            <AvatarBadge boxSize="1.25em" bg={avatarBg} />
+          </Avatar>{" "}
           {ensName ?? isValidAddress()
             ? shortAddress(address!)
             : "Connect Wallet"}
