@@ -3,6 +3,7 @@ import { Menu, MenuButton, MenuItem, MenuList } from "@chakra-ui/react";
 // import { ChevronDownIcon } from "@heroicons/react/solid";
 import { useDispatch } from "react-redux";
 import { useAccount, useDisconnect, useEnsName } from "wagmi";
+import Blockies from "react-blockies";
 import { shortAddress } from "../../utils/wallet";
 import { Button } from "./styles";
 
@@ -63,7 +64,10 @@ export default function WalletDisplay(): JSX.Element {
   return (
     <div className="p-2 m-2 mb-2 mt-3">
       <Menu>
-        <MenuButton as={Button}>
+        <MenuButton
+          as={Button}
+          leftIcon={<Blockies seed={address!} size={3} />}
+        >
           {ensName ?? isValidAddress()
             ? shortAddress(address!)
             : "Connect Wallet"}
