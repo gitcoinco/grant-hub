@@ -10,7 +10,7 @@ import {
 // import { ChevronDownIcon } from "@heroicons/react/solid";
 import { useDispatch } from "react-redux";
 import { useAccount, useDisconnect, useEnsName } from "wagmi";
-import { shortAddress } from "../../utils/wallet";
+import { shortAddress, isValidAddress } from "../../utils/wallet";
 import { Button } from "./styles";
 
 export default function WalletDisplay(): JSX.Element {
@@ -45,7 +45,6 @@ export default function WalletDisplay(): JSX.Element {
       });
     },
     onError(error) {
-      console.log("disconnect error", error);
       dispatch({ type: "WEB3_ERROR", error });
     },
   });
@@ -55,17 +54,11 @@ export default function WalletDisplay(): JSX.Element {
     chainId: 1,
     onSuccess() {
       dispatch({ type: "ENS_NAME_LOADED", ens: ensName });
-      console.log("ensName", ensName);
     },
     onError(error) {
-      console.log("ens error", error);
       dispatch({ type: "WEB3_ERROR", error });
     },
   });
-
-  function isValidAddress(): boolean {
-    return address !== "0x0000000000000000000000000000000000000000";
-  }
 
   // 🤔 could use also as a signal that user is on the right network
   const avatarBg = isConnected ? "green.500" : "red.500";
@@ -77,7 +70,7 @@ export default function WalletDisplay(): JSX.Element {
           <Avatar size="xs">
             <AvatarBadge boxSize="1.25em" bg={avatarBg} />
           </Avatar>{" "}
-          {ensName ?? isValidAddress()
+          {ensName ?? isValidAddress(address!)
             ? shortAddress(address!)
             : "Connect Wallet"}
         </MenuButton>
