@@ -4,6 +4,7 @@ import { useAccount, useNetwork } from "wagmi";
 import { loadAccountData } from "../actions/web3";
 import { RootState } from "../reducers";
 import colors from "../styles/colors";
+import { isValidAddress } from "../utils/wallet";
 import Toast from "./base/Toast";
 import Landing from "./grants/Landing";
 import Header from "./Header";
@@ -13,7 +14,7 @@ interface Props {
   children: JSX.Element;
 }
 
-function Layout(ownProps: Props) {
+function Layout({ children }: Props) {
   const [show, showToast] = useState(false);
   const dispatch = useDispatch();
   const props = useSelector(
@@ -25,10 +26,8 @@ function Layout(ownProps: Props) {
   );
   const { chain } = useNetwork();
   const { address, isConnected } = useAccount({
-    onConnect({ address: addr, connector, isReconnected }) {
-      console.log("Connected =>", { addr, connector, isReconnected });
+    onConnect({ address: addr }) {
       dispatch<any>(loadAccountData(addr!));
-      // dispatch<any>(initializeWeb3(chain?.id!));
     },
   });
 
@@ -39,8 +38,7 @@ function Layout(ownProps: Props) {
     }
   }, [isConnected]);
 
-  const { children } = ownProps;
-  if (address === undefined) {
+  if (!isValidAddress(address) || address === undefined) {
     return <Landing />;
   }
 
