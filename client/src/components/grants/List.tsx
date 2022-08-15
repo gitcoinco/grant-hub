@@ -165,6 +165,7 @@ function ProjectsList() {
             {roundInfo === null || roundInfo.round.metadata === null
               ? "the round"
               : roundInfo.round.metadata?.name}
+            .
           </p>
         </>
       </CallbackModal>
