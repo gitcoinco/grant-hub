@@ -1,41 +1,41 @@
 import {
   Avatar,
-  Button,
+  // Button,
   // Image,
   Menu,
   MenuButton,
-  MenuList,
+  // MenuList,
   Tag,
   TagLabel,
 } from "@chakra-ui/react";
 //! Couldn't get the damn chevron to display 🤬
 // import { ChevronDownIcon } from "@heroicons/react/solid";
-import { useDispatch } from "react-redux";
-import { useAccount, useNetwork, useSwitchNetwork } from "wagmi";
-import { loadAccountData, web3ChainIDLoaded } from "../../actions/web3";
+// import { useDispatch } from "react-redux";
+import { useNetwork } from "wagmi";
+// import { loadAccountData, web3ChainIDLoaded } from "../../actions/web3";
 import { Button2 } from "./styles";
 
 export default function NetworkSelector(): JSX.Element {
-  const dispatch = useDispatch();
-  const { address } = useAccount();
+  // const dispatch = useDispatch();
+  // const { address } = useAccount();
   const { chain } = useNetwork();
-  const {
-    chains,
-    error: networkError,
-    isLoading,
-    pendingChainId,
-    switchNetwork,
-  } = useSwitchNetwork({
-    onSuccess(data) {
-      console.log("data", data);
-      dispatch<any>(web3ChainIDLoaded(chain?.id!));
-      dispatch<any>(loadAccountData(address!));
-    },
-    onError(error) {
-      console.log("switch network error", error);
-      dispatch({ type: "WEB3_ERROR", error });
-    },
-  });
+  // const {
+  //   chains,
+  //   error: networkError,
+  //   isLoading,
+  //   pendingChainId,
+  //   switchNetwork,
+  // } = useSwitchNetwork({
+  //   onSuccess(data) {
+  //     console.log("data", data);
+  //     dispatch<any>(web3ChainIDLoaded(chain?.id!));
+  //     dispatch<any>(loadAccountData(address!));
+  //   },
+  //   onError(error) {
+  //     console.log("switch network error", error);
+  //     dispatch({ type: "WEB3_ERROR", error });
+  //   },
+  // });
 
   // todo: set this based on round and current chain
   const colorScheme: string = "white";
@@ -59,7 +59,7 @@ export default function NetworkSelector(): JSX.Element {
             </Tag>
           </div>
         </MenuButton>
-        <MenuList>
+        {/* <MenuList>
           {chains
             .filter((c) => c.id !== chain?.id)
             .map((x) => (
@@ -79,7 +79,7 @@ export default function NetworkSelector(): JSX.Element {
               {networkError.message}
             </div>
           )}
-        </MenuList>
+        </MenuList> */}
       </Menu>
     </div>
   );

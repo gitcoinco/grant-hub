@@ -14,29 +14,8 @@ import { shortAddress, isValidAddress } from "../../utils/wallet";
 import { Button } from "./styles";
 
 export default function WalletDisplay(): JSX.Element {
-  // const [open, setOpen] = useState(false);
   const dispatch = useDispatch();
   const { address, isConnected } = useAccount();
-  // const { data: signer } = useSigner();
-  // const { chain } = useNetwork();
-  // const {
-  //   chains,
-  //   error: networkError,
-  //   isLoading,
-  //   pendingChainId,
-  //   switchNetwork,
-  // } = useSwitchNetwork({
-  //   onSuccess(data) {
-  //     setOpen(false);
-  //     dispatch({ type: "WEB3_CHAIN_ID_LOADED", chainID: data?.id }));
-  //     dispatch<any>(loadAccountData(address!));
-  //     dispatch<any>(loadProjects(address!, signer, chain?.id!));
-  //   },
-  //   onError(error) {
-  //     console.log("switch network error", error);
-  //     dispatch({ type: "WEB3_ERROR", error });
-  //   },
-  // });
   const { disconnect } = useDisconnect({
     onSuccess() {
       dispatch({
@@ -75,16 +54,11 @@ export default function WalletDisplay(): JSX.Element {
             : "Connect Wallet"}
         </MenuButton>
         <MenuList>
-          {/* <MenuItem minH="48px" onClick={() => setOpen(true)}>
-            <span>Switch Network</span>
-          </MenuItem> */}
           <MenuItem minH="40px" onClick={() => disconnect()}>
             <span>Disconnect</span>
           </MenuItem>
         </MenuList>
       </Menu>
-      {/* todo: redo this modal using our base setup 
-      <BaseModal isOpen={open} onClose={() => {}} /> */}
     </div>
   );
 }

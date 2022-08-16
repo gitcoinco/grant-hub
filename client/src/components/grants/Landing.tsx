@@ -7,8 +7,6 @@ import { RootState } from "../../reducers";
 import { slugs } from "../../routes";
 import CallbackModal from "../base/CallbackModal";
 
-// import WalletConnectionButton from "../base/WalletConnectButton";
-
 function Landing() {
   const queryString = new URLSearchParams(window?.location?.search);
   // Twitter oauth will attach code & state in oauth procedure
