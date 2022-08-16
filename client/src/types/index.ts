@@ -38,7 +38,7 @@ export interface Project {
 }
 
 export type ProjectRegistryMetadata = {
-  metadata: {
+  metaPtr: {
     protocol: number;
     pointer: string;
   };
