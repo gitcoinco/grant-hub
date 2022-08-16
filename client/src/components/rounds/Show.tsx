@@ -10,6 +10,7 @@ import useLocalStorage from "../../hooks/useLocalStorage";
 import { roundApplicationPath } from "../../routes";
 import { useFetchRoundByAddress } from "../../services/graphqlClient";
 import { formatDate } from "../../utils/components";
+import { networkPrettyName } from "../../utils/wallet";
 
 import Button, { ButtonVariants } from "../base/Button";
 import TextLoading from "../base/TextLoading";
@@ -74,6 +75,16 @@ function Round() {
   useEffect(() => {
     console.log("roundToApply", roundToApply);
   }, [roundToApply]);
+
+  if (Number(chainId) !== chain!.id) {
+    return (
+      <p>
+        This application has been deployed to{" "}
+        {networkPrettyName(Number(chainId))} and you are connected to{" "}
+        {networkPrettyName(chain?.id ?? 1)}
+      </p>
+    );
+  }
 
   return (
     <div className="h-full w-full absolute flex flex-col justify-center items-center">
