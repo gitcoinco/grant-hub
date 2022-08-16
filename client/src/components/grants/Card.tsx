@@ -34,7 +34,11 @@ function Card({ projectId }: { projectId: number }) {
   };
 
   useEffect(() => {
-    getGrantData();
+    const interval = setInterval(() => {
+      getGrantData();
+    }, 2000);
+
+    return () => clearInterval(interval);
   }, [grantHubClient, projectId]);
 
   return (

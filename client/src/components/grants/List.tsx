@@ -51,8 +51,13 @@ function ProjectsList() {
 
   useEffect(() => {
     if (grantHubClient && address) {
-      fetchProjectsFromGraph();
+      const interval = setInterval(() => {
+        fetchProjectsFromGraph();
+      }, 2000);
+
+      return () => clearInterval(interval);
     }
+    return () => {};
   }, [address, chain, grantHubClient]);
 
   async function fetchRoundInfo() {
