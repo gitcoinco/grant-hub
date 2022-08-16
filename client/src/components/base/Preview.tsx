@@ -37,14 +37,13 @@ export default function Preview({
     }
     setSubmitted(true);
     showToast(true);
-    await publishGrant(formInputs, chain!.id, signer, currentProjectId)
-      .then(() => {
-        setStatus(Status.Completed);
-      })
-      .catch((e) => {
-        setStatus(Status.Error);
-        setError(e.message);
-      });
+    try {
+      await publishGrant(formInputs, chain!.id, signer, currentProjectId);
+      setStatus(Status.Completed);
+    } catch (e: any) {
+      setStatus(Status.Error);
+      setError(e.message);
+    }
   };
 
   const navigate = useNavigate();
