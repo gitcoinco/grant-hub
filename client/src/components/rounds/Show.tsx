@@ -67,7 +67,7 @@ function Round() {
 
   useEffect(() => {
     if (roundId) {
-      setRoundToApply(roundId);
+      setRoundToApply(`${chainId}:${roundId}`);
     }
   }, [roundId]);
 

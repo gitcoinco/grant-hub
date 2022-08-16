@@ -36,7 +36,7 @@ function Apply() {
 
   useEffect(() => {
     if (roundId) {
-      setRoundToApply(roundId);
+      setRoundToApply(`${chainId}:${roundId}`);
     }
   }, [roundId]);
 

@@ -31,7 +31,9 @@ function ProjectsList() {
   const [roundInfo, setRoundInfo] = useState<RoundResponse | null>(null);
   const { chain } = useNetwork();
   const { address } = useAccount();
-  const { grantHubClient, roundManagerClient } = useClients();
+  const { grantHubClient } = useClients();
+
+  const { roundManagerClient } = useClients(Number(roundToApply.split(":")[0]));
 
   const subgraphStatus = useFetchedSubgraphStatus();
 
@@ -49,15 +51,20 @@ function ProjectsList() {
 
   useEffect(() => {
     if (grantHubClient && address) {
-      fetchProjectsFromGraph();
+      const interval = setInterval(() => {
+        fetchProjectsFromGraph();
+      }, 2000);
+
+      return () => clearInterval(interval);
     }
+    return () => {};
   }, [address, chain, grantHubClient]);
 
   async function fetchRoundInfo() {
     if (roundToApply && roundManagerClient) {
       const fetchedRoundInfo = await useFetchRoundByAddress(
         roundManagerClient,
-        roundToApply
+        roundToApply.split(":")[1]
       );
       if (fetchedRoundInfo) {
         const metadata = await getRoundMetadata(
@@ -73,7 +80,7 @@ function ProjectsList() {
 
   useEffect(() => {
     fetchRoundInfo();
-  }, [roundToApply, roundManagerClient]);
+  }, [roundManagerClient]);
 
   useEffect(() => {
     if (!subgraphStatus.available) {
@@ -150,7 +157,14 @@ function ProjectsList() {
         modalOpen={toggleModal}
         confirmText="Apply to Grant Round"
         confirmHandler={() => {
-          navigate(slugs.roundApplication.replace(":id", roundToApply));
+          const chainId = roundToApply?.split(":")[0];
+          const roundId = roundToApply?.split(":")[1];
+
+          navigate(
+            slugs.roundApplication
+              .replace(":chainId", chainId)
+              .replace(":roundId", roundId)
+          );
         }}
         headerImageUri="https://via.placeholder.com/380"
         toggleModal={setToggleModal}
@@ -165,6 +179,7 @@ function ProjectsList() {
             {roundInfo === null || roundInfo.round.metadata === null
               ? "the round"
               : roundInfo.round.metadata?.name}
+            .
           </p>
         </>
       </CallbackModal>
