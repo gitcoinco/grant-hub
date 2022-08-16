@@ -62,7 +62,7 @@ export default function Form({
         message: "",
         valid: true,
       });
-    } catch (e) {
+    } catch (e: any) {
       const err = e as ValidationError;
       setFormValidation({
         message: err.message,
@@ -76,16 +76,15 @@ export default function Form({
     await validate();
     if (roundManagerClient && formValidation.valid) {
       showToast(true);
-      await submitApplication(roundManagerClient, round.address, formInputs)
-        .then(() => {
-          console.log("Application submitted");
-          // TODO @DanieleSalatti: toast is grant creation specific - fix
-          setStatus(Status.Completed);
-        })
-        .catch((e) => {
-          setStatus(Status.Error);
-          setError(e.message);
-        });
+      try {
+        await submitApplication(roundManagerClient, round.address, formInputs);
+        console.log("Application submitted");
+        // TODO @DanieleSalatti: toast is grant creation specific - fix
+        setStatus(Status.Completed);
+      } catch (e: any) {
+        setStatus(Status.Error);
+        setError(e.message);
+      }
     }
   };
 
