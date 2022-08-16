@@ -33,7 +33,10 @@ function ProjectsList() {
   const { address } = useAccount();
   const { grantHubClient } = useClients();
 
-  const { roundManagerClient } = useClients(Number(roundToApply.split(":")[0]));
+  const roundChain = roundToApply
+    ? Number(roundToApply.split(":")[0])
+    : chain?.id;
+  const { roundManagerClient } = useClients(roundChain);
 
   const subgraphStatus = useFetchedSubgraphStatus();
 
