@@ -130,7 +130,7 @@ function ProjectsList() {
             {projectsQueryResult?.projects.length ? (
               <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
                 {projectsQueryResult.projects.map((project) => (
-                  <Card projectId={Number(project.id)} key={project.id} />
+                  <Card project={project} key={project.id} />
                 ))}
               </div>
             ) : (

@@ -24,14 +24,15 @@ const getProjectById = async (
   return project;
 };
 
-const getMetadata = async (
+export const getGrantMetadata = async (
   projectId: number,
   project: any,
-  cacheKey: string,
   bypassCache: boolean = false
 ) => {
   const storage = new LocalStorage();
   let metadata: Metadata;
+
+  const cacheKey = `project-${projectId}-${project.metaPtr.protocol}-${project.metaPtr.pointer}`;
 
   if (!bypassCache && storage.supported) {
     const item = storage.get(cacheKey);
@@ -58,7 +59,7 @@ const getMetadata = async (
   try {
     // FIXME: fetch from pinata gateway
     const pinataClient = new PinataClient();
-    content = await pinataClient.fetchText(project.metadata.pointer);
+    content = await pinataClient.fetchText(project.metaPtr.pointer);
   } catch (e) {
     // FIXME: dispatch "ipfs error"
     console.error(e);
@@ -73,15 +74,15 @@ const getMetadata = async (
   }
   const ret = {
     ...metadata,
-    protocol: project.metadata.protocol,
-    pointer: project.metadata.pointer,
+    protocol: project.metaPtr.protocol,
+    pointer: project.metaPtr.pointer,
     id: projectId,
   };
   storage.add(cacheKey, JSON.stringify(ret));
   return ret;
 };
 
-const fetchGrantData = async (
+export const fetchGrantData = async (
   client: ApolloClient<NormalizedCacheObject>,
   id: number,
   bypassCache: boolean = false
@@ -100,8 +101,7 @@ const fetchGrantData = async (
     return null;
   }
 
-  const cacheKey = `project-${id}-${project.metadata.protocol}-${project.metadata.pointer}`;
-  const item = await getMetadata(id, project, cacheKey, bypassCache);
+  const item = await getGrantMetadata(id, project, bypassCache);
 
   if (item === null) {
     console.log("item is null");
@@ -110,5 +110,3 @@ const fetchGrantData = async (
 
   return item;
 };
-
-export default fetchGrantData;

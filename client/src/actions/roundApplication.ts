@@ -6,7 +6,7 @@ import { useFetchRoundByAddress } from "../services/graphqlClient";
 import PinataClient from "../services/pinata";
 import { Metadata, Project } from "../types";
 import RoundApplicationBuilder from "../utils/RoundApplicationBuilder";
-import fetchGrantData from "./grantsMetadata";
+import { fetchGrantData } from "./grantsMetadata";
 import { getRoundApplicationMetadata } from "./rounds";
 
 const submitApplication = async (
