@@ -10,19 +10,18 @@ import useLocalStorage from "../../hooks/useLocalStorage";
 import { roundApplicationPath } from "../../routes";
 import { useFetchRoundByAddress } from "../../services/graphqlClient";
 import { formatDate } from "../../utils/components";
-
 import Button, { ButtonVariants } from "../base/Button";
+import { ErrorModal } from "../base/ErrorModal";
 import TextLoading from "../base/TextLoading";
 
 function Round() {
   const [loading, setLoading] = useState(true);
   const [roundData, setRoundData] = useState<any>();
+  const [dataModal, setDataModal] = useState(false);
   const [roundToApply, setRoundToApply] = useLocalStorage("roundToApply", null);
   const { chain } = useNetwork();
   const params = useParams();
-
   const { roundId, chainId } = params;
-
   const { roundManagerClient } = useClients(Number(chainId));
 
   async function fetchRound() {
@@ -34,6 +33,7 @@ function Round() {
 
     if (!roundInfo) {
       console.error("Cannot load round", roundId);
+      setDataModal(true);
       return;
     }
 
@@ -97,6 +97,13 @@ function Round() {
               </Button>
             </Link>
           </div>
+          <ErrorModal
+            title="Data Load Error"
+            isOpen={dataModal}
+            onClose={() => {}}
+            homeButtonText="Home"
+            retryButtonText="Retry"
+          />
         </div>
       )}
     </div>
