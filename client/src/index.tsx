@@ -21,6 +21,7 @@ import { RainbowKitProvider } from "@rainbow-me/rainbowkit";
 import "@rainbow-me/rainbowkit/styles.css";
 import { WagmiConfig } from "wagmi";
 import "./browserPatches";
+import PageNotFound from "./components/base/PageNotFound";
 import ErrorBoundary from "./components/ErrorBoundary";
 import EditProject from "./components/grants/Edit";
 import Landing from "./components/grants/Landing";
@@ -111,6 +112,7 @@ root.render(
                         path={slugs.roundApplication}
                         element={<RoundApply />}
                       />
+                      <Route path="*" element={<PageNotFound />} />
                     </Routes>
                   </Layout>
                 </RainbowKitProvider>
