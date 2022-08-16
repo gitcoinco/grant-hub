@@ -3,7 +3,7 @@ import {
   BaseProject,
   fetchProjectsByAccountAddress,
 } from "../services/graphqlClient";
-import fetchGrantData from "./grantsMetadata";
+import { fetchGrantData } from "./grantsMetadata";
 
 const loadProjects = async (
   client: ApolloClient<NormalizedCacheObject>,

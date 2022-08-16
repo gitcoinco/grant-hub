@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import fetchGrantData from "../../actions/grantsMetadata";
+import { fetchGrantData } from "../../actions/grantsMetadata";
 import { editPath, grantsPath } from "../../routes";
 import colors from "../../styles/colors";
 import { Metadata } from "../../types";

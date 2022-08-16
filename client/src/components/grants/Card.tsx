@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import fetchGrantData from "../../actions/grantsMetadata";
-import { useClients } from "../../hooks/useDataClient";
+import { getGrantMetadata } from "../../actions/grantsMetadata";
 import { grantPath } from "../../routes";
+import { BaseProject } from "../../services/graphqlClient";
 import { Metadata } from "../../types";
 import { getProjectImage, ImgTypes } from "../../utils/components";
 import TextLoading from "../base/TextLoading";
 
-function Card({ projectId }: { projectId: number }) {
+function Card({ project }: { project: BaseProject }) {
   const [loading, setLoading] = useState(true);
   const [grantData, setGrantData] = useState<Metadata>();
   const [logoImg, setLogoImg] = useState<string>(
@@ -17,13 +17,8 @@ function Card({ projectId }: { projectId: number }) {
     getProjectImage(true, ImgTypes.bannerImg)
   );
 
-  const { grantHubClient } = useClients();
-
   const getGrantData = async () => {
-    if (!grantHubClient) {
-      return;
-    }
-    const data = await fetchGrantData(grantHubClient, projectId);
+    const data = await getGrantMetadata(Number(project.id), project, true);
 
     if (data) {
       setGrantData(data);
@@ -39,11 +34,11 @@ function Card({ projectId }: { projectId: number }) {
     }, 2000);
 
     return () => clearInterval(interval);
-  }, [grantHubClient, projectId]);
+  }, []);
 
   return (
     <div className="max-w-sm rounded overflow-hidden shadow-lg my-6">
-      <Link to={grantPath(projectId)}>
+      <Link to={grantPath(project.id)}>
         <img
           className="w-full h-32 object-cover"
           src={bannerImg}

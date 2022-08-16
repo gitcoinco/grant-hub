@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNetwork } from "wagmi";
 import { ValidationError } from "yup";
-import fetchGrantData from "../../actions/grantsMetadata";
+import { fetchGrantData } from "../../actions/grantsMetadata";
 import { useClients } from "../../hooks/useDataClient";
 import { ChangeHandlers, FormInputs, ProjectFormStatus } from "../../types";
 import { TextArea, TextInput, WebsiteInput } from "../grants/inputs";
