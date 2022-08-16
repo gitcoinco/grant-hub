@@ -11,7 +11,7 @@ import { roundApplicationPath } from "../../routes";
 import { useFetchRoundByAddress } from "../../services/graphqlClient";
 import { formatDate } from "../../utils/components";
 import Button, { ButtonVariants } from "../base/Button";
-import { ErrorModal } from "../base/ErrorModal";
+import ErrorModal from "../base/ErrorModal";
 import TextLoading from "../base/TextLoading";
 
 function Round() {
@@ -101,8 +101,6 @@ function Round() {
             title="Data Load Error"
             isOpen={dataModal}
             onClose={() => {}}
-            homeButtonText="Home"
-            retryButtonText="Retry"
           />
         </div>
       )}

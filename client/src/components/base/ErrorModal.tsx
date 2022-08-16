@@ -2,10 +2,12 @@ import { Button } from "@chakra-ui/react";
 import { BaseModal } from "./BaseModal";
 
 interface ErrorModalProps {
-  title?: string;
-  homeButtonText?: string;
-  retryButtonText?: string;
+  title: string;
   isOpen: boolean;
+  // error?: {
+  //   error: boolean;
+  //   message: string;
+  // };
   onClose: () => void;
 }
 
@@ -14,9 +16,10 @@ interface ErrorButtonProps {
   homeButtonAction?: () => void;
 }
 
-
-
-function ErrorButtons({ retryButtonAction, homeButtonAction }: ErrorButtonProps) {
+function ErrorButtons({
+  retryButtonAction,
+  homeButtonAction,
+}: ErrorButtonProps): JSX.Element {
   return (
     <div>
       <Button onClick={homeButtonAction}>Home</Button>
@@ -25,15 +28,21 @@ function ErrorButtons({ retryButtonAction, homeButtonAction }: ErrorButtonProps)
   );
 }
 
-export function ErrorModal({ isOpen, onClose, title }: ErrorModalProps) {
+export default function ErrorModal({
+  isOpen,
+  onClose,
+  title,
+}: ErrorModalProps): JSX.Element {
+  const onHomeClick = () => {};
+  const onRetryClick = () => {};
   return (
     <div>
-      <BaseModal
-        title={title}
-        isOpen={isOpen}
-        onClose={onClose}
-        children={<ErrorButtons retryButtonAction={() => {}} homeButtonAction={() => {}} />}
-      />
+      <BaseModal title={title} isOpen={isOpen} onClose={onClose}>
+        <ErrorButtons
+          retryButtonAction={onRetryClick}
+          homeButtonAction={onHomeClick}
+        />
+      </BaseModal>
     </div>
-    );
+  );
 }
