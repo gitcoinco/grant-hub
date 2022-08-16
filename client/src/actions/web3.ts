@@ -1,18 +1,10 @@
-// import { ethers } from "ethers";
 import { Dispatch } from "redux";
-// import { global } from "../global";
-// import { RootState } from "../reducers";
 
 enum Web3Type {
   Generic,
   Remote,
   Status,
 }
-
-// export const WEB3_INITIALIZING = "WEB3_INITIALIZING";
-// export interface Web3InitializingAction {
-//   type: typeof WEB3_INITIALIZING;
-// }
 
 export const WEB3_INITIALIZED = "WEB3_INITIALIZED";
 export interface Web3InitializedAction {
@@ -51,17 +43,12 @@ export interface EnsLoadedAction {
 }
 
 export type Web3Actions =
-  // | Web3InitializingAction
   | Web3InitializedAction
   | Web3ErrorAction
   | Web3ChainIDLoadedAction
   | Web3AccountDisconnectedAction
   | Web3AccountLoadedAction
   | EnsLoadedAction;
-
-// export const web3Initializing = (): Web3Actions => ({
-//   type: WEB3_INITIALIZING,
-// });
 
 export const web3Initialized = (t: Web3Type): Web3Actions => ({
   type: WEB3_INITIALIZED,
@@ -92,11 +79,6 @@ export const web3AccountDisconnected = (account: string): Web3Actions => ({
   type: WEB3_ACCOUNT_DISCONNECTED,
   account,
 });
-
-// export const notWeb3Browser = (): Web3Actions => ({
-//   type: WEB3_ERROR,
-//   error: "not a web3 browser",
-// });
 
 export const loadAccountData = (account: string) => (dispatch: Dispatch) => {
   const t: Web3Type = window.ethereum.isStatus
