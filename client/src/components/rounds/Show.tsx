@@ -101,6 +101,12 @@ function Round() {
             title="Data Load Error"
             isOpen={dataModal}
             onClose={() => {}}
+            error={{
+              error: true,
+              message:
+                "There has been an error loading the grant round data. Please try refreshing the page." +
+                " If the issue persists, contact us at support@gitcoin.co",
+            }}
           />
         </div>
       )}
