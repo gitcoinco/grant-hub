@@ -15,7 +15,7 @@ const getProjectById = async (
   }
 
   const project: ProjectRegistryMetadata = {
-    metadata: {
+    metaPtr: {
       protocol: Number(res.project.metaPtr.protocol),
       pointer: res.project.metaPtr.pointer,
     },
@@ -41,8 +41,8 @@ export const getGrantMetadata = async (
         metadata = JSON.parse(item);
         const ret = {
           ...metadata,
-          protocol: project.metadata.protocol,
-          pointer: project.metadata.pointer,
+          protocol: project.metaPtr.protocol,
+          pointer: project.metaPtr.pointer,
           id: projectId,
         };
         storage.add(cacheKey, JSON.stringify(ret));
@@ -96,7 +96,7 @@ export const fetchGrantData = async (
     return null;
   }
 
-  if (!project.metadata.protocol) {
+  if (!project.metaPtr.protocol) {
     console.error("project not found");
     return null;
   }
