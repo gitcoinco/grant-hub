@@ -5,20 +5,25 @@ import CloudUpload from "../icons/CloudUpload";
 import Toast from "./Toast";
 import ImageCrop from "./images/ImageCrop";
 
-type Dimensions = {
+// type Dimensions = {
+//   width: number;
+//   height: number;
+// };
+
+// const validateDimensions = (
+//   image: HTMLImageElement,
+//   dimensions: Dimensions
+// ) => {
+//   const { naturalHeight, naturalWidth } = image;
+
+//   return (
+//     naturalHeight === dimensions.height && naturalWidth === dimensions.width
+//   );
+// };
+
+export type Dimensions = {
   width: number;
   height: number;
-};
-
-const validateDimensions = (
-  image: HTMLImageElement,
-  dimensions: Dimensions
-) => {
-  const { naturalHeight, naturalWidth } = image;
-
-  return (
-    naturalHeight === dimensions.height && naturalWidth === dimensions.width
-  );
 };
 
 export default function ImageInput({
@@ -30,10 +35,7 @@ export default function ImageInput({
   imgHandler,
 }: {
   label: string;
-  dimensions: {
-    width: number;
-    height: number;
-  };
+  dimensions: Dimensions;
   existingImg?: string;
   circle?: Boolean;
   info?: string;
@@ -41,6 +43,8 @@ export default function ImageInput({
 }) {
   const fileInput = useRef<HTMLInputElement>(null);
   const [tempImg, setTempImg] = useState<string | undefined>();
+  const [imgSrc, setImgSrc] = useState<string | undefined>();
+  const [croppedImg, setCroppedImg] = useState<string | undefined>();
   const [validation, setValidation] = useState({
     error: false,
     msg: "",
@@ -73,48 +77,14 @@ export default function ImageInput({
     e.stopPropagation();
 
     const files = getFiles(e);
-    if (files) {
-      if (files.length === 0) {
-        return;
-      }
-      const file = files[0];
-      // remove validation message
-      setValidation({
-        error: false,
-        msg: "",
-      });
-      // ensure image is < 2mb
-      if (file.size > 2000000) {
-        setValidation({
-          error: true,
-          msg: "Image must be less than 2mb",
-        });
-        return;
-      }
-
+    if (files && files.length > 0) {
       const reader = new FileReader();
-      reader.onload = () => {
-        const img: HTMLImageElement = document.createElement("img");
-        img.src = URL.createObjectURL(file);
-        img.onload = () => {
-          if (!validateDimensions(img, dimensions)) {
-            setValidation({
-              error: true,
-              msg: `Image must be ${dimensions.width}px x ${dimensions.height}px`,
-            });
-            setTempImg(undefined);
-          } else {
-            setValidation({
-              error: false,
-              msg: "",
-            });
-            imgHandler(file);
-            setTempImg(URL.createObjectURL(file));
-          }
-        };
-      };
-
-      reader.readAsDataURL(file);
+      reader.addEventListener(
+        "load",
+        () => reader.result && setImgSrc(reader.result.toString() || "")
+      );
+      reader.readAsDataURL(files[0]);
+      setTempImg(files[0]);
     }
   };
 
@@ -176,10 +146,10 @@ export default function ImageInput({
             </button>
           )}
           <div className="w-1/3">
-            {currentImg().length > 0 && (
+            {croppedImg && (
               <img
                 className={`max-h-28 ${circle && "rounded-full"}`}
-                src={currentImg()}
+                src={croppedImg ?? currentImg()}
                 alt="Project Logo Preview"
               />
             )}
@@ -201,7 +171,15 @@ export default function ImageInput({
           {validation.msg}
         </p>
       </Toast>
-      <ImageCrop isOpen onClose={() => console.log("youuu")} />
+      {imgSrc !== undefined && (
+        <ImageCrop
+          isOpen={imgSrc !== undefined}
+          imgSrc={imgSrc ?? ""}
+          dimensions={dimensions}
+          onClose={() => console.log("youuu")}
+          onCrop={(imgUrl) => setCroppedImg(imgUrl)}
+        />
+      )}
     </>
   );
 }
