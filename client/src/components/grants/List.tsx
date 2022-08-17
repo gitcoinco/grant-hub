@@ -117,17 +117,19 @@ function ProjectsList() {
 
   const projectId = projectsQueryResult?.projects[0]?.id;
 
-  const hasUserAppliedToRouond = async () => {
+  const hasUserAppliedToRouond = async (): Promise<boolean> => {
     const rounds = await fetchIfUserHasAppliedToRound(
       roundManagerClient!,
       projectId!
     );
 
     console.log("round Id's applied to", rounds);
+    if (!rounds) return false;
 
     // now check against current round also
+    return true;
   };
-  hasUserAppliedToRouond();
+  // const showModal = hasUserAppliedToRouond();
 
   return (
     <div className="flex flex-col flex-grow h-full mx-4 sm:mx-0">
