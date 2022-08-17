@@ -3,6 +3,7 @@ import PinataClient from "../../services/pinata";
 import colors from "../../styles/colors";
 import CloudUpload from "../icons/CloudUpload";
 import Toast from "./Toast";
+import ImageCrop from "./images/ImageCrop";
 
 type Dimensions = {
   width: number;
@@ -200,6 +201,7 @@ export default function ImageInput({
           {validation.msg}
         </p>
       </Toast>
+      <ImageCrop isOpen onClose={() => console.log("youuu")} />
     </>
   );
 }
