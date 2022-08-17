@@ -15,6 +15,8 @@ import {
   fetchIfUserHasAppliedToRound,
   fetchProjectsByAccountAddress,
   ProjectsResponse,
+  RoundAppliedResponse,
+  roundManagerGoerliClient,
   RoundResponse,
   useFetchedSubgraphStatus,
   useFetchRoundByAddress,
@@ -33,6 +35,8 @@ function ProjectsList() {
   const { chain } = useNetwork();
   const { address } = useAccount();
   const { grantHubClient } = useClients();
+  const [roundsApplied, setRoundsApplied] =
+    useState<RoundAppliedResponse | null>();
 
   const roundChain = roundToApply
     ? Number(roundToApply.split(":")[0])
@@ -115,26 +119,37 @@ function ProjectsList() {
     }
   }, [projectsQueryResult?.projects.length, roundToApply]);
 
-  const projectId = projectsQueryResult?.projects[0]?.id;
+  useEffect(() => {
+    const hasUserAppliedToRouond = async (): Promise<boolean> => {
+      const projectId = projectsQueryResult?.projects[0]?.id;
+      if (projectId) {
+        console.log("projectId", projectId);
+        await fetchIfUserHasAppliedToRound(
+          roundManagerGoerliClient!,
+          projectId
+        ).then((result) => {
+          console.log("round Id's applied to", result);
+          setRoundsApplied(result);
+          if (result) return true;
+          return false;
+        });
 
-  const hasUserAppliedToRouond = async (): Promise<boolean> => {
-    const rounds = await fetchIfUserHasAppliedToRound(
-      roundManagerClient!,
-      projectId!
-    );
+        // now check against current round also
+        if (roundsApplied) {
+          // current roundId
+          console.log("Rounds =>", roundsApplied);
+        }
+      }
 
-    console.log("round Id's applied to", rounds);
-    if (!rounds) return false;
+      return false; // no project id...
+    };
 
-    // now check against current round also
-    return true;
-  };
-  // const showModal = hasUserAppliedToRouond();
+    hasUserAppliedToRouond();
+  }, [projectsQueryResult?.projects]);
 
   return (
     <div className="flex flex-col flex-grow h-full mx-4 sm:mx-0">
       {loading && <>loading...</>}
-
       {!loading && (
         <>
           <div className="flex flex-col mt-4 mb-4">
