@@ -1,16 +1,17 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 
 import ReactCrop, {
   centerCrop,
   makeAspectCrop,
-  Crop,
   PixelCrop,
 } from "react-image-crop";
 import { debounce } from "ts-debounce";
+import { Dimensions } from "../ImageInput";
 import { BaseModal, ToggleModalProps } from "../BaseModal";
-import canvasPreview from "./canvasPreview";
+import buildCanvas from "./buildCanvas";
 
 import "react-image-crop/dist/ReactCrop.css";
+import Button, { ButtonVariants } from "../Button";
 
 // This is to demonstate how to make and center a % aspect crop
 // which is a bit trickier so we use some helper functions.
@@ -22,7 +23,7 @@ function centerAspectCrop(
   return centerCrop(
     makeAspectCrop(
       {
-        unit: "%",
+        unit: "px",
         width: 90,
       },
       aspect,
@@ -31,71 +32,59 @@ function centerAspectCrop(
     ),
     mediaWidth,
     mediaHeight
-  );
+  ) as PixelCrop;
 }
 
-export default function ImageCrop({ isOpen, onClose }: ToggleModalProps) {
-  const [imgSrc, setImgSrc] = useState("");
+type ImageCropProps = ToggleModalProps & {
+  imgSrc: string;
+  dimensions: Dimensions;
+  onCrop: (imgUrl: string) => void;
+};
+
+export default function ImageCrop({
+  isOpen,
+  imgSrc,
+  dimensions,
+  onCrop,
+  onClose,
+}: ImageCropProps) {
   const previewCanvasRef = useRef<HTMLCanvasElement>(null);
   const imgRef = useRef<HTMLImageElement>(null);
-  const [crop, setCrop] = useState<Crop>();
+  const [crop, setCrop] = useState<PixelCrop>();
   const [completedCrop, setCompletedCrop] = useState<PixelCrop>();
   const [scale, setScale] = useState(1);
   const [rotate, setRotate] = useState(0);
-  const [aspect, setAspect] = useState<number | undefined>(16 / 9);
 
-  function onSelectFile(e: React.ChangeEvent<HTMLInputElement>) {
-    if (e.target.files && e.target.files.length > 0) {
-      setCrop(undefined); // Makes crop preview update between images.
-      const reader = new FileReader();
-      reader.addEventListener(
-        "load",
-        () => reader.result && setImgSrc(reader.result.toString() || "")
-      );
-      reader.readAsDataURL(e.target.files[0]);
+  function onImageLoad() {
+    const { width, height } = dimensions;
+    if (imgSrc) {
+      setCrop(centerAspectCrop(width, height, height / width));
     }
   }
 
-  function onImageLoad(e: React.SyntheticEvent<HTMLImageElement>) {
-    if (aspect) {
-      const { width, height } = e.currentTarget;
-      setCrop(centerAspectCrop(width, height, aspect));
-    }
-  }
+  useEffect(() => {
+    const { width, height } = dimensions;
+    setCrop(centerAspectCrop(width, height, height / width));
+  }, [dimensions]);
 
-  debounce(async () => {
-    if (
-      completedCrop?.width &&
-      completedCrop?.height &&
-      imgRef.current &&
-      previewCanvasRef.current
-    ) {
-      // We use canvasPreview as it's much faster than imgPreview.
-      canvasPreview(
-        imgRef.current,
-        previewCanvasRef.current,
-        completedCrop,
-        scale,
-        rotate
-      );
-    }
-  }, 100);
-
-  function handleToggleAspectClick() {
-    if (aspect) {
-      setAspect(undefined);
-    } else if (imgRef.current) {
-      const { width, height } = imgRef.current;
-      setAspect(16 / 9);
-      setCrop(centerAspectCrop(width, height, 16 / 9));
-    }
-  }
+  useEffect(() => {
+    debounce(async () => {
+      if (
+        completedCrop?.width &&
+        completedCrop?.height &&
+        imgRef.current &&
+        previewCanvasRef.current
+      ) {
+        // We use canvasPreview as it's much faster than imgPreview.
+        buildCanvas(imgRef.current, completedCrop, scale, rotate);
+      }
+    }, 100);
+  }, [imgRef]);
 
   return (
     <BaseModal isOpen={isOpen} onClose={onClose}>
       <>
         <div className="Crop-Controls">
-          <input type="file" accept="image/*" onChange={onSelectFile} />
           <div>
             <label htmlFor="scale-input">
               Scale:{" "}
@@ -125,18 +114,19 @@ export default function ImageCrop({ isOpen, onClose }: ToggleModalProps) {
               />
             </label>
           </div>
-          <div>
-            <button type="button" onClick={handleToggleAspectClick}>
-              Toggle aspect {aspect ? "off" : "on"}
-            </button>
-          </div>
         </div>
         {Boolean(imgSrc) && (
           <ReactCrop
             crop={crop}
-            onChange={(_, percentCrop) => setCrop(percentCrop)}
-            onComplete={(c) => setCompletedCrop(c)}
-            aspect={aspect}
+            onChange={(pixelCrop) => {
+              setCrop(pixelCrop);
+            }}
+            onComplete={(c) => {
+              setCompletedCrop(c);
+            }}
+            aspect={dimensions.height / dimensions.width}
+            maxHeight={dimensions.height}
+            maxWidth={dimensions.width}
           >
             <img
               ref={imgRef}
@@ -147,18 +137,34 @@ export default function ImageCrop({ isOpen, onClose }: ToggleModalProps) {
             />
           </ReactCrop>
         )}
-        <div>
-          {Boolean(completedCrop) && (
-            <canvas
-              ref={previewCanvasRef}
-              style={{
-                border: "1px solid black",
-                objectFit: "contain",
-                width: completedCrop?.width ?? 0,
-                height: completedCrop?.height ?? 0,
-              }}
-            />
-          )}
+        <div className="flex w-full">
+          <Button
+            styles={["w-1/2 justify-center"]}
+            variant={ButtonVariants.outline}
+          >
+            Cancel
+          </Button>
+          <Button
+            styles={["w-1/2 justify-center"]}
+            variant={ButtonVariants.primary}
+            onClick={async () => {
+              if (
+                completedCrop?.width &&
+                completedCrop?.height &&
+                imgRef.current
+              ) {
+                const imgUrl = await buildCanvas(
+                  imgRef.current,
+                  completedCrop,
+                  scale,
+                  rotate
+                );
+                onCrop(imgUrl);
+              }
+            }}
+          >
+            Use Image
+          </Button>
         </div>
       </>
     </BaseModal>
