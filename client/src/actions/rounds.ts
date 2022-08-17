@@ -100,7 +100,11 @@ export const loadRound =
       roundInfo.round.roundMetaPtr.pointer === undefined ||
       roundInfo.round.applicationMetaPtr.pointer === undefined
     ) {
-      // TODO: log error and metric
+      dispatch({
+        type: ROUNDS_LOADING_ERROR,
+        address: roundInfo.round.id,
+        error: "Round metadata not found",
+      });
       return;
     }
     const pinataClient = new PinataClient();
