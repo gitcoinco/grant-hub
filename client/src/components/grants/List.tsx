@@ -12,6 +12,7 @@ import { getRoundMetadata } from "../../actions/rounds";
 import { useClients } from "../../hooks/useDataClient";
 import useLocalStorage from "../../hooks/useLocalStorage";
 import {
+  // fetchIfUserHasAppliedToRound,
   fetchProjectsByAccountAddress,
   ProjectsResponse,
   RoundResponse,
@@ -114,6 +115,20 @@ function ProjectsList() {
     }
   }, [projectsQueryResult?.projects.length, roundToApply]);
 
+  // const projectId = projectsQueryResult?.projects[0]?.id;
+
+  // const hasUserAppliedToRouond = async () => {
+  //   const rounds = await fetchIfUserHasAppliedToRound(
+  //     roundManagerClient!,
+  //     projectId!
+  //   );
+
+  //   console.log("round Id's applied to", rounds);
+
+  //   // now check against current round also
+  // };
+  // hasUserAppliedToRouond();
+
   return (
     <div className="flex flex-col flex-grow h-full mx-4 sm:mx-0">
       {loading && <>loading...</>}
@@ -126,6 +141,7 @@ function ProjectsList() {
               Manage projects across multiple grants programs.
             </p>
           </div>
+          <div>A message will go here</div>
           <div className="grow">
             {projectsQueryResult?.projects.length ? (
               <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
