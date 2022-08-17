@@ -111,7 +111,9 @@ function Round() {
           <ErrorModal
             title="Data Load Error"
             isOpen={dataModal}
-            onClose={() => {}}
+            onClose={() => {
+              setDataModal(false);
+            }}
             error={{
               error: true,
               message:

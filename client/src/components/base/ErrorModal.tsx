@@ -1,4 +1,5 @@
 import { Button } from "@chakra-ui/react";
+import { useNavigate } from "react-router-dom";
 import { BaseModal } from "./BaseModal";
 
 interface ErrorModalProps {
@@ -28,18 +29,34 @@ function ErrorButtons({
   homeButtonAction,
 }: ErrorButtonProps): JSX.Element {
   return (
-    <div>
-      <Button onClick={homeButtonAction}>Home</Button>
-      <Button onClick={retryButtonAction}>Retry</Button>
+    <div className="flex justify-end mt-4">
+      <Button className="m-2 p-2" onClick={homeButtonAction}>
+        Home
+      </Button>
+      <Button
+        className="m-2 p-2"
+        colorScheme="purple"
+        onClick={retryButtonAction}
+      >
+        Refresh Page
+      </Button>
     </div>
   );
 }
 
 function ErrorContent({ error }: ErrorContentProps): JSX.Element {
-  const onHomeClick = () => {};
-  const onRetryClick = () => {};
+  const navigate = useNavigate();
+
+  const onHomeClick = () => {
+    navigate("/");
+  };
+
+  const onRetryClick = () => {
+    window.location.reload();
+  };
+
   return (
-    <div>
+    <div className="mt-4">
       <p>{error?.message}</p>
       <ErrorButtons
         retryButtonAction={onRetryClick}

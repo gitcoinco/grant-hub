@@ -1,4 +1,3 @@
-// --- Chakra Elements
 import {
   Modal,
   ModalOverlay,
@@ -24,7 +23,7 @@ export function BaseModal({
   footer,
 }: BaseModalProps): JSX.Element {
   return (
-    <Modal isOpen={isOpen} onClose={onClose}>
+    <Modal isOpen={isOpen} onClose={onClose} isCentered>
       <ModalOverlay />
       <ModalContent>
         <>
