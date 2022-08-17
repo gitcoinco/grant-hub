@@ -12,7 +12,7 @@ import { getRoundMetadata } from "../../actions/rounds";
 import { useClients } from "../../hooks/useDataClient";
 import useLocalStorage from "../../hooks/useLocalStorage";
 import {
-  // fetchIfUserHasAppliedToRound,
+  fetchIfUserHasAppliedToRound,
   fetchProjectsByAccountAddress,
   ProjectsResponse,
   RoundResponse,
@@ -115,19 +115,19 @@ function ProjectsList() {
     }
   }, [projectsQueryResult?.projects.length, roundToApply]);
 
-  // const projectId = projectsQueryResult?.projects[0]?.id;
+  const projectId = projectsQueryResult?.projects[0]?.id;
 
-  // const hasUserAppliedToRouond = async () => {
-  //   const rounds = await fetchIfUserHasAppliedToRound(
-  //     roundManagerClient!,
-  //     projectId!
-  //   );
+  const hasUserAppliedToRouond = async () => {
+    const rounds = await fetchIfUserHasAppliedToRound(
+      roundManagerClient!,
+      projectId!
+    );
 
-  //   console.log("round Id's applied to", rounds);
+    console.log("round Id's applied to", rounds);
 
-  //   // now check against current round also
-  // };
-  // hasUserAppliedToRouond();
+    // now check against current round also
+  };
+  hasUserAppliedToRouond();
 
   return (
     <div className="flex flex-col flex-grow h-full mx-4 sm:mx-0">

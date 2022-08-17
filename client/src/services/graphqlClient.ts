@@ -154,8 +154,10 @@ export const roundManagerOptimismClient = new ApolloClient({
 });
 
 export const IS_APPLIED_TO_ROUND = gql`
-query rounds(where: {projects_: {project: "0x3131000000000000000000000000000000000000000000000000000000000000"}}) {
-    id    
+query rounds($id: string) {
+  projects(where: {projects_: {project: "0x3131000000000000000000000000000000000000000000000000000000000000"}}) {
+      id
+    }
   }
 `;
 
@@ -359,8 +361,12 @@ export type RoundResponse = {
   round: BaseRound;
 };
 
+export type RoundIds = {
+  id: string;
+};
+
 export type RoundAppliedResponse = {
-  rounds: BaseRound[];
+  rounds: RoundIds[];
 };
 
 export async function fetchIfUserHasAppliedToRound(
