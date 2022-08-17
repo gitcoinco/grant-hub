@@ -44,6 +44,7 @@ export default function ImageInput({
   const fileInput = useRef<HTMLInputElement>(null);
   const [tempImg, setTempImg] = useState<string | undefined>();
   const [imgSrc, setImgSrc] = useState<string | undefined>();
+  const [showCrop, setShowCrop] = useState(false);
   const [croppedImg, setCroppedImg] = useState<string | undefined>();
   const [validation, setValidation] = useState({
     error: false,
@@ -79,10 +80,12 @@ export default function ImageInput({
     const files = getFiles(e);
     if (files && files.length > 0) {
       const reader = new FileReader();
-      reader.addEventListener(
-        "load",
-        () => reader.result && setImgSrc(reader.result.toString() || "")
-      );
+      reader.addEventListener("load", () => {
+        if (reader.result) {
+          setImgSrc(reader.result.toString() || "");
+          setShowCrop(true);
+        }
+      });
       reader.readAsDataURL(files[0]);
       setTempImg(files[0]);
     }
@@ -171,15 +174,13 @@ export default function ImageInput({
           {validation.msg}
         </p>
       </Toast>
-      {imgSrc !== undefined && (
-        <ImageCrop
-          isOpen={imgSrc !== undefined}
-          imgSrc={imgSrc ?? ""}
-          dimensions={dimensions}
-          onClose={() => console.log("youuu")}
-          onCrop={(imgUrl) => setCroppedImg(imgUrl)}
-        />
-      )}
+      <ImageCrop
+        isOpen={showCrop}
+        imgSrc={imgSrc ?? ""}
+        dimensions={dimensions}
+        onClose={() => setShowCrop(false)}
+        onCrop={(imgUrl) => setCroppedImg(imgUrl)}
+      />
     </>
   );
 }

@@ -58,13 +58,13 @@ export default function ImageCrop({
   function onImageLoad() {
     const { width, height } = dimensions;
     if (imgSrc) {
-      setCrop(centerAspectCrop(width, height, height / width));
+      setCrop(centerAspectCrop(width, height, width / height));
     }
   }
 
   useEffect(() => {
     const { width, height } = dimensions;
-    setCrop(centerAspectCrop(width, height, height / width));
+    setCrop(centerAspectCrop(width, height, width / height));
   }, [dimensions]);
 
   useEffect(() => {
@@ -124,7 +124,7 @@ export default function ImageCrop({
             onComplete={(c) => {
               setCompletedCrop(c);
             }}
-            aspect={dimensions.height / dimensions.width}
+            aspect={dimensions.width / dimensions.height}
             maxHeight={dimensions.height}
             maxWidth={dimensions.width}
           >
@@ -141,6 +141,7 @@ export default function ImageCrop({
           <Button
             styles={["w-1/2 justify-center"]}
             variant={ButtonVariants.outline}
+            onClick={onClose}
           >
             Cancel
           </Button>
@@ -160,6 +161,7 @@ export default function ImageCrop({
                   rotate
                 );
                 onCrop(imgUrl);
+                onClose();
               }
             }}
           >
