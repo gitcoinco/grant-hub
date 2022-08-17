@@ -11,19 +11,18 @@ import { roundApplicationPath } from "../../routes";
 import { useFetchRoundByAddress } from "../../services/graphqlClient";
 import { formatDate } from "../../utils/components";
 import { networkPrettyName } from "../../utils/wallet";
-
 import Button, { ButtonVariants } from "../base/Button";
+import ErrorModal from "../base/ErrorModal";
 import TextLoading from "../base/TextLoading";
 
 function Round() {
   const [loading, setLoading] = useState(true);
   const [roundData, setRoundData] = useState<any>();
+  const [dataModal, setDataModal] = useState(false);
   const [roundToApply, setRoundToApply] = useLocalStorage("roundToApply", null);
   const { chain } = useNetwork();
   const params = useParams();
-
   const { roundId, chainId } = params;
-
   const { roundManagerClient } = useClients(Number(chainId));
 
   async function fetchRound() {
@@ -35,6 +34,7 @@ function Round() {
 
     if (!roundInfo) {
       console.error("Cannot load round", roundId);
+      setDataModal(true);
       return;
     }
 
@@ -108,6 +108,17 @@ function Round() {
               </Button>
             </Link>
           </div>
+          <ErrorModal
+            title="Data Load Error"
+            isOpen={dataModal}
+            onClose={() => {}}
+            error={{
+              error: true,
+              message:
+                "There has been an error loading the grant round data. Please try refreshing the page." +
+                " If the issue persists, contact us at support@gitcoin.co",
+            }}
+          />
         </div>
       )}
     </div>
