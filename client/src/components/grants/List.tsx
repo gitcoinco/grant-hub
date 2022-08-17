@@ -1,8 +1,8 @@
+import { formatBytes32String } from "ethers/lib/utils";
 import { useEffect, useState } from "react";
 import { useDatadogRum } from "react-datadog";
 import { Link, useNavigate } from "react-router-dom";
 import { useAccount, useNetwork } from "wagmi";
-import { newGrantPath, slugs } from "../../routes";
 import colors from "../../styles/colors";
 import Button, { ButtonVariants } from "../base/Button";
 import Globe from "../icons/Globe";
@@ -16,12 +16,13 @@ import {
   fetchProjectsByAccountAddress,
   ProjectsResponse,
   RoundAppliedResponse,
-  roundManagerGoerliClient,
   RoundResponse,
   useFetchedSubgraphStatus,
   useFetchRoundByAddress,
 } from "../../services/graphqlClient";
 import CallbackModal from "../base/CallbackModal";
+
+import { newGrantPath, slugs } from "../../routes";
 
 function ProjectsList() {
   const [loading, setLoading] = useState(true);
@@ -125,8 +126,8 @@ function ProjectsList() {
       if (projectId) {
         console.log("projectId", projectId);
         await fetchIfUserHasAppliedToRound(
-          roundManagerGoerliClient!,
-          projectId
+          roundManagerClient!,
+          formatBytes32String(projectId)
         ).then((result) => {
           console.log("round Id's applied to", result);
           setRoundsApplied(result);
