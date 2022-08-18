@@ -1,6 +1,5 @@
 import { ApolloClient, NormalizedCacheObject } from "@apollo/client";
 import { ethers } from "ethers";
-import { useSigner } from "wagmi";
 import RoundABI from "../contracts/abis/Round.json";
 import { useFetchRoundByAddress } from "../services/graphqlClient";
 import PinataClient from "../services/pinata";
@@ -10,11 +9,16 @@ import { fetchGrantData } from "./grantsMetadata";
 import { getRoundApplicationMetadata } from "./rounds";
 
 const submitApplication = async (
-  client: ApolloClient<NormalizedCacheObject>,
+  roundManagerClient: ApolloClient<NormalizedCacheObject>,
+  grantHubClient: ApolloClient<NormalizedCacheObject>,
   roundAddress: string,
-  formInputs: { [id: number]: string }
+  formInputs: { [id: number]: string },
+  signer: ethers.Signer
 ) => {
-  const roundInfo = await useFetchRoundByAddress(client, roundAddress!);
+  const roundInfo = await useFetchRoundByAddress(
+    roundManagerClient,
+    roundAddress!
+  );
 
   if (!roundInfo) {
     console.error("cannot load round data", roundInfo);
@@ -30,15 +34,20 @@ const submitApplication = async (
     return;
   }
 
-  const { projectQuestionId } = roundApplicationMetadata;
+  // const { projectQuestionId } = roundApplicationMetadata;
+  const projectQuestionId = roundApplicationMetadata.applicationSchema.length;
+
+  /*
   if (projectQuestionId === undefined) {
     console.error("cannot find project question id", roundAddress);
     return;
   }
+  */
 
   const projectId = formInputs[projectQuestionId];
+
   const projectMetadata: Metadata | null = await fetchGrantData(
-    client,
+    grantHubClient,
     Number(projectId)
   );
   if (!projectMetadata) {
@@ -83,7 +92,6 @@ const submitApplication = async (
     pointer: resp.IpfsHash,
   };
 
-  const { data: signer } = useSigner();
   // global.web3Provider!.getSigner();
   const contract = new ethers.Contract(roundAddress, RoundABI, signer!);
 

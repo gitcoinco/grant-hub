@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useAccount } from "wagmi";
+import { useAccount, useSigner } from "wagmi";
 import { ValidationError } from "yup";
 import loadProjects from "../../actions/projects";
 import submitApplication from "../../actions/roundApplication";
@@ -32,13 +32,17 @@ const validation = {
 export default function Form({
   roundApplication,
   round,
+  chainId,
 }: {
   roundApplication: RoundApplicationMetadata;
   round: Round;
+  chainId: number;
 }) {
   const [loading, setLoading] = useState(true);
   const { address } = useAccount();
-  const { grantHubClient, roundManagerClient } = useClients();
+  const { grantHubClient } = useClients();
+  const { roundManagerClient } = useClients(chainId);
+  const { data: signer } = useSigner();
 
   const [formInputs, setFormInputs] = useState<DynamicFormInputs>({});
   const [submitted, setSubmitted] = useState(false);
@@ -77,7 +81,13 @@ export default function Form({
     if (roundManagerClient && formValidation.valid) {
       showToast(true);
       try {
-        await submitApplication(roundManagerClient, round.address, formInputs);
+        await submitApplication(
+          roundManagerClient,
+          grantHubClient!,
+          round.address,
+          formInputs,
+          signer!
+        );
         console.log("Application submitted");
         // TODO @DanieleSalatti: toast is grant creation specific - fix
         setStatus(Status.Completed);

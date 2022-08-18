@@ -188,6 +188,7 @@ function Apply() {
                 <Form
                   roundApplication={roundData.applicationMetadata}
                   round={roundFromGraphData(roundData)}
+                  chainId={Number(chainId)}
                 />
               )}
             </div>
