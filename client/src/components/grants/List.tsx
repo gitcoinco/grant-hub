@@ -1,8 +1,8 @@
+import { formatBytes32String } from "ethers/lib/utils";
 import { useEffect, useState } from "react";
 import { useDatadogRum } from "react-datadog";
 import { Link, useNavigate } from "react-router-dom";
 import { useAccount, useNetwork } from "wagmi";
-import { newGrantPath, slugs } from "../../routes";
 import colors from "../../styles/colors";
 import Button, { ButtonVariants } from "../base/Button";
 import Globe from "../icons/Globe";
@@ -12,13 +12,18 @@ import { getRoundMetadata } from "../../actions/rounds";
 import { useClients } from "../../hooks/useDataClient";
 import useLocalStorage from "../../hooks/useLocalStorage";
 import {
+  fetchIfUserHasAppliedToRound,
   fetchProjectsByAccountAddress,
   ProjectsResponse,
+  RoundAppliedResponse,
   RoundResponse,
   useFetchedSubgraphStatus,
   useFetchRoundByAddress,
 } from "../../services/graphqlClient";
 import CallbackModal from "../base/CallbackModal";
+
+import { newGrantPath, slugs } from "../../routes";
+import RoundApplyAlert from "../base/RoundApplyAlert";
 
 function ProjectsList() {
   const [loading, setLoading] = useState(true);
@@ -27,11 +32,14 @@ function ProjectsList() {
   const dataDog = useDatadogRum();
   const navigate = useNavigate();
   const [toggleModal, setToggleModal] = useState<boolean>(false);
+  const [show, setShow] = useState(true);
   const [roundToApply] = useLocalStorage("roundToApply", null);
   const [roundInfo, setRoundInfo] = useState<RoundResponse | null>(null);
   const { chain } = useNetwork();
   const { address } = useAccount();
   const { grantHubClient } = useClients();
+  const [roundsApplied, setRoundsApplied] =
+    useState<RoundAppliedResponse | null>();
 
   const roundChain = roundToApply
     ? Number(roundToApply.split(":")[0])
@@ -114,10 +122,42 @@ function ProjectsList() {
     }
   }, [projectsQueryResult?.projects.length, roundToApply]);
 
+  useEffect(() => {
+    const hasUserAppliedToRouond = async (): Promise<boolean> => {
+      const projectId = projectsQueryResult?.projects[0]?.id;
+      if (projectId) {
+        console.log("projectId in bytes32 =>", formatBytes32String(projectId));
+        await fetchIfUserHasAppliedToRound(
+          roundManagerClient!,
+          formatBytes32String(projectId)
+        ).then((result) => {
+          console.log("round Id's applied to", result);
+          setRoundsApplied(result);
+          if (result?.rounds.length !== 0) {
+            setShow(false);
+            return true;
+          }
+
+          setShow(true);
+          return false;
+        });
+
+        // now check against current round also
+        if (roundsApplied?.rounds.length! > 0) {
+          // current roundId
+          console.log("Rounds =>", roundsApplied?.rounds);
+        }
+      }
+
+      return false; // no project id...
+    };
+
+    hasUserAppliedToRouond();
+  }, []); // projectsQueryResult?.projects
+
   return (
     <div className="flex flex-col flex-grow h-full mx-4 sm:mx-0">
       {loading && <>loading...</>}
-
       {!loading && (
         <>
           <div className="flex flex-col mt-4 mb-4">
@@ -126,6 +166,19 @@ function ProjectsList() {
               Manage projects across multiple grants programs.
             </p>
           </div>
+          <RoundApplyAlert
+            show={show}
+            confirmHandler={() => {
+              const chainId = roundToApply?.split(":")[0];
+              const roundId = roundToApply?.split(":")[1];
+
+              navigate(
+                slugs.roundApplication
+                  .replace(":chainId", chainId)
+                  .replace(":roundId", roundId)
+              );
+            }}
+          />
           <div className="grow">
             {projectsQueryResult?.projects.length ? (
               <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
@@ -157,7 +210,7 @@ function ProjectsList() {
       )}
 
       <CallbackModal
-        modalOpen={toggleModal}
+        modalOpen={show && toggleModal}
         confirmText="Apply to Grant Round"
         confirmHandler={() => {
           const chainId = roundToApply?.split(":")[0];

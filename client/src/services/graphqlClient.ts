@@ -153,6 +153,17 @@ export const roundManagerOptimismClient = new ApolloClient({
   },
 });
 
+export const IS_APPLIED_TO_ROUND = gql`
+  query hasAppliedToRounds($projectId: ID!) {
+    rounds(where: { projects_: { project: $projectId } }) {
+      id
+      projects {
+        id
+      }
+    }
+  }
+`;
+
 export const SUBGRAPH_HEALTH = gql`
   query health($name: Bytes) {
     indexingStatusForCurrentVersion(subgraphName: $name, subgraphError: allow) {
@@ -352,6 +363,36 @@ export type ProjectsResponse = {
 export type RoundResponse = {
   round: BaseRound;
 };
+
+export type RoundIds = {
+  id: string;
+  projects: BaseProject[];
+};
+
+export type RoundAppliedResponse = {
+  rounds: RoundIds[];
+};
+
+export async function fetchIfUserHasAppliedToRound(
+  client: ApolloClient<NormalizedCacheObject>,
+  id: string
+): Promise<RoundAppliedResponse | null> {
+  const { loading, error, data } = await client.query<RoundAppliedResponse>({
+    query: IS_APPLIED_TO_ROUND,
+    fetchPolicy: "no-cache",
+    variables: {
+      projectId: id,
+    },
+  });
+  const parsed = data?.rounds;
+
+  if (loading) return null;
+  if ((!loading && !parsed) || error) return null;
+
+  return {
+    rounds: parsed!,
+  };
+}
 
 export async function fetchProjectsByAccountAddress(
   client: ApolloClient<NormalizedCacheObject>,
