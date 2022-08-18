@@ -38,7 +38,7 @@ function centerAspectCrop(
 type ImageCropProps = ToggleModalProps & {
   imgSrc: string;
   dimensions: Dimensions;
-  onCrop: (imgUrl: string) => void;
+  onCrop: (imgUrl: HTMLCanvasElement) => void;
 };
 
 export default function ImageCrop({

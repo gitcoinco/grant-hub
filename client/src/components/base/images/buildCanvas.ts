@@ -62,6 +62,5 @@ export default async function buildCanvas(
     image.naturalHeight
   );
 
-  const base64Image = canvas.toDataURL("image/jpeg", 1);
-  return base64Image;
+  return canvas;
 }

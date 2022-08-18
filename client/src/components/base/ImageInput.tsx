@@ -5,22 +5,6 @@ import CloudUpload from "../icons/CloudUpload";
 import Toast from "./Toast";
 import ImageCrop from "./images/ImageCrop";
 
-// type Dimensions = {
-//   width: number;
-//   height: number;
-// };
-
-// const validateDimensions = (
-//   image: HTMLImageElement,
-//   dimensions: Dimensions
-// ) => {
-//   const { naturalHeight, naturalWidth } = image;
-
-//   return (
-//     naturalHeight === dimensions.height && naturalWidth === dimensions.width
-//   );
-// };
-
 export type Dimensions = {
   width: number;
   height: number;
@@ -45,7 +29,7 @@ export default function ImageInput({
   const [tempImg, setTempImg] = useState<string | undefined>();
   const [imgSrc, setImgSrc] = useState<string | undefined>();
   const [showCrop, setShowCrop] = useState(false);
-  const [croppedImg, setCroppedImg] = useState<string | undefined>();
+  const [canvas, setCanvas] = useState<HTMLCanvasElement | undefined>();
   const [validation, setValidation] = useState({
     error: false,
     msg: "",
@@ -149,10 +133,10 @@ export default function ImageInput({
             </button>
           )}
           <div className="w-1/3">
-            {croppedImg && (
+            {canvas && (
               <img
                 className={`max-h-28 ${circle && "rounded-full"}`}
-                src={croppedImg ?? currentImg()}
+                src={canvas.toDataURL("image/jpeg", 1) ?? currentImg()}
                 alt="Project Logo Preview"
               />
             )}
@@ -179,7 +163,10 @@ export default function ImageInput({
         imgSrc={imgSrc ?? ""}
         dimensions={dimensions}
         onClose={() => setShowCrop(false)}
-        onCrop={(imgUrl) => setCroppedImg(imgUrl)}
+        onCrop={(imgUrl) => {
+          setCanvas(imgUrl);
+          imgUrl.toBlob((blob) => blob && imgHandler(blob));
+        }}
       />
     </>
   );
