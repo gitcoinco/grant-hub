@@ -61,7 +61,17 @@ export default function ImageInput({
     e.stopPropagation();
 
     const files = getFiles(e);
+
     if (files && files.length > 0) {
+      // ensure image is < 2mb
+      if (files[0].size > 2000000) {
+        setValidation({
+          error: true,
+          msg: "Image must be less than 2mb",
+        });
+        return;
+      }
+
       const reader = new FileReader();
       reader.addEventListener("load", () => {
         if (reader.result) {
