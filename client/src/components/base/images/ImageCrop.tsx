@@ -52,8 +52,6 @@ export default function ImageCrop({
   const imgRef = useRef<HTMLImageElement>(null);
   const [crop, setCrop] = useState<PixelCrop>();
   const [completedCrop, setCompletedCrop] = useState<PixelCrop>();
-  const [scale, setScale] = useState(1);
-  const [rotate, setRotate] = useState(0);
 
   function onImageLoad() {
     const { width, height } = dimensions;
@@ -76,7 +74,7 @@ export default function ImageCrop({
         previewCanvasRef.current
       ) {
         // We use canvasPreview as it's much faster than imgPreview.
-        buildCanvas(imgRef.current, completedCrop, scale, rotate);
+        buildCanvas(imgRef.current, completedCrop);
       }
     }, 100);
   }, [imgRef]);
@@ -84,36 +82,11 @@ export default function ImageCrop({
   return (
     <BaseModal isOpen={isOpen} onClose={onClose}>
       <>
-        <div className="Crop-Controls">
-          <div>
-            <label htmlFor="scale-input">
-              Scale:{" "}
-              <input
-                id="scale-input"
-                type="number"
-                step="0.1"
-                value={scale}
-                disabled={!imgSrc}
-                onChange={(e) => setScale(Number(e.target.value))}
-              />
-            </label>
-          </div>
-          <div>
-            <label htmlFor="rotate-input">
-              Rotate:{" "}
-              <input
-                id="rotate-input"
-                type="number"
-                value={rotate}
-                disabled={!imgSrc}
-                onChange={(e) =>
-                  setRotate(
-                    Math.min(180, Math.max(-180, Number(e.target.value)))
-                  )
-                }
-              />
-            </label>
-          </div>
+        <div className="flex flex-col text-center m-3 ">
+          <h4>Crop Image</h4>
+          <p>
+            Drag or adjust the box to crop your image to the right aspect ratio
+          </p>
         </div>
         {Boolean(imgSrc) && (
           <ReactCrop
@@ -132,7 +105,7 @@ export default function ImageCrop({
               ref={imgRef}
               alt="Crop me"
               src={imgSrc}
-              style={{ transform: `scale(${scale}) rotate(${rotate}deg)` }}
+              style={{ transform: `scale(1) rotate(0deg)` }}
               onLoad={onImageLoad}
             />
           </ReactCrop>
@@ -148,18 +121,13 @@ export default function ImageCrop({
           <Button
             styles={["w-1/2 justify-center"]}
             variant={ButtonVariants.primary}
-            onClick={async () => {
+            onClick={() => {
               if (
                 completedCrop?.width &&
                 completedCrop?.height &&
                 imgRef.current
               ) {
-                const imgUrl = await buildCanvas(
-                  imgRef.current,
-                  completedCrop,
-                  scale,
-                  rotate
-                );
+                const imgUrl = buildCanvas(imgRef.current, completedCrop);
                 onCrop(imgUrl);
                 onClose();
               }
