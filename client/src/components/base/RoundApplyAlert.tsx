@@ -18,7 +18,7 @@ export default function RoundApplyAlert({
         Apply to Optimism Grant Round and get your project funded!
       </p>
       <Button
-        className="absolute inset-y-0 right-10 m-2"
+        className="absolute inset-y-0 right-5 m-2"
         colorScheme="purple"
         onClick={confirmHandler}
       >
