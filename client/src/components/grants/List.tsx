@@ -23,6 +23,7 @@ import {
 import CallbackModal from "../base/CallbackModal";
 
 import { newGrantPath, slugs } from "../../routes";
+import RoundApplyAlert from "../base/RoundApplyAlert";
 
 function ProjectsList() {
   const [loading, setLoading] = useState(true);
@@ -31,7 +32,7 @@ function ProjectsList() {
   const dataDog = useDatadogRum();
   const navigate = useNavigate();
   const [toggleModal, setToggleModal] = useState<boolean>(false);
-  const [show, setShow] = useState(false);
+  const [show, setShow] = useState(true);
   const [roundToApply] = useLocalStorage("roundToApply", null);
   const [roundInfo, setRoundInfo] = useState<RoundResponse | null>(null);
   const { chain } = useNetwork();
@@ -152,7 +153,7 @@ function ProjectsList() {
     };
 
     hasUserAppliedToRouond();
-  }, [projectsQueryResult?.projects]);
+  }, []); // projectsQueryResult?.projects
 
   return (
     <div className="flex flex-col flex-grow h-full mx-4 sm:mx-0">
@@ -165,7 +166,19 @@ function ProjectsList() {
               Manage projects across multiple grants programs.
             </p>
           </div>
-          <div>A message will go here</div>
+          <RoundApplyAlert
+            show={show}
+            confirmHandler={() => {
+              const chainId = roundToApply?.split(":")[0];
+              const roundId = roundToApply?.split(":")[1];
+
+              navigate(
+                slugs.roundApplication
+                  .replace(":chainId", chainId)
+                  .replace(":roundId", roundId)
+              );
+            }}
+          />
           <div className="grow">
             {projectsQueryResult?.projects.length ? (
               <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
