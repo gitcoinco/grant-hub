@@ -26,7 +26,6 @@ export default function ImageInput({
   imgHandler: (file: Blob) => void;
 }) {
   const fileInput = useRef<HTMLInputElement>(null);
-  const [tempImg, setTempImg] = useState<string | undefined>();
   const [imgSrc, setImgSrc] = useState<string | undefined>();
   const [showCrop, setShowCrop] = useState(false);
   const [canvas, setCanvas] = useState<HTMLCanvasElement | undefined>();
@@ -71,20 +70,20 @@ export default function ImageInput({
         }
       });
       reader.readAsDataURL(files[0]);
-      setTempImg(files[0]);
     }
   };
 
   const blobExistingImg = async (imgUrl: string) => {
     const img = await fetch(imgUrl);
     const blob = await img.blob();
+    // Emit blob so that if image is not updated it will still be saved on the update
     imgHandler(blob);
   };
 
   const currentImg = () => {
-    if (tempImg) return tempImg;
     if (!existingImg) return "";
 
+    // Fetch existing img path from Pinata for display
     const pinataClient = new PinataClient();
     const imgUrl = pinataClient.fileURL(existingImg);
 
@@ -136,7 +135,14 @@ export default function ImageInput({
             {canvas && (
               <img
                 className={`max-h-28 ${circle && "rounded-full"}`}
-                src={canvas.toDataURL("image/jpeg", 1) ?? currentImg()}
+                src={canvas.toDataURL("image/jpeg", 1)}
+                alt="Project Logo Preview"
+              />
+            )}
+            {currentImg() && canvas === undefined && (
+              <img
+                className={`max-h-28 ${circle && "rounded-full"}`}
+                src={currentImg()}
                 alt="Project Logo Preview"
               />
             )}
