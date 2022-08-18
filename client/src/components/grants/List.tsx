@@ -31,6 +31,7 @@ function ProjectsList() {
   const dataDog = useDatadogRum();
   const navigate = useNavigate();
   const [toggleModal, setToggleModal] = useState<boolean>(false);
+  const [show, setShow] = useState(false);
   const [roundToApply] = useLocalStorage("roundToApply", null);
   const [roundInfo, setRoundInfo] = useState<RoundResponse | null>(null);
   const { chain } = useNetwork();
@@ -124,21 +125,26 @@ function ProjectsList() {
     const hasUserAppliedToRouond = async (): Promise<boolean> => {
       const projectId = projectsQueryResult?.projects[0]?.id;
       if (projectId) {
-        console.log("projectId", projectId);
+        console.log("projectId in bytes32 =>", formatBytes32String(projectId));
         await fetchIfUserHasAppliedToRound(
           roundManagerClient!,
           formatBytes32String(projectId)
         ).then((result) => {
           console.log("round Id's applied to", result);
           setRoundsApplied(result);
-          if (result) return true;
+          if (result?.rounds.length !== 0) {
+            setShow(false);
+            return true;
+          }
+
+          setShow(true);
           return false;
         });
 
         // now check against current round also
-        if (roundsApplied) {
+        if (roundsApplied?.rounds.length! > 0) {
           // current roundId
-          console.log("Rounds =>", roundsApplied);
+          console.log("Rounds =>", roundsApplied?.rounds);
         }
       }
 
@@ -191,7 +197,7 @@ function ProjectsList() {
       )}
 
       <CallbackModal
-        modalOpen={toggleModal}
+        modalOpen={show && toggleModal}
         confirmText="Apply to Grant Round"
         confirmHandler={() => {
           const chainId = roundToApply?.split(":")[0];
