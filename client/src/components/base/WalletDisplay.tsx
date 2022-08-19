@@ -9,7 +9,7 @@ import {
 //! I couldn't get this damn chevron to display 🤬
 // import { ChevronDownIcon } from "@heroicons/react/solid";
 import { useDispatch } from "react-redux";
-import { useAccount, useDisconnect } from "wagmi";
+import { useAccount, useDisconnect, useEnsName } from "wagmi";
 import { shortAddress, isValidAddress } from "../../utils/wallet";
 import { Button } from "./styles";
 
@@ -28,16 +28,16 @@ export default function WalletDisplay(): JSX.Element {
     },
   });
 
-  // const { data: ensName } = useEnsName({
-  //   address,
-  //   chainId: 1,
-  //   onSuccess() {
-  //     dispatch({ type: "ENS_NAME_LOADED", ens: ensName });
-  //   },
-  //   onError(error) {
-  //     dispatch({ type: "WEB3_ERROR", error });
-  //   },
-  // });
+  const { data: ensName } = useEnsName({
+    address,
+    chainId: 1,
+    onSuccess() {
+      dispatch({ type: "ENS_NAME_LOADED", ens: ensName });
+    },
+    onError(error) {
+      dispatch({ type: "WEB3_ERROR", error });
+    },
+  });
 
   // 🤔 could use also as a signal that user is on the right network
   const avatarBg = isConnected ? "green.500" : "red.500";
