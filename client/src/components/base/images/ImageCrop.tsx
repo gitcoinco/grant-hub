@@ -5,7 +5,6 @@ import ReactCrop, {
   makeAspectCrop,
   PixelCrop,
 } from "react-image-crop";
-import { debounce } from "ts-debounce";
 import { Dimensions } from "../ImageInput";
 import { BaseModal, ToggleModalProps } from "../BaseModal";
 import buildCanvas from "./buildCanvas";
@@ -38,20 +37,20 @@ function centerAspectCrop(
 type ImageCropProps = ToggleModalProps & {
   imgSrc: string;
   dimensions: Dimensions;
-  onCrop: (imgUrl: HTMLCanvasElement) => void;
+  saveCrop: (imgUrl: HTMLCanvasElement) => void;
 };
 
 export default function ImageCrop({
   isOpen,
   imgSrc,
   dimensions,
-  onCrop,
+  saveCrop,
   onClose,
 }: ImageCropProps) {
-  const previewCanvasRef = useRef<HTMLCanvasElement>(null);
   const imgRef = useRef<HTMLImageElement>(null);
   const [crop, setCrop] = useState<PixelCrop>();
   const [completedCrop, setCompletedCrop] = useState<PixelCrop>();
+  const [croppedCanvas, setCroppedCanvas] = useState<HTMLCanvasElement>();
 
   function onImageLoad() {
     const { width, height } = dimensions;
@@ -66,18 +65,12 @@ export default function ImageCrop({
   }, [dimensions]);
 
   useEffect(() => {
-    debounce(async () => {
-      if (
-        completedCrop?.width &&
-        completedCrop?.height &&
-        imgRef.current &&
-        previewCanvasRef.current
-      ) {
-        // We use canvasPreview as it's much faster than imgPreview.
-        buildCanvas(imgRef.current, completedCrop);
-      }
-    }, 100);
-  }, [imgRef]);
+    if (completedCrop?.width && completedCrop?.height && imgRef.current) {
+      // We use canvasPreview as it's much faster than imgPreview.
+      const canvas = buildCanvas(imgRef.current, completedCrop);
+      setCroppedCanvas(canvas);
+    }
+  }, [completedCrop]);
 
   return (
     <BaseModal isOpen={isOpen} onClose={onClose}>
@@ -121,14 +114,10 @@ export default function ImageCrop({
           <Button
             styles={["w-1/2 justify-center"]}
             variant={ButtonVariants.primary}
+            disabled={croppedCanvas === undefined}
             onClick={() => {
-              if (
-                completedCrop?.width &&
-                completedCrop?.height &&
-                imgRef.current
-              ) {
-                const imgUrl = buildCanvas(imgRef.current, completedCrop);
-                onCrop(imgUrl);
+              if (croppedCanvas) {
+                saveCrop(croppedCanvas);
                 onClose();
               }
             }}

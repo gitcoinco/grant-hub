@@ -179,7 +179,7 @@ export default function ImageInput({
         imgSrc={imgSrc ?? ""}
         dimensions={dimensions}
         onClose={() => setShowCrop(false)}
-        onCrop={(imgUrl) => {
+        saveCrop={(imgUrl) => {
           setCanvas(imgUrl);
           imgUrl.toBlob((blob) => blob && imgHandler(blob));
         }}
