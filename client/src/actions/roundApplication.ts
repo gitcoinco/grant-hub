@@ -14,7 +14,7 @@ const submitApplication = async (
   roundAddress: string,
   formInputs: { [id: number]: string },
   signer: ethers.Signer
-) => {
+): Promise<any> => {
   const roundInfo = await useFetchRoundByAddress(
     roundManagerClient,
     roundAddress!
@@ -22,7 +22,7 @@ const submitApplication = async (
 
   if (!roundInfo) {
     console.error("cannot load round data", roundInfo);
-    return;
+    return {};
   }
 
   const roundApplicationMetadata = await getRoundApplicationMetadata(
@@ -31,7 +31,7 @@ const submitApplication = async (
 
   if (!roundApplicationMetadata) {
     console.error("cannot load round application metadata", roundAddress);
-    return;
+    return {};
   }
 
   // const { projectQuestionId } = roundApplicationMetadata;
@@ -99,7 +99,11 @@ const submitApplication = async (
     projectId.toString()
   );
 
-  await contract.applyToRound(projectUniqueID, metaPtr);
+  const contractWithSigner = contract.connect(signer);
+
+  const tx = await contractWithSigner.applyToRound(projectUniqueID, metaPtr);
+
+  return tx.wait();
 };
 
 export default submitApplication;

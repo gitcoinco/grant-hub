@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast/headless";
 import { useAccount, useSigner } from "wagmi";
 import { ValidationError } from "yup";
 import loadProjects from "../../actions/projects";
 import submitApplication from "../../actions/roundApplication";
 import { useClients } from "../../hooks/useDataClient";
-import { Status } from "../../reducers/newGrant";
 import {
   ChangeHandlers,
   ProjectOption,
@@ -15,8 +15,6 @@ import {
 import Button, { ButtonVariants } from "../base/Button";
 import { validateApplication } from "../base/formValidation";
 import TextLoading from "../base/TextLoading";
-import Toast from "../base/Toast";
-import TXLoading from "../base/TXLoading";
 import { Select, TextArea, TextInput } from "../grants/inputs";
 import Radio from "../grants/Radio";
 
@@ -49,9 +47,6 @@ export default function Form({
   const [preview, setPreview] = useState(false);
   const [formValidation, setFormValidation] = useState(validation);
   const [projectOptions, setProjectOptions] = useState<ProjectOption[]>();
-  const [status, setStatus] = useState<Status>(Status.Undefined);
-  const [show, showToast] = useState(false);
-  const [error, setError] = useState<string | undefined>();
   const [schema, setSchema] = useState<RoundApplicationQuestion[]>([]);
 
   const handleInput = (e: ChangeHandlers) => {
@@ -79,21 +74,56 @@ export default function Form({
     setSubmitted(true);
     await validate();
     if (roundManagerClient && formValidation.valid) {
-      showToast(true);
+      const promise = submitApplication(
+        roundManagerClient,
+        grantHubClient!,
+        round.address,
+        formInputs,
+        signer!
+      );
       try {
-        await submitApplication(
-          roundManagerClient,
-          grantHubClient!,
-          round.address,
-          formInputs,
-          signer!
-        );
+        toast.promise(promise, {
+          loading: (
+            <div>
+              <p className="font-semibold text-quaternary-text">
+                Submitting application
+              </p>
+              <p className="text-quaternary-text">
+                Your application is being submitted...
+              </p>
+            </div>
+          ),
+          success: (
+            <div>
+              <p className="font-semibold text-quaternary-text">
+                Application submitted
+              </p>
+              <p className="text-quaternary-text">
+                Your application was successfully submitted!
+              </p>
+            </div>
+          ),
+          // TODO @DanieleSalatti: record metric in error case
+          // eslint-disable-next-line react/no-unstable-nested-components
+          error: (e) => (
+            <div>
+              <p className="font-semibold text-quaternary-text">Error</p>
+              <p className="text-quaternary-text">
+                There was an error submitting your application: {e.message}
+              </p>
+            </div>
+          ),
+        });
         console.log("Application submitted");
-        // TODO @DanieleSalatti: toast is grant creation specific - fix
-        setStatus(Status.Completed);
       } catch (e: any) {
-        setStatus(Status.Error);
-        setError(e.message);
+        toast.error(
+          <div>
+            <p className="font-semibold text-quaternary-text">Error</p>
+            <p className="text-quaternary-text">
+              There was an error submitting your application: {e.message}
+            </p>
+          </div>
+        );
       }
     }
   };
@@ -257,14 +287,6 @@ export default function Form({
           )}
         </div>
       </form>
-      <Toast
-        show={show}
-        fadeOut={status === Status.Completed}
-        onClose={() => showToast(false)}
-        error={status === Status.Error}
-      >
-        <TXLoading status={status} error={error} />
-      </Toast>
     </div>
   );
 }

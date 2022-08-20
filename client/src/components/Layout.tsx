@@ -1,21 +1,19 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
+import toast from "react-hot-toast/headless";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { useAccount, useNetwork } from "wagmi";
 import { loadAccountData } from "../actions/web3";
 import { RootState } from "../reducers";
-import colors from "../styles/colors";
 import { isValidAddress } from "../utils/wallet";
-import Toast from "./base/Toast";
+import Notifications from "./base/Notifications";
 import Landing from "./grants/Landing";
 import Header from "./Header";
-import Globe from "./icons/Globe";
 
 interface Props {
   children: JSX.Element;
 }
 
 function Layout({ children }: Props) {
-  const [show, showToast] = useState(false);
   const dispatch = useDispatch();
   const props = useSelector(
     (state: RootState) => ({
@@ -32,7 +30,13 @@ function Layout({ children }: Props) {
   });
 
   useEffect(() => {
-    showToast(isConnected);
+    toast(
+      <div>
+        <p className="font-semibold text-quaternary-text">Wallet Connected!</p>
+        <p className="text-quaternary-text">Welcome to your Grant Hub.</p>
+      </div>,
+      { id: "hello-world", duration: 3000 }
+    );
     if (!props.chainId) {
       dispatch<any>({ type: "WEB3_CHAIN_ID_LOADED", chainID: chain?.id });
     }
@@ -49,19 +53,7 @@ function Layout({ children }: Props) {
         {!props.web3Error && isConnected && chain?.id && children}
         {props.web3Error && <p>{props.web3Error}</p>}
       </main>
-      <Toast fadeOut show={show} onClose={() => showToast(false)}>
-        <>
-          <div className="w-6 mt-1 mr-2">
-            <Globe color={colors["quaternary-text"]} />
-          </div>
-          <div>
-            <p className="font-semibold text-quaternary-text">
-              Wallet Connected!
-            </p>
-            <p className="text-quaternary-text">Welcome to your Grant Hub.</p>
-          </div>
-        </>
-      </Toast>
+      <Notifications />
       <div className="h-1/8">
         <div className="w-full flex justify-center py-4">
           <img
