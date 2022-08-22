@@ -1,4 +1,3 @@
-// --- Chakra Elements
 import {
   Modal,
   ModalOverlay,
@@ -24,7 +23,7 @@ export function BaseModal({
   footer,
 }: BaseModalProps): JSX.Element {
   return (
-    <Modal isOpen={isOpen} onClose={onClose}>
+    <Modal isOpen={isOpen} onClose={onClose} isCentered>
       <ModalOverlay />
       <ModalContent>
         <>
@@ -34,7 +33,7 @@ export function BaseModal({
           <ModalCloseButton mr={2} />
           <ModalBody p={0}>
             <div className="px-8 pb-4">
-              {/* RSX Element passed in to show desired stamp output */}
+              {/* JSX Element passed in */}
               {children}
             </div>
           </ModalBody>

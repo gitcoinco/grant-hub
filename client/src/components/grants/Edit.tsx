@@ -1,15 +1,59 @@
-import { useParams } from "react-router-dom";
 import { useState } from "react";
-import ProjectForm from "../base/ProjectForm";
-import Button, { ButtonVariants } from "../base/Button";
+import { useParams } from "react-router-dom";
 import colors from "../../styles/colors";
-import Cross from "../icons/Cross";
+import { FormInputs, ProjectFormStatus } from "../../types";
+import Button, { ButtonVariants } from "../base/Button";
 import ExitModal from "../base/ExitModal";
+import Preview from "../base/Preview";
+import ProjectForm from "../base/ProjectForm";
+import VerificationForm from "../base/VerificationForm";
+import Cross from "../icons/Cross";
 
 function EditProject() {
-  const [modalOpen, toggleModal] = useState(false);
-
   const params = useParams();
+  const [modalOpen, toggleModal] = useState(false);
+  const [formStatus, setFormStatus] = useState<ProjectFormStatus>(
+    ProjectFormStatus.Metadata
+  );
+  const [formInputs, setFormInputs] = useState<FormInputs | null>(null);
+
+  const currentForm = (status: ProjectFormStatus) => {
+    switch (status) {
+      case ProjectFormStatus.Metadata:
+        return (
+          <ProjectForm
+            setVerifying={(verifyUpdate) => setFormStatus(verifyUpdate)}
+            currentProjectId={params.id}
+            setFormInputs={setFormInputs}
+            formInputs={formInputs}
+          />
+        );
+      case ProjectFormStatus.Verification:
+        return (
+          <VerificationForm
+            setVerifying={(verifyUpdate) => setFormStatus(verifyUpdate)}
+            setFormInputs={setFormInputs}
+            formInputs={formInputs}
+          />
+        );
+      case ProjectFormStatus.Preview:
+        return (
+          <Preview
+            currentProjectId={params.id}
+            setVerifying={(verifyUpdate) => setFormStatus(verifyUpdate)}
+            formInputs={formInputs!}
+          />
+        );
+      default:
+        return (
+          <ProjectForm
+            setVerifying={(verifyUpdate) => setFormStatus(verifyUpdate)}
+            setFormInputs={setFormInputs}
+            formInputs={formInputs}
+          />
+        );
+    }
+  };
 
   return (
     <div className="mx-4">
@@ -34,9 +78,8 @@ function EditProject() {
         <div className="w-full md:w-1/3 mb-2 hidden sm:inline-block">
           <p>Make sure to Save &amp; Exit, so your changes are saved.</p>
         </div>
-        <div className="w-full md:w-2/3">
-          <ProjectForm currentProjectId={params.id} />
-        </div>
+
+        <div className="w-full md:w-2/3">{currentForm(formStatus)}</div>
       </div>
       <ExitModal modalOpen={modalOpen} toggleModal={toggleModal} />
     </div>
