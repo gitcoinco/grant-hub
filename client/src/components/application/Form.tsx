@@ -74,6 +74,7 @@ export default function Form({
   const handleSubmitApplication = async () => {
     setSubmitted(true);
     await validate();
+    const chainName = chains.filter((chain) => chain.id === chainId)[0].name;
     if (roundManagerClient && formValidation.valid) {
       const promise = submitApplication(
         roundManagerClient,
@@ -81,7 +82,7 @@ export default function Form({
         round.address,
         formInputs,
         signer!,
-        chains[chainId].name
+        chainName.toLowerCase()
       );
       try {
         toast.promise(promise, {
