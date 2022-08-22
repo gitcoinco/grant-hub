@@ -126,10 +126,11 @@ function ProjectsList() {
     const hasUserAppliedToRouond = async (): Promise<boolean> => {
       const projectId = projectsQueryResult?.projects[0]?.id;
       if (projectId) {
-        console.log("projectId in bytes32 =>", formatBytes32String(projectId));
+        // console.log("projectId in bytes32 =>", formatBytes32String(projectId));
         await fetchIfUserHasAppliedToRound(
           roundManagerClient!,
           formatBytes32String(projectId)
+          // "0x3131000000000000000000000000000000000000000000000000000000000000"
         ).then((result) => {
           console.log("round Id's applied to", result);
           setRoundsApplied(result);
@@ -153,7 +154,7 @@ function ProjectsList() {
     };
 
     hasUserAppliedToRouond();
-  }, []); // projectsQueryResult?.projects
+  }, [projectsQueryResult?.projects]); // projectsQueryResult?.projects
 
   return (
     <div className="flex flex-col flex-grow h-full mx-4 sm:mx-0">
@@ -167,7 +168,7 @@ function ProjectsList() {
             </p>
           </div>
           <RoundApplyAlert
-            show={show}
+            show={show && !toggleModal}
             confirmHandler={() => {
               const chainId = roundToApply?.split(":")[0];
               const roundId = roundToApply?.split(":")[1];
