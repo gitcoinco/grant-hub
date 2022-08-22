@@ -1,8 +1,8 @@
 import { useRef, useState } from "react";
+import toast from "react-hot-toast/headless";
 import PinataClient from "../../services/pinata";
 import colors from "../../styles/colors";
 import CloudUpload from "../icons/CloudUpload";
-import Toast from "./Toast";
 
 type Dimensions = {
   width: number;
@@ -38,12 +38,17 @@ export default function ImageInput({
   info?: string;
   imgHandler: (file: Blob) => void;
 }) {
+  const toastError = (msg: string): void => {
+    toast.error(
+      <p className="font-semibold text-quaternary-text mr-2 mt-1">{msg}</p>,
+      {
+        duration: 5000,
+      }
+    );
+  };
+
   const fileInput = useRef<HTMLInputElement>(null);
   const [tempImg, setTempImg] = useState<string | undefined>();
-  const [validation, setValidation] = useState({
-    error: false,
-    msg: "",
-  });
 
   const handleDragEnter = (e: React.DragEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -77,17 +82,9 @@ export default function ImageInput({
         return;
       }
       const file = files[0];
-      // remove validation message
-      setValidation({
-        error: false,
-        msg: "",
-      });
       // ensure image is < 2mb
       if (file.size > 2000000) {
-        setValidation({
-          error: true,
-          msg: "Image must be less than 2mb",
-        });
+        toastError("Image must be less than 2mb");
         return;
       }
 
@@ -97,16 +94,11 @@ export default function ImageInput({
         img.src = URL.createObjectURL(file);
         img.onload = () => {
           if (!validateDimensions(img, dimensions)) {
-            setValidation({
-              error: true,
-              msg: `Image must be ${dimensions.width}px x ${dimensions.height}px`,
-            });
+            toastError(
+              `Image must be ${dimensions.width}px x ${dimensions.height}px`
+            );
             setTempImg(undefined);
           } else {
-            setValidation({
-              error: false,
-              msg: "",
-            });
             imgHandler(file);
             setTempImg(URL.createObjectURL(file));
           }
@@ -141,65 +133,48 @@ export default function ImageInput({
   };
 
   return (
-    <>
-      <div className="mt-6 w-full">
-        <label className="text-sm" htmlFor={label}>
-          {label}
-        </label>
-        <legend>{info}</legend>
-        <div className="flex">
-          <input
-            ref={fileInput}
-            onChange={(e) => saveImage(e)}
-            className="hidden"
-            type="file"
-            name="file"
-            accept=".png,.jpg"
-          />
-          {fileInput && (
-            <button
-              className="w-2/3 border border-dashed rounded flex flex-col py-6 items-center mr-2"
-              type="button"
-              onClick={onButtonClick}
-              onDrop={(e) => saveImage(e)}
-              onDragOver={(e) => handleDragOver(e)}
-              onDragEnter={(e) => handleDragEnter(e)}
-              onDragLeave={(e) => handleDragLeave(e)}
-            >
-              <CloudUpload color={colors["secondary-text"]} />
-              <p>Click to Upload or drag and drop</p>
-              <p>
-                PNG or JPG (Required:{" "}
-                {`${dimensions.width}px x ${dimensions.height}px`})
-              </p>
-            </button>
+    <div className="mt-6 w-full">
+      <label className="text-sm" htmlFor={label}>
+        {label}
+      </label>
+      <legend>{info}</legend>
+      <div className="flex">
+        <input
+          ref={fileInput}
+          onChange={(e) => saveImage(e)}
+          className="hidden"
+          type="file"
+          name="file"
+          accept=".png,.jpg"
+        />
+        {fileInput && (
+          <button
+            className="w-2/3 border border-dashed rounded flex flex-col py-6 items-center mr-2"
+            type="button"
+            onClick={onButtonClick}
+            onDrop={(e) => saveImage(e)}
+            onDragOver={(e) => handleDragOver(e)}
+            onDragEnter={(e) => handleDragEnter(e)}
+            onDragLeave={(e) => handleDragLeave(e)}
+          >
+            <CloudUpload color={colors["secondary-text"]} />
+            <p>Click to Upload or drag and drop</p>
+            <p>
+              PNG or JPG (Required:{" "}
+              {`${dimensions.width}px x ${dimensions.height}px`})
+            </p>
+          </button>
+        )}
+        <div className="w-1/3">
+          {currentImg().length > 0 && (
+            <img
+              className={`max-h-28 ${circle && "rounded-full"}`}
+              src={currentImg()}
+              alt="Project Logo Preview"
+            />
           )}
-          <div className="w-1/3">
-            {currentImg().length > 0 && (
-              <img
-                className={`max-h-28 ${circle && "rounded-full"}`}
-                src={currentImg()}
-                alt="Project Logo Preview"
-              />
-            )}
-          </div>
         </div>
       </div>
-      <Toast
-        show={validation.error}
-        error
-        fadeOut
-        onClose={() =>
-          setValidation({
-            error: false,
-            msg: "",
-          })
-        }
-      >
-        <p className="font-semibold text-quaternary-text mr-2 mt-1">
-          {validation.msg}
-        </p>
-      </Toast>
-    </>
+    </div>
   );
 }
