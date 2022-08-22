@@ -13,7 +13,8 @@ const submitApplication = async (
   grantHubClient: ApolloClient<NormalizedCacheObject>,
   roundAddress: string,
   formInputs: { [id: number]: string },
-  signer: ethers.Signer
+  signer: ethers.Signer,
+  chainName: string
 ): Promise<any> => {
   const roundInfo = await useFetchRoundByAddress(
     roundManagerClient,
@@ -80,7 +81,9 @@ const submitApplication = async (
   const builder = new RoundApplicationBuilder(
     true,
     project,
-    roundApplicationMetadata
+    roundApplicationMetadata,
+    roundAddress,
+    chainName
   );
   const application = await builder.build(roundAddress, formInputs);
 

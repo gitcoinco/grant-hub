@@ -12,6 +12,7 @@ import {
   RoundApplicationMetadata,
   RoundApplicationQuestion,
 } from "../../types";
+import { chains } from "../../utils/wagmi";
 import Button, { ButtonVariants } from "../base/Button";
 import { validateApplication } from "../base/formValidation";
 import TextLoading from "../base/TextLoading";
@@ -79,7 +80,8 @@ export default function Form({
         grantHubClient!,
         round.address,
         formInputs,
-        signer!
+        signer!,
+        chains[chainId].name
       );
       try {
         toast.promise(promise, {

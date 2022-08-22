@@ -3,6 +3,7 @@ import toast from "react-hot-toast/headless";
 import PinataClient from "../../services/pinata";
 import colors from "../../styles/colors";
 import CloudUpload from "../icons/CloudUpload";
+import ImageCrop from "./images/ImageCrop";
 
 export type Dimensions = {
   width: number;
@@ -18,32 +19,24 @@ export default function ImageInput({
   imgHandler,
 }: {
   label: string;
-
   dimensions: Dimensions;
-
   existingImg?: string;
   circle?: Boolean;
   info?: string;
   imgHandler: (file: Blob) => void;
 }) {
-  const toastError = (msg: string): void => {
+  const toastError = (error: string) => {
     toast.error(
-      <p className="font-semibold text-quaternary-text mr-2 mt-1">{msg}</p>,
+      <p className="font-semibold text-quaternary-text mr-2 mt-1">{error}</p>,
       {
         duration: 5000,
       }
     );
   };
-
   const fileInput = useRef<HTMLInputElement>(null);
-
   const [imgSrc, setImgSrc] = useState<string | undefined>();
   const [showCrop, setShowCrop] = useState(false);
   const [canvas, setCanvas] = useState<HTMLCanvasElement | undefined>();
-  const [validation, setValidation] = useState({
-    error: false,
-    msg: "",
-  });
 
   const handleDragEnter = (e: React.DragEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -81,7 +74,6 @@ export default function ImageInput({
       }
 
       const reader = new FileReader();
-
       reader.addEventListener("load", () => {
         if (reader.result) {
           setImgSrc(reader.result.toString() || "");
@@ -95,7 +87,6 @@ export default function ImageInput({
   const blobExistingImg = async (imgUrl: string) => {
     const img = await fetch(imgUrl);
     const blob = await img.blob();
-
     // Emit blob so that if image is not updated it will still be saved on the update
     imgHandler(blob);
   };
@@ -118,55 +109,67 @@ export default function ImageInput({
   };
 
   return (
-    <div className="mt-6 w-full">
-      <label className="text-sm" htmlFor={label}>
-        {label}
-      </label>
-      <legend>{info}</legend>
-      <div className="flex">
-        <input
-          ref={fileInput}
-          onChange={(e) => saveImage(e)}
-          className="hidden"
-          type="file"
-          name="file"
-          accept=".png,.jpg"
-        />
-        {fileInput && (
-          <button
-            className="w-2/3 border border-dashed rounded flex flex-col py-6 items-center mr-2"
-            type="button"
-            onClick={onButtonClick}
-            onDrop={(e) => saveImage(e)}
-            onDragOver={(e) => handleDragOver(e)}
-            onDragEnter={(e) => handleDragEnter(e)}
-            onDragLeave={(e) => handleDragLeave(e)}
-          >
-            <CloudUpload color={colors["secondary-text"]} />
-            <p>Click to Upload or drag and drop</p>
-            <p>
-              PNG or JPG (Required:{" "}
-              {`${dimensions.width}px x ${dimensions.height}px`})
-            </p>
-          </button>
-        )}
-        <div className="w-1/3">
-          {canvas && (
-            <img
-              className={`max-h-28 ${circle && "rounded-full"}`}
-              src={canvas.toDataURL("image/jpeg", 1)}
-              alt="Project Logo Preview"
-            />
+    <>
+      <div className="mt-6 w-full">
+        <label className="text-sm" htmlFor={label}>
+          {label}
+        </label>
+        <legend>{info}</legend>
+        <div className="flex">
+          <input
+            ref={fileInput}
+            onChange={(e) => saveImage(e)}
+            className="hidden"
+            type="file"
+            name="file"
+            accept=".png,.jpg"
+          />
+          {fileInput && (
+            <button
+              className="w-2/3 border border-dashed rounded flex flex-col py-6 items-center mr-2"
+              type="button"
+              onClick={onButtonClick}
+              onDrop={(e) => saveImage(e)}
+              onDragOver={(e) => handleDragOver(e)}
+              onDragEnter={(e) => handleDragEnter(e)}
+              onDragLeave={(e) => handleDragLeave(e)}
+            >
+              <CloudUpload color={colors["secondary-text"]} />
+              <p>Click to Upload or drag and drop</p>
+              <p>
+                PNG or JPG (Required:{" "}
+                {`${dimensions.width}px x ${dimensions.height}px`})
+              </p>
+            </button>
           )}
-          {currentImg() && canvas === undefined && (
-            <img
-              className={`max-h-28 ${circle && "rounded-full"}`}
-              src={currentImg()}
-              alt="Project Logo Preview"
-            />
-          )}
+          <div className="w-1/3">
+            {canvas && (
+              <img
+                className={`max-h-28 ${circle && "rounded-full"}`}
+                src={canvas.toDataURL("image/jpeg", 1)}
+                alt="Project Logo Preview"
+              />
+            )}
+            {currentImg() && canvas === undefined && (
+              <img
+                className={`max-h-28 ${circle && "rounded-full"}`}
+                src={currentImg()}
+                alt="Project Logo Preview"
+              />
+            )}
+          </div>
         </div>
       </div>
-    </div>
+      <ImageCrop
+        isOpen={showCrop}
+        imgSrc={imgSrc ?? ""}
+        dimensions={dimensions}
+        onClose={() => setShowCrop(false)}
+        saveCrop={(imgUrl) => {
+          setCanvas(imgUrl);
+          imgUrl.toBlob((blob) => blob && imgHandler(blob));
+        }}
+      />
+    </>
   );
 }
