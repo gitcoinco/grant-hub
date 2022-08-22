@@ -1,12 +1,9 @@
 import { ethers } from "ethers";
-import { Dispatch } from "redux";
-import { Project } from "../types/index";
-import { global } from "../global";
-import { RootState } from "../reducers";
 import ProjectRegistryABI from "../contracts/abis/ProjectRegistry.json";
 import { addressesByChainID } from "../contracts/deployments";
 import { NewGrant, Status } from "../reducers/newGrant";
 import PinataClient from "../services/pinata";
+import { FormInputs, Project } from "../types/index";
 
 export const NEW_GRANT_STATUS = "NEW_GRANT_STATUS";
 export interface NewGrantStatus {
@@ -54,77 +51,69 @@ export const grantCreated = ({
   owner,
 });
 
-export const publishGrant =
-  (grantId?: string) =>
-  async (dispatch: Dispatch, getState: () => RootState) => {
-    const state = getState();
-    const { metadata: formMetaData, credentials: formCredentials } =
-      state.projectForm;
+export const publishGrant = async (
+  formInputs: FormInputs,
+  chainId: number,
+  signer: ethers.Signer,
+  grantId?: string
+): Promise<any> => {
+  if (formInputs === undefined) {
+    throw new Error("form inputs are undefined");
+  }
+  const application = {
+    ...formInputs,
+  } as Project;
 
-    if (formMetaData === undefined) {
-      return;
+  const pinataClient = new PinataClient();
+
+  if (formInputs?.bannerImg) {
+    const resp = await pinataClient.pinFile(formInputs.bannerImg);
+    application.bannerImg = resp.IpfsHash;
+  }
+
+  if (formInputs?.logoImg) {
+    const resp = await pinataClient.pinFile(formInputs.logoImg);
+    application.logoImg = resp.IpfsHash;
+  }
+
+  const resp = await pinataClient.pinJSON(application);
+  const metadataCID = resp.IpfsHash;
+
+  const addresses = addressesByChainID(chainId);
+
+  if (!signer) {
+    throw new Error("no signer");
+  }
+
+  const projectRegistry = new ethers.Contract(
+    addresses.projectRegistry,
+    ProjectRegistryABI,
+    signer
+  );
+
+  let projectTx;
+
+  if (grantId !== undefined) {
+    try {
+      projectTx = await projectRegistry.updateProjectMetadata(grantId, {
+        protocol: 1,
+        pointer: metadataCID,
+      });
+    } catch (e) {
+      console.error("tx error", e);
+      throw e;
     }
-    const application = {
-      ...formMetaData,
-    } as Project;
-
-    const pinataClient = new PinataClient();
-    dispatch(grantStatus(Status.UploadingImages, undefined));
-    if (formMetaData?.bannerImg) {
-      const resp = await pinataClient.pinFile(formMetaData.bannerImg);
-      application.bannerImg = resp.IpfsHash;
+  } else {
+    try {
+      projectTx = await projectRegistry.createProject({
+        protocol: 1,
+        pointer: metadataCID,
+      });
+    } catch (e) {
+      console.error("tx error", e);
+      throw e;
     }
+  }
 
-    if (formMetaData?.logoImg) {
-      const resp = await pinataClient.pinFile(formMetaData.logoImg);
-      application.logoImg = resp.IpfsHash;
-    }
-
-    application.credentials = formCredentials;
-
-    dispatch(grantStatus(Status.UploadingJSON, undefined));
-    const resp = await pinataClient.pinJSON(application);
-    const metadataCID = resp.IpfsHash;
-
-    const { chainID } = state.web3;
-    const addresses = addressesByChainID(chainID!);
-    const signer = global.web3Provider?.getSigner();
-    const projectRegistry = new ethers.Contract(
-      addresses.projectRegistry,
-      ProjectRegistryABI,
-      signer
-    );
-
-    dispatch(grantStatus(Status.WaitingForSignature, undefined));
-    let projectTx;
-
-    if (grantId !== undefined) {
-      try {
-        projectTx = await projectRegistry.updateProjectMetadata(grantId, {
-          protocol: 1,
-          pointer: metadataCID,
-        });
-      } catch (e) {
-        dispatch(grantStatus(Status.Error, "transaction error"));
-        console.error("tx error", e);
-        return;
-      }
-    } else {
-      try {
-        projectTx = await projectRegistry.createProject({
-          protocol: 1,
-          pointer: metadataCID,
-        });
-      } catch (e) {
-        dispatch(grantStatus(Status.Error, "transaction error"));
-        console.error("tx error", e);
-        return;
-      }
-    }
-
-    dispatch(grantStatus(Status.TransactionInitiated, undefined));
-    const txStatus = await projectTx.wait();
-    if (txStatus.status) {
-      dispatch(grantStatus(Status.Completed, undefined));
-    }
-  };
+  return projectTx.wait();
+};

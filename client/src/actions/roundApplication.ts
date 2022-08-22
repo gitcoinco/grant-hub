@@ -1,163 +1,112 @@
-import { Dispatch } from "redux";
+import { ApolloClient, NormalizedCacheObject } from "@apollo/client";
 import { ethers } from "ethers";
-import { Status } from "../reducers/roundApplication";
-import { RootState } from "../reducers";
-import RoundApplicationBuilder from "../utils/RoundApplicationBuilder";
-import { Project } from "../types";
-import PinataClient from "../services/pinata";
 import RoundABI from "../contracts/abis/Round.json";
-import { global } from "../global";
-import { chains } from "../contracts/deployments";
+import { useFetchRoundByAddress } from "../services/graphqlClient";
+import PinataClient from "../services/pinata";
+import { Metadata, Project } from "../types";
+import RoundApplicationBuilder from "../utils/RoundApplicationBuilder";
+import { fetchGrantData } from "./grantsMetadata";
+import { getRoundApplicationMetadata } from "./rounds";
 
-export const ROUND_APPLICATION_LOADING = "ROUND_APPLICATION_LOADING";
-interface RoundApplicationLoadingAction {
-  type: typeof ROUND_APPLICATION_LOADING;
-  roundAddress: string;
-  status: Status;
-}
-
-export const ROUND_APPLICATION_ERROR = "ROUND_APPLICATION_ERROR";
-interface RoundApplicationErrorAction {
-  type: typeof ROUND_APPLICATION_ERROR;
-  roundAddress: string;
-  error: string;
-}
-
-export const ROUND_APPLICATION_LOADED = "ROUND_APPLICATION_LOADED";
-interface RoundApplicationLoadedAction {
-  type: typeof ROUND_APPLICATION_LOADED;
-  roundAddress: string;
-}
-
-export type RoundApplicationActions =
-  | RoundApplicationLoadingAction
-  | RoundApplicationErrorAction
-  | RoundApplicationLoadedAction;
-
-const applicationError = (
+const submitApplication = async (
+  roundManagerClient: ApolloClient<NormalizedCacheObject>,
+  grantHubClient: ApolloClient<NormalizedCacheObject>,
   roundAddress: string,
-  error: string
-): RoundApplicationActions => ({
-  type: ROUND_APPLICATION_ERROR,
-  roundAddress,
-  error,
-});
+  formInputs: { [id: number]: string },
+  signer: ethers.Signer,
+  chainName: string
+): Promise<any> => {
+  const roundInfo = await useFetchRoundByAddress(
+    roundManagerClient,
+    roundAddress!
+  );
 
-export const submitApplication =
-  (roundAddress: string, formInputs: { [id: number]: string }) =>
-  async (dispatch: Dispatch, getState: () => RootState) => {
-    dispatch({
-      type: ROUND_APPLICATION_LOADING,
-      roundAddress,
-      status: Status.BuildingApplication,
-    });
+  if (!roundInfo) {
+    console.error("cannot load round data", roundInfo);
+    return {};
+  }
 
-    const state = getState();
-    const roundState = state.rounds[roundAddress];
-    if (roundState === undefined) {
-      dispatch(applicationError(roundAddress, "cannot load round data"));
-      return;
-    }
+  const roundApplicationMetadata = await getRoundApplicationMetadata(
+    roundInfo.round.applicationMetaPtr.pointer
+  );
 
-    const roundApplicationMetadata = roundState.round?.applicationMetadata;
-    if (roundApplicationMetadata === undefined) {
-      dispatch(
-        applicationError(roundAddress, "cannot load round application metadata")
-      );
-      return;
-    }
+  if (!roundApplicationMetadata) {
+    console.error("cannot load round application metadata", roundAddress);
+    return {};
+  }
 
-    const { projectQuestionId } = roundApplicationMetadata;
-    if (projectQuestionId === undefined) {
-      dispatch(
-        applicationError(roundAddress, "cannot find project question id")
-      );
-      return;
-    }
+  // const { projectQuestionId } = roundApplicationMetadata;
+  const projectQuestionId = roundApplicationMetadata.applicationSchema.length;
 
-    const projectId = formInputs[projectQuestionId];
-    const projectMetadata: any =
-      state.grantsMetadata[Number(projectId)].metadata;
-    if (projectMetadata === undefined) {
-      dispatch(
-        applicationError(roundAddress, "cannot find selected project metadata")
-      );
-      return;
-    }
+  /*
+  if (projectQuestionId === undefined) {
+    console.error("cannot find project question id", roundAddress);
+    return;
+  }
+  */
 
-    const project: Project = {
-      lastUpdated: 0,
-      id: projectId,
-      title: projectMetadata.title,
-      description: projectMetadata.description,
-      website: projectMetadata.website,
-      bannerImg: projectMetadata.bannerImg!,
-      logoImg: projectMetadata.logoImg!,
-      credentials: projectMetadata.credentials,
-      metaPtr: projectMetadata.metaPtr,
-    };
+  const projectId = formInputs[projectQuestionId];
 
-    // FIXME: this is temporarily until the round manager adds the encrypted field
-    roundApplicationMetadata.applicationSchema.forEach((question) => {
-      if (/email|cool/i.test(question.question.toLowerCase())) {
-        // eslint-disable-next-line
-        question.encrypted = true;
-      }
-    });
+  const projectMetadata: Metadata | null = await fetchGrantData(
+    grantHubClient,
+    Number(projectId)
+  );
+  if (!projectMetadata) {
+    throw new Error(`cannot find project metadata ${roundAddress}`);
+  }
 
-    const { chainID } = state.web3;
-    const chainName = chains[chainID!];
-    if (chainID === undefined) {
-      dispatch(applicationError(roundAddress, "cannot find chain name"));
-      return;
-    }
-
-    const builder = new RoundApplicationBuilder(
-      true,
-      project,
-      roundApplicationMetadata,
-      roundAddress,
-      chainName
-    );
-    const application = await builder.build(roundAddress, formInputs);
-
-    const pinataClient = new PinataClient();
-
-    dispatch({
-      type: ROUND_APPLICATION_LOADING,
-      roundAddress,
-      status: Status.UploadingMetadata,
-    });
-    const resp = await pinataClient.pinJSON(application);
-    const metaPtr = {
-      protocol: "1",
-      pointer: resp.IpfsHash,
-    };
-
-    dispatch({
-      type: ROUND_APPLICATION_LOADING,
-      roundAddress,
-      status: Status.SendingTx,
-    });
-
-    const signer = global.web3Provider!.getSigner();
-    const contract = new ethers.Contract(roundAddress, RoundABI, signer);
-
-    const projectUniqueID = ethers.utils.formatBytes32String(
-      projectId.toString()
-    );
-    try {
-      await contract.applyToRound(projectUniqueID, metaPtr);
-      dispatch({
-        type: ROUND_APPLICATION_LOADED,
-        roundAddress,
-      });
-    } catch (e) {
-      console.error("error calling applyToRound:", e);
-      dispatch({
-        type: ROUND_APPLICATION_ERROR,
-        roundAddress,
-        error: "error calling applyToRound",
-      });
-    }
+  const project: Project = {
+    lastUpdated: 0,
+    id: projectId,
+    title: projectMetadata.title,
+    description: projectMetadata.description,
+    website: projectMetadata.website,
+    bannerImg: projectMetadata.bannerImg!,
+    logoImg: projectMetadata.logoImg!,
+    metaPtr: {
+      protocol: String(projectMetadata.protocol),
+      pointer: projectMetadata.pointer,
+    },
+    credentials: projectMetadata.credentials,
   };
+
+  // FIXME: this is temporarily until the round manager adds the encrypted field
+  roundApplicationMetadata.applicationSchema.forEach((question) => {
+    if (/email/i.test(question.question.toLowerCase())) {
+      // eslint-disable-next-line
+      question.encrypted = true;
+    }
+  });
+
+  const builder = new RoundApplicationBuilder(
+    true,
+    project,
+    roundApplicationMetadata,
+    roundAddress,
+    chainName
+  );
+  const application = await builder.build(roundAddress, formInputs);
+
+  const pinataClient = new PinataClient();
+
+  const resp = await pinataClient.pinJSON(application);
+  const metaPtr = {
+    protocol: "1",
+    pointer: resp.IpfsHash,
+  };
+
+  // global.web3Provider!.getSigner();
+  const contract = new ethers.Contract(roundAddress, RoundABI, signer!);
+
+  const projectUniqueID = ethers.utils.formatBytes32String(
+    projectId.toString()
+  );
+
+  const contractWithSigner = contract.connect(signer);
+
+  const tx = await contractWithSigner.applyToRound(projectUniqueID, metaPtr);
+
+  return tx.wait();
+};
+
+export default submitApplication;

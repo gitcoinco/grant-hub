@@ -1,8 +1,8 @@
 // --- Types
 import {
-  RequestPayload,
-  IssuedChallenge,
   CredentialResponseBody,
+  IssuedChallenge,
+  RequestPayload,
   VerifiableCredentialRecord,
 } from "@gitcoinco/passport-sdk-types";
 

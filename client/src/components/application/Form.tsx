@@ -1,19 +1,23 @@
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast/headless";
+import { useAccount, useSigner } from "wagmi";
 import { ValidationError } from "yup";
-import { shallowEqual, useDispatch, useSelector } from "react-redux";
+import loadProjects from "../../actions/projects";
+import submitApplication from "../../actions/roundApplication";
+import { useClients } from "../../hooks/useDataClient";
 import {
   ChangeHandlers,
-  RoundApplicationMetadata,
   ProjectOption,
   Round,
+  RoundApplicationMetadata,
+  RoundApplicationQuestion,
 } from "../../types";
-import { Select, TextArea, TextInput } from "../grants/inputs";
-import { validateApplication } from "../base/formValidation";
-import Radio from "../grants/Radio";
+import { chains } from "../../utils/wagmi";
 import Button, { ButtonVariants } from "../base/Button";
-import { RootState } from "../../reducers";
-import { loadProjects } from "../../actions/projects";
-import { submitApplication } from "../../actions/roundApplication";
+import { validateApplication } from "../base/formValidation";
+import TextLoading from "../base/TextLoading";
+import { Select, TextArea, TextInput } from "../grants/inputs";
+import Radio from "../grants/Radio";
 
 interface DynamicFormInputs {
   [key: string]: string;
@@ -27,27 +31,24 @@ const validation = {
 export default function Form({
   roundApplication,
   round,
+  chainId,
 }: {
   roundApplication: RoundApplicationMetadata;
   round: Round;
+  chainId: number;
 }) {
-  const dispatch = useDispatch();
-
-  const props = useSelector(
-    (state: RootState) => ({
-      projects: state.projects.projects,
-      allProjectMetadata: state.grantsMetadata,
-    }),
-    shallowEqual
-  );
+  const [loading, setLoading] = useState(true);
+  const { address } = useAccount();
+  const { grantHubClient } = useClients();
+  const { roundManagerClient } = useClients(chainId);
+  const { data: signer } = useSigner();
 
   const [formInputs, setFormInputs] = useState<DynamicFormInputs>({});
   const [submitted, setSubmitted] = useState(false);
   const [preview, setPreview] = useState(false);
   const [formValidation, setFormValidation] = useState(validation);
   const [projectOptions, setProjectOptions] = useState<ProjectOption[]>();
-
-  const schema = roundApplication.applicationSchema;
+  const [schema, setSchema] = useState<RoundApplicationQuestion[]>([]);
 
   const handleInput = (e: ChangeHandlers) => {
     const { value } = e.target;
@@ -61,10 +62,10 @@ export default function Form({
         message: "",
         valid: true,
       });
-    } catch (e) {
-      const error = e as ValidationError;
+    } catch (e: any) {
+      const err = e as ValidationError;
       setFormValidation({
-        message: error.message,
+        message: err.message,
         valid: false,
       });
     }
@@ -73,8 +74,59 @@ export default function Form({
   const handleSubmitApplication = async () => {
     setSubmitted(true);
     await validate();
-    if (formValidation.valid) {
-      dispatch(submitApplication(round.address, formInputs));
+    if (roundManagerClient && formValidation.valid) {
+      const promise = submitApplication(
+        roundManagerClient,
+        grantHubClient!,
+        round.address,
+        formInputs,
+        signer!,
+        chains[chainId].name
+      );
+      try {
+        toast.promise(promise, {
+          loading: (
+            <div>
+              <p className="font-semibold text-quaternary-text">
+                Submitting application
+              </p>
+              <p className="text-quaternary-text">
+                Your application is being submitted...
+              </p>
+            </div>
+          ),
+          success: (
+            <div>
+              <p className="font-semibold text-quaternary-text">
+                Application submitted
+              </p>
+              <p className="text-quaternary-text">
+                Your application was successfully submitted!
+              </p>
+            </div>
+          ),
+          // TODO @DanieleSalatti: record metric in error case
+          // eslint-disable-next-line react/no-unstable-nested-components
+          error: (e) => (
+            <div>
+              <p className="font-semibold text-quaternary-text">Error</p>
+              <p className="text-quaternary-text">
+                There was an error submitting your application: {e.message}
+              </p>
+            </div>
+          ),
+        });
+        console.log("Application submitted");
+      } catch (e: any) {
+        toast.error(
+          <div>
+            <p className="font-semibold text-quaternary-text">Error</p>
+            <p className="text-quaternary-text">
+              There was an error submitting your application: {e.message}
+            </p>
+          </div>
+        );
+      }
     }
   };
 
@@ -83,23 +135,42 @@ export default function Form({
     validate();
   }, [formInputs]);
 
-  useEffect(() => {
-    dispatch(loadProjects(true));
-  }, [dispatch]);
+  async function fetchAllProjects() {
+    if (!grantHubClient) return;
 
-  useEffect(() => {
-    const currentOptions = props.projects.map(
+    const allProjects = await loadProjects(grantHubClient, address!, true);
+
+    const currentOptions = allProjects.map(
       (project): ProjectOption => ({
-        id: project.id,
-        title: props.allProjectMetadata[project.id].metadata?.title,
+        id: Number(project.id),
+        title: project.metadata?.title,
       })
     );
     currentOptions.unshift({ id: undefined, title: "" });
 
     setProjectOptions(currentOptions);
-  }, [props.allProjectMetadata]);
 
-  return (
+    const projectQuestion: RoundApplicationQuestion = {
+      id: roundApplication.applicationSchema.length,
+      question: "Select a project you would like to apply for funding:",
+      type: "PROJECT", // this will be a limited set [TEXT, TEXTAREA, RADIO, MULTIPLE]
+      required: true,
+      info: "",
+      choices: currentOptions?.map((option) => option.title!),
+    };
+
+    setSchema([projectQuestion, ...roundApplication.applicationSchema]);
+
+    setLoading(false);
+  }
+
+  useEffect(() => {
+    fetchAllProjects();
+  }, [grantHubClient]);
+
+  return loading ? (
+    <TextLoading />
+  ) : (
     <div className="border-0 sm:border sm:border-solid border-tertiary-text rounded text-primary-text p-0 sm:p-4">
       <form onSubmit={(e) => e.preventDefault()}>
         {schema.map((input) => {
@@ -116,7 +187,7 @@ export default function Form({
                     changeHandler={handleInput}
                   />
                   <p className="text-xs mt-4 mb-1">
-                    To complete your application to ${round.roundMetadata.name},
+                    To complete your application to {round.roundMetadata.name},
                     a little more info is needed:
                   </p>
                   <hr />

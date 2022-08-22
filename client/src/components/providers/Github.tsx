@@ -1,15 +1,15 @@
 // --- Methods
+import { datadogRum } from "@datadog/browser-rum";
+import { VerifiableCredential } from "@gitcoinco/passport-sdk-types";
 import { useEffect, useState } from "react";
 import { shallowEqual, useSelector } from "react-redux";
-import { VerifiableCredential } from "@gitcoinco/passport-sdk-types";
-import { datadogRum } from "@datadog/browser-rum";
 import { debounce } from "ts-debounce";
 import { global } from "../../global";
 // --- Identity tools
-import { ProviderID } from "../../types";
-import { ClientType, fetchVerifiableCredential } from "./identity";
 import { RootState } from "../../reducers";
+import { ProviderID } from "../../types";
 import Button, { ButtonVariants } from "../base/Button";
+import { ClientType, fetchVerifiableCredential } from "./identity";
 
 // Each provider is recognised by its ID
 const providerId: ProviderID = "ClearTextGithubOrg";

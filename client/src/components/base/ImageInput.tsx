@@ -1,8 +1,8 @@
 import { useRef, useState } from "react";
+import toast from "react-hot-toast/headless";
 import PinataClient from "../../services/pinata";
 import colors from "../../styles/colors";
 import CloudUpload from "../icons/CloudUpload";
-import Toast from "./Toast";
 import ImageCrop from "./images/ImageCrop";
 
 export type Dimensions = {
@@ -25,14 +25,18 @@ export default function ImageInput({
   info?: string;
   imgHandler: (file: Blob) => void;
 }) {
+  const toastError = (error: string) => {
+    toast.error(
+      <p className="font-semibold text-quaternary-text mr-2 mt-1">{error}</p>,
+      {
+        duration: 5000,
+      }
+    );
+  };
   const fileInput = useRef<HTMLInputElement>(null);
   const [imgSrc, setImgSrc] = useState<string | undefined>();
   const [showCrop, setShowCrop] = useState(false);
   const [canvas, setCanvas] = useState<HTMLCanvasElement | undefined>();
-  const [validation, setValidation] = useState({
-    error: false,
-    msg: "",
-  });
 
   const handleDragEnter = (e: React.DragEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -65,10 +69,7 @@ export default function ImageInput({
     if (files && files.length > 0) {
       // ensure image is < 2mb
       if (files[0].size > 2000000) {
-        setValidation({
-          error: true,
-          msg: "Image must be less than 2mb",
-        });
+        toastError("Image must be less than 2mb");
         return;
       }
 
@@ -159,21 +160,6 @@ export default function ImageInput({
           </div>
         </div>
       </div>
-      <Toast
-        show={validation.error}
-        error
-        fadeOut
-        onClose={() =>
-          setValidation({
-            error: false,
-            msg: "",
-          })
-        }
-      >
-        <p className="font-semibold text-quaternary-text mr-2 mt-1">
-          {validation.msg}
-        </p>
-      </Toast>
       <ImageCrop
         isOpen={showCrop}
         imgSrc={imgSrc ?? ""}

@@ -1,67 +1,90 @@
-import { useEffect, useState } from "react";
-import { shallowEqual, useDispatch, useSelector } from "react-redux";
+import { useState } from "react";
+import toast from "react-hot-toast/headless";
 import { useNavigate } from "react-router-dom";
-import { publishGrant, resetStatus } from "../../actions/newGrant";
-import { RootState } from "../../reducers";
-import { Status } from "../../reducers/newGrant";
-import { formatDate } from "../../utils/components";
+import { useNetwork, useSigner } from "wagmi";
+import { publishGrant } from "../../actions/newGrant";
 import { slugs } from "../../routes";
+import { FormInputs, ProjectFormStatus } from "../../types";
+import { formatDate } from "../../utils/components";
 import Details from "../grants/Details";
 import Button, { ButtonVariants } from "./Button";
-import Toast from "./Toast";
-import TXLoading from "./TXLoading";
-import { ProjectFormStatus } from "../../types";
-import { formReset } from "../../actions/projectForm";
 
 export default function Preview({
   currentProjectId,
   setVerifying,
+  formInputs,
 }: {
   currentProjectId?: string;
   setVerifying: (verifying: ProjectFormStatus) => void;
+  formInputs: FormInputs;
 }) {
-  const dispatch = useDispatch();
-
   const [submitted, setSubmitted] = useState(false);
-  const [show, showToast] = useState(false);
 
-  const props = useSelector(
-    (state: RootState) => ({
-      metadata: state.projectForm.metadata,
-      credentials: state.projectForm.credentials,
-      status: state.newGrant.status,
-      error: state.newGrant.error,
-    }),
-    shallowEqual
-  );
+  const { chain } = useNetwork();
 
-  const localResetStatus = () => {
-    setSubmitted(false);
-    dispatch(resetStatus());
-    dispatch(formReset());
-  };
-
-  const publishProject = async () => {
-    setSubmitted(true);
-    showToast(true);
-    await dispatch(publishGrant(currentProjectId));
-  };
+  const { data: signer } = useSigner();
 
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (props.status === Status.Completed) {
-      setTimeout(() => {
-        navigate(slugs.grants);
-        localResetStatus();
-      }, 1500);
+  const publishProject = async () => {
+    if (!chain || !signer) {
+      console.error("Missing chain or signer");
+      return;
     }
-  }, [props.status]);
+    setSubmitted(true);
+    const promise = publishGrant(
+      formInputs,
+      chain!.id,
+      signer,
+      currentProjectId
+    );
 
-  const { credentials } = props;
-  const project = {
-    ...props.metadata,
-    credentials,
+    try {
+      toast.promise(
+        promise.then(() => setTimeout(() => navigate(slugs.grants), 1500)),
+        {
+          loading: (
+            <div>
+              <p className="font-semibold text-quaternary-text">
+                Creating Grant
+              </p>
+              <p className="text-quaternary-text">
+                Your grant is being created...
+              </p>
+            </div>
+          ),
+          success: (
+            <div>
+              <p className="font-semibold text-quaternary-text">
+                Grant created
+              </p>
+              <p className="text-quaternary-text">
+                Your grant was successfully created!
+              </p>
+            </div>
+          ),
+          // TODO @DanieleSalatti: record metric in error case
+          // eslint-disable-next-line react/no-unstable-nested-components
+          error: (e) => (
+            <div>
+              <p className="font-semibold text-quaternary-text">Error</p>
+              <p className="text-quaternary-text">
+                There was an error creating your grant: {e.message}
+              </p>
+            </div>
+          ),
+        }
+      );
+    } catch (e: any) {
+      toast.error(
+        <div>
+          <p className="font-semibold text-quaternary-text">Error</p>
+          <p className="text-quaternary-text">
+            There was an error creating your grant: {e.message}
+          </p>
+        </div>
+      );
+    }
   };
 
   return (
@@ -69,9 +92,9 @@ export default function Preview({
       <Details
         preview
         updatedAt={formatDate(Date.now() / 1000)}
-        project={project}
-        logoImg={props.metadata?.logoImg ?? "./icons/lightning.svg"}
-        bannerImg={props.metadata?.bannerImg ?? "./assets/card-img.png"}
+        project={formInputs}
+        logoImg={formInputs.logoImg ?? "./icons/lightning.svg"}
+        bannerImg={formInputs.bannerImg ?? "./assets/card-img.png"}
       />
       <div className="flex justify-end">
         <Button
@@ -88,14 +111,6 @@ export default function Preview({
           Save and Publish
         </Button>
       </div>
-      <Toast
-        show={show}
-        fadeOut={props.status === Status.Completed}
-        onClose={() => showToast(false)}
-        error={props.status === Status.Error}
-      >
-        <TXLoading status={props.status} error={props.error} />
-      </Toast>
     </div>
   );
 }

@@ -1,95 +1,128 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { shallowEqual, useSelector, useDispatch } from "react-redux";
-import { RootState } from "../../reducers";
+import { useNetwork } from "wagmi";
+import {
+  getRoundApplicationMetadata,
+  getRoundMetadata,
+} from "../../actions/rounds";
+import { useClients } from "../../hooks/useDataClient";
+import useLocalStorage from "../../hooks/useLocalStorage";
 import { roundApplicationPath } from "../../routes";
-import { loadRound, unloadRounds } from "../../actions/rounds";
-import { Status } from "../../reducers/rounds";
-import { networkPrettyName } from "../../utils/wallet";
+import { useFetchRoundByAddress } from "../../services/graphqlClient";
 import { formatDate } from "../../utils/components";
+import { networkPrettyName } from "../../utils/wallet";
 import Button, { ButtonVariants } from "../base/Button";
+import ErrorModal from "../base/ErrorModal";
+import TextLoading from "../base/TextLoading";
 
 function Round() {
+  const [loading, setLoading] = useState(true);
   const [roundData, setRoundData] = useState<any>();
-
+  const [dataModal, setDataModal] = useState(false);
+  const [roundToApply, setRoundToApply] = useLocalStorage("roundToApply", null);
+  const { chain } = useNetwork();
   const params = useParams();
-  const dispatch = useDispatch();
-
   const { roundId, chainId } = params;
+  const { roundManagerClient } = useClients(Number(chainId));
 
-  const props = useSelector((state: RootState) => {
-    const roundState = state.rounds[roundId!];
-    const status = roundState ? roundState.status : Status.Undefined;
-    const error = roundState ? roundState.error : undefined;
-    const round = roundState ? roundState.round : undefined;
-    const web3ChainId = state.web3.chainID;
-    const roundChainId = Number(chainId);
+  async function fetchRound() {
+    if (!roundManagerClient) return;
+    const roundInfo = await useFetchRoundByAddress(
+      roundManagerClient,
+      roundId!
+    );
 
-    return {
-      roundState,
-      status,
-      error,
-      round,
-      web3ChainId,
-      roundChainId,
-    };
-  }, shallowEqual);
+    if (!roundInfo) {
+      console.error("Cannot load round", roundId);
+      setDataModal(true);
+      return;
+    }
+
+    const roundApplicationMetadata = await getRoundApplicationMetadata(
+      roundInfo.round.applicationMetaPtr.pointer
+    );
+
+    if (!roundApplicationMetadata) {
+      console.error("Cannot load round application metadata", roundId);
+      return;
+    }
+
+    const roundMetadata = await getRoundMetadata(
+      roundInfo.round.roundMetaPtr.pointer
+    );
+
+    if (!roundMetadata) {
+      console.error("Cannot load round metadata", roundId);
+      return;
+    }
+    roundInfo.round.applicationMetadata = roundApplicationMetadata;
+    roundInfo.round.metadata = roundMetadata;
+
+    setRoundData(roundInfo.round);
+    setLoading(false);
+  }
 
   useEffect(() => {
-    if (roundId !== undefined) {
-      dispatch(unloadRounds());
-      dispatch(loadRound(roundId));
-    }
-  }, [dispatch, roundId]);
+    fetchRound();
+  }, [roundId, roundManagerClient]);
 
-  if (props.web3ChainId !== props.roundChainId) {
+  useEffect(() => {
+    if (roundId) {
+      setRoundToApply(`${chainId}:${roundId}`);
+    }
+  }, [roundId]);
+
+  useEffect(() => {
+    console.log("roundToApply", roundToApply);
+  }, [roundToApply]);
+
+  if (Number(chainId) !== chain!.id) {
     return (
       <p>
         This application has been deployed to{" "}
-        {networkPrettyName(props.roundChainId)} and you are connected to{" "}
-        {networkPrettyName(props.web3ChainId ?? 1)}
+        {networkPrettyName(Number(chainId))} and you are connected to{" "}
+        {networkPrettyName(chain?.id ?? 1)}
       </p>
     );
   }
 
-  useEffect(() => {
-    if (props.round) {
-      setRoundData(props.round);
-    }
-  }, [props.round]);
-
-  if (props.status === Status.Error) {
-    return <p>Error: {props.error}</p>;
-  }
-
-  if (props.status !== Status.Loaded) {
-    return <p>loading...</p>;
-  }
-
-  if (props.roundState === undefined || props.round === undefined) {
-    return <p>something went wrong</p>;
-  }
-
   return (
     <div className="h-full w-full absolute flex flex-col justify-center items-center">
-      <div className="w-full lg:w-1/3 sm:w-2/3">
-        <h2 className="text-center">{roundData?.roundMetadata.name}</h2>
-        <h4 className="text-center">{roundData?.roundMetadata.description}</h4>
-        <div className="p-8 flex flex-col">
-          <p className="mt-4 mb-12 w-full text-center">
-            Date: {formatDate(roundData?.applicationsStartTime)} -{" "}
-            {formatDate(roundData?.applicationsEndTime)}
-          </p>
-          <Link to={roundApplicationPath(chainId!, roundId!)}>
-            <Button
-              styles={["w-full justify-center"]}
-              variant={ButtonVariants.primary}
-            >
-              Apply to this round
-            </Button>
-          </Link>
+      {loading ? (
+        <TextLoading />
+      ) : (
+        <div className="w-full lg:w-1/3 sm:w-2/3">
+          <h2 className="text-center">{roundData?.metadata.name}</h2>
+          <h4 className="text-center">{roundData?.metadata.description}</h4>
+          <div className="p-8 flex flex-col">
+            <p className="mt-4 mb-12 w-full text-center">
+              Date: {formatDate(roundData?.applicationsStartTime)} -{" "}
+              {formatDate(roundData?.applicationsEndTime)}
+            </p>
+            <Link to={roundApplicationPath(chain?.id.toString(), roundId!)}>
+              <Button
+                styles={["w-full justify-center"]}
+                variant={ButtonVariants.primary}
+              >
+                Apply to this round
+              </Button>
+            </Link>
+          </div>
+          <ErrorModal
+            title="Data Load Error"
+            isOpen={dataModal}
+            onClose={() => {
+              setDataModal(false);
+            }}
+            error={{
+              error: true,
+              message:
+                "There has been an error loading the grant round data. Please try refreshing the page." +
+                " If the issue persists, contact us at support@gitcoin.co",
+            }}
+          />
         </div>
-      </div>
+      )}
     </div>
   );
 }
