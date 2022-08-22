@@ -95,8 +95,8 @@ export interface JWK {
 
 export interface RoundApplicationMetadata {
   lastUpdatedOn: number;
-  publicKey: JWK;
   applicationSchema: RoundApplicationQuestion[];
+  application_schema: RoundApplicationQuestion[];
   projectQuestionId?: number;
   recipientQuestionId?: number;
 }
@@ -137,11 +137,18 @@ export interface RoundApplication {
   answers: Array<{
     questionId: Number;
     question: string;
-    answer: string;
+    answer: string | undefined;
+    encryptedAnswer:
+      | {
+          ciphertext: string;
+          encryptedSymmetricKey: string;
+        }
+      | undefined;
   }>;
 }
 
 export type ProviderID = "ClearTextTwitter" | "ClearTextGithubOrg";
+
 export type ProjectCredentials = {
   github?: VerifiableCredential;
   twitter?: VerifiableCredential;

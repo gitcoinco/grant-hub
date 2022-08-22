@@ -4,20 +4,9 @@ import PinataClient from "../../services/pinata";
 import colors from "../../styles/colors";
 import CloudUpload from "../icons/CloudUpload";
 
-type Dimensions = {
+export type Dimensions = {
   width: number;
   height: number;
-};
-
-const validateDimensions = (
-  image: HTMLImageElement,
-  dimensions: Dimensions
-) => {
-  const { naturalHeight, naturalWidth } = image;
-
-  return (
-    naturalHeight === dimensions.height && naturalWidth === dimensions.width
-  );
 };
 
 export default function ImageInput({
@@ -29,10 +18,9 @@ export default function ImageInput({
   imgHandler,
 }: {
   label: string;
-  dimensions: {
-    width: number;
-    height: number;
-  };
+
+  dimensions: Dimensions;
+
   existingImg?: string;
   circle?: Boolean;
   info?: string;
@@ -48,7 +36,14 @@ export default function ImageInput({
   };
 
   const fileInput = useRef<HTMLInputElement>(null);
-  const [tempImg, setTempImg] = useState<string | undefined>();
+
+  const [imgSrc, setImgSrc] = useState<string | undefined>();
+  const [showCrop, setShowCrop] = useState(false);
+  const [canvas, setCanvas] = useState<HTMLCanvasElement | undefined>();
+  const [validation, setValidation] = useState({
+    error: false,
+    msg: "",
+  });
 
   const handleDragEnter = (e: React.DragEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -77,48 +72,38 @@ export default function ImageInput({
     e.stopPropagation();
 
     const files = getFiles(e);
-    if (files) {
-      if (files.length === 0) {
-        return;
-      }
-      const file = files[0];
+
+    if (files && files.length > 0) {
       // ensure image is < 2mb
-      if (file.size > 2000000) {
+      if (files[0].size > 2000000) {
         toastError("Image must be less than 2mb");
         return;
       }
 
       const reader = new FileReader();
-      reader.onload = () => {
-        const img: HTMLImageElement = document.createElement("img");
-        img.src = URL.createObjectURL(file);
-        img.onload = () => {
-          if (!validateDimensions(img, dimensions)) {
-            toastError(
-              `Image must be ${dimensions.width}px x ${dimensions.height}px`
-            );
-            setTempImg(undefined);
-          } else {
-            imgHandler(file);
-            setTempImg(URL.createObjectURL(file));
-          }
-        };
-      };
 
-      reader.readAsDataURL(file);
+      reader.addEventListener("load", () => {
+        if (reader.result) {
+          setImgSrc(reader.result.toString() || "");
+          setShowCrop(true);
+        }
+      });
+      reader.readAsDataURL(files[0]);
     }
   };
 
   const blobExistingImg = async (imgUrl: string) => {
     const img = await fetch(imgUrl);
     const blob = await img.blob();
+
+    // Emit blob so that if image is not updated it will still be saved on the update
     imgHandler(blob);
   };
 
   const currentImg = () => {
-    if (tempImg) return tempImg;
     if (!existingImg) return "";
 
+    // Fetch existing img path from Pinata for display
     const pinataClient = new PinataClient();
     const imgUrl = pinataClient.fileURL(existingImg);
 
@@ -166,7 +151,14 @@ export default function ImageInput({
           </button>
         )}
         <div className="w-1/3">
-          {currentImg().length > 0 && (
+          {canvas && (
+            <img
+              className={`max-h-28 ${circle && "rounded-full"}`}
+              src={canvas.toDataURL("image/jpeg", 1)}
+              alt="Project Logo Preview"
+            />
+          )}
+          {currentImg() && canvas === undefined && (
             <img
               className={`max-h-28 ${circle && "rounded-full"}`}
               src={currentImg()}

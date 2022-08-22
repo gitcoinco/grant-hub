@@ -27,7 +27,6 @@ function ProjectForm({
   formInputs: FormInputs | null;
 }) {
   const [loading, setLoading] = useState(currentProjectId !== undefined);
-
   const [grantData, setGrantData] = useState<any>();
   const [formValidation, setFormValidation] = useState(validation);
   const [submitted, setSubmitted] = useState(false);

@@ -10,6 +10,7 @@ import Arrow from "../icons/Arrow";
 import Pencil from "../icons/Pencil";
 // import Calendar from "../icons/Calendar";
 import { useClients } from "../../hooks/useDataClient";
+
 import Details from "./Details";
 
 function Project() {

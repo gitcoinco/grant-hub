@@ -1,8 +1,8 @@
 // --- Types
 import {
-  RequestPayload,
-  IssuedChallenge,
   CredentialResponseBody,
+  IssuedChallenge,
+  RequestPayload,
   VerifiableCredentialRecord,
 } from "@gitcoinco/passport-sdk-types";
 
@@ -34,7 +34,12 @@ export const fetchChallengeCredential = async (
   } as IssuedChallenge;
 };
 
+export enum ClientType {
+  GrantHub,
+}
+
 export type GHOrgRequestPayload = RequestPayload & {
+  requestedClient?: ClientType.GrantHub;
   org?: string;
 };
 
