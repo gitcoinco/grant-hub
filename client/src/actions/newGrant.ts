@@ -56,7 +56,7 @@ export const publishGrant = async (
   chainId: number,
   signer: ethers.Signer,
   grantId?: string
-) => {
+): Promise<any> => {
   if (formInputs === undefined) {
     throw new Error("form inputs are undefined");
   }
@@ -115,8 +115,5 @@ export const publishGrant = async (
     }
   }
 
-  const txStatus = await projectTx.wait();
-  if (!txStatus.status) {
-    throw new Error("tx failed", txStatus);
-  }
+  return projectTx.wait();
 };

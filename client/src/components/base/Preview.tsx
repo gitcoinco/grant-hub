@@ -1,15 +1,13 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import toast from "react-hot-toast/headless";
 import { useNavigate } from "react-router-dom";
 import { useNetwork, useSigner } from "wagmi";
 import { publishGrant } from "../../actions/newGrant";
-import { Status } from "../../reducers/newGrant";
 import { slugs } from "../../routes";
 import { FormInputs, ProjectFormStatus } from "../../types";
 import { formatDate } from "../../utils/components";
 import Details from "../grants/Details";
 import Button, { ButtonVariants } from "./Button";
-import Toast from "./Toast";
-import TXLoading from "./TXLoading";
 
 export default function Preview({
   currentProjectId,
@@ -21,14 +19,12 @@ export default function Preview({
   formInputs: FormInputs;
 }) {
   const [submitted, setSubmitted] = useState(false);
-  const [show, showToast] = useState(false);
-  const [error, setError] = useState<string | undefined>();
 
   const { chain } = useNetwork();
 
-  const [status, setStatus] = useState<Status>(Status.Undefined);
-
   const { data: signer } = useSigner();
+
+  const navigate = useNavigate();
 
   const publishProject = async () => {
     if (!chain || !signer) {
@@ -36,23 +32,60 @@ export default function Preview({
       return;
     }
     setSubmitted(true);
-    showToast(true);
+    const promise = publishGrant(
+      formInputs,
+      chain!.id,
+      signer,
+      currentProjectId
+    );
+
     try {
-      await publishGrant(formInputs, chain!.id, signer, currentProjectId);
-      setStatus(Status.Completed);
+      toast.promise(
+        promise.then(() => setTimeout(() => navigate(slugs.grants), 1500)),
+        {
+          loading: (
+            <div>
+              <p className="font-semibold text-quaternary-text">
+                Creating Grant
+              </p>
+              <p className="text-quaternary-text">
+                Your grant is being created...
+              </p>
+            </div>
+          ),
+          success: (
+            <div>
+              <p className="font-semibold text-quaternary-text">
+                Grant created
+              </p>
+              <p className="text-quaternary-text">
+                Your grant was successfully created!
+              </p>
+            </div>
+          ),
+          // TODO @DanieleSalatti: record metric in error case
+          // eslint-disable-next-line react/no-unstable-nested-components
+          error: (e) => (
+            <div>
+              <p className="font-semibold text-quaternary-text">Error</p>
+              <p className="text-quaternary-text">
+                There was an error creating your grant: {e.message}
+              </p>
+            </div>
+          ),
+        }
+      );
     } catch (e: any) {
-      setStatus(Status.Error);
-      setError(e.message);
+      toast.error(
+        <div>
+          <p className="font-semibold text-quaternary-text">Error</p>
+          <p className="text-quaternary-text">
+            There was an error creating your grant: {e.message}
+          </p>
+        </div>
+      );
     }
   };
-
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (status === Status.Completed) {
-      setTimeout(() => navigate(slugs.grants), 1500);
-    }
-  }, [status]);
 
   return (
     <div>
@@ -78,14 +111,6 @@ export default function Preview({
           Save and Publish
         </Button>
       </div>
-      <Toast
-        show={show}
-        fadeOut={status === Status.Completed}
-        onClose={() => showToast(false)}
-        error={status === Status.Error}
-      >
-        <TXLoading status={status} error={error} />
-      </Toast>
     </div>
   );
 }
