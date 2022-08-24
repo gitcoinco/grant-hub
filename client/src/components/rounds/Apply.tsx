@@ -1,15 +1,16 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { shallowEqual, useSelector, useDispatch } from "react-redux";
+import { shallowEqual, useDispatch, useSelector } from "react-redux";
+import { useNavigate, useParams } from "react-router-dom";
+import useLocalStorage from "../../hooks/useLocalStorage";
 import { RootState } from "../../reducers";
-import { roundPath } from "../../routes";
-import { Status as RoundStatus } from "../../reducers/rounds";
 import { Status as ApplicationStatus } from "../../reducers/roundApplication";
+import { Status as RoundStatus } from "../../reducers/rounds";
+import { roundPath } from "../../routes";
+import colors from "../../styles/colors";
 import Form from "../application/Form";
 import Button, { ButtonVariants } from "../base/Button";
 import ExitModal from "../base/ExitModal";
 import Cross from "../icons/Cross";
-import colors from "../../styles/colors";
 
 const formatDate = (unixTS: number) =>
   new Date(unixTS).toLocaleDateString(undefined);
@@ -20,6 +21,11 @@ function Apply() {
   const navigate = useNavigate();
 
   const [modalOpen, toggleModal] = useState(false);
+  const [, setRoundToApply] = useLocalStorage("roundToApply", null);
+  const [, setToggleRoundApplicationModal] = useLocalStorage(
+    "toggleRoundApplicationModal",
+    false
+  );
 
   const props = useSelector((state: RootState) => {
     const { id } = params;
@@ -54,6 +60,13 @@ function Apply() {
       navigate(roundPath(props.id));
     }
   }, [dispatch, props.id, props.round]);
+
+  useEffect(() => {
+    if (props.id) {
+      setRoundToApply(`5:${props.id}`);
+      setToggleRoundApplicationModal(true);
+    }
+  }, [props.id]);
 
   if (props.roundStatus === RoundStatus.Error) {
     return <div>Error loading round data: {props.roundError}</div>;

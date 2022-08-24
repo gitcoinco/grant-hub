@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
+import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { Link, useParams } from "react-router-dom";
-import { shallowEqual, useSelector, useDispatch } from "react-redux";
-import { RootState } from "../../reducers";
-import { roundApplicationPath } from "../../routes";
 import { loadRound, unloadRounds } from "../../actions/rounds";
+import useLocalStorage from "../../hooks/useLocalStorage";
+import { RootState } from "../../reducers";
 import { Status } from "../../reducers/rounds";
+import { roundApplicationPath } from "../../routes";
 import { formatDate } from "../../utils/components";
 import Button, { ButtonVariants } from "../base/Button";
 
@@ -28,6 +29,19 @@ function Round() {
       round,
     };
   }, shallowEqual);
+
+  const [, setRoundToApply] = useLocalStorage("roundToApply", null);
+  const [, setToggleRoundApplicationModal] = useLocalStorage(
+    "toggleRoundApplicationModal",
+    false
+  );
+
+  useEffect(() => {
+    if (props.id) {
+      setRoundToApply(`5:${props.id}`);
+      setToggleRoundApplicationModal(true);
+    }
+  }, [props.id]);
 
   useEffect(() => {
     if (props.id !== undefined) {
