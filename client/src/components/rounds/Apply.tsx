@@ -27,11 +27,12 @@ function Apply() {
     false
   );
 
+  const { roundId, chainId } = params;
+
   const props = useSelector((state: RootState) => {
-    const { id } = params;
-    const roundState = state.rounds[id!];
+    const roundState = state.rounds[roundId!];
     const roundStatus = roundState ? roundState.status : RoundStatus.Undefined;
-    const applicationState = state.roundApplication[id!];
+    const applicationState = state.roundApplication[roundId!];
     const applicationStatus: ApplicationStatus = applicationState
       ? applicationState.status
       : ApplicationStatus.Undefined;
@@ -44,7 +45,6 @@ function Apply() {
       : undefined;
 
     return {
-      id,
       roundState,
       roundStatus,
       roundError,
@@ -56,17 +56,21 @@ function Apply() {
   }, shallowEqual);
 
   useEffect(() => {
-    if (props.id !== undefined && props.round === undefined) {
-      navigate(roundPath(props.id));
+    if (
+      roundId !== undefined &&
+      chainId !== undefined &&
+      props.round === undefined
+    ) {
+      navigate(roundPath(chainId, roundId));
     }
-  }, [dispatch, props.id, props.round]);
+  }, [dispatch, roundId, props.round]);
 
   useEffect(() => {
-    if (props.id) {
-      setRoundToApply(`5:${props.id}`);
+    if (roundId) {
+      setRoundToApply(`${chainId}:${roundId}`);
       setToggleRoundApplicationModal(true);
     }
-  }, [props.id]);
+  }, [roundId]);
 
   if (props.roundStatus === RoundStatus.Error) {
     return <div>Error loading round data: {props.roundError}</div>;
