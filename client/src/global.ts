@@ -1,8 +1,10 @@
-import { Provider } from "@wagmi/core";
+// import { Provider } from "@wagmi/core";
+import { Web3Provider } from "@ethersproject/providers";
+import { Signer } from "@ethersproject/abstract-signer";
 
 export interface Global {
-  web3Provider: Provider | undefined;
-  signer: any | undefined;
+  web3Provider: Web3Provider | undefined;
+  signer: Signer | undefined;
   chainID: number | undefined;
 }
 
