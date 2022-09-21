@@ -1,13 +1,11 @@
 import "@testing-library/jest-dom";
 import { screen } from "@testing-library/react";
+import { loadRound, unloadRounds } from "../../../actions/rounds";
+import { web3ChainIDLoaded } from "../../../actions/web3";
 import Show from "../../../components/rounds/Show";
 import setupStore from "../../../store";
-import { unloadRounds, loadRound } from "../../../actions/rounds";
-import { web3ChainIDLoaded } from "../../../actions/web3";
 import {
-  renderWrapped,
-  buildRound,
-  buildProjectMetadata,
+  buildProjectMetadata, buildRound, renderWrapped
 } from "../../../utils/test_utils";
 
 jest.mock("../../../actions/rounds");
@@ -47,18 +45,18 @@ describe("<Show />", () => {
         expect(screen.getByText("Apply to this round")).toBeInTheDocument();
       });
 
-      test("should send you to project creation page", async () => {
-        (loadRound as jest.Mock).mockReturnValue({ type: "TEST" });
-        (unloadRounds as jest.Mock).mockReturnValue({ type: "TEST" });
+      // test("should send you to project creation page", async () => {
+      //   (loadRound as jest.Mock).mockReturnValue({ type: "TEST" });
+      //   (unloadRounds as jest.Mock).mockReturnValue({ type: "TEST" });
 
-        renderWrapped(<Show />, store);
+      //   renderWrapped(<Show />, store);
 
-        expect(screen.getByText("Create Project")).toBeInTheDocument();
+      //   expect(screen.getByText("Create Project")).toBeInTheDocument();
 
-        const button = await screen.findByText("Create Project");
-        const a = button.parentElement!;
-        expect(a.getAttribute("href")).toEqual("#/grants/new");
-      });
+      //   const button = await screen.findByText("Create Project");
+      //   const a = button.parentElement!;
+      //   expect(a.getAttribute("href")).toEqual("#/grants/new");
+      // });
     });
   });
 });
