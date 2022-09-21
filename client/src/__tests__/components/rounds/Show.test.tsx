@@ -5,7 +5,9 @@ import { web3ChainIDLoaded } from "../../../actions/web3";
 import Show from "../../../components/rounds/Show";
 import setupStore from "../../../store";
 import {
-  buildProjectMetadata, buildRound, renderWrapped
+  buildProjectMetadata,
+  buildRound,
+  renderWrapped
 } from "../../../utils/test_utils";
 
 jest.mock("../../../actions/rounds");
