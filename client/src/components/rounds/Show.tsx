@@ -5,7 +5,7 @@ import { loadRound, unloadRounds } from "../../actions/rounds";
 import useLocalStorage from "../../hooks/useLocalStorage";
 import { RootState } from "../../reducers";
 import { Status } from "../../reducers/rounds";
-import { roundApplicationPath, newGrantPath } from "../../routes";
+import { roundApplicationPath } from "../../routes";
 import { formatDate } from "../../utils/components";
 import { networkPrettyName } from "../../utils/wallet";
 import Button, { ButtonVariants } from "../base/Button";
@@ -96,25 +96,14 @@ function Round() {
             Date: {formatDate(roundData?.applicationsStartTime)} -{" "}
             {formatDate(roundData?.applicationsEndTime)}
           </p>
-          {Object.keys(props.projects).length !== 0 ? (
-            <Link to={roundApplicationPath(chainId!, roundId!)}>
-              <Button
-                styles={["w-full justify-center"]}
-                variant={ButtonVariants.primary}
-              >
-                Apply to this round
-              </Button>
-            </Link>
-          ) : (
-            <Link to={newGrantPath()}>
-              <Button
-                styles={["w-full justify-center"]}
-                variant={ButtonVariants.primary}
-              >
-                Create Project
-              </Button>
-            </Link>
-          )}
+          <Link to={roundApplicationPath(chainId!, roundId!)}>
+            <Button
+              styles={["w-full justify-center"]}
+              variant={ButtonVariants.primary}
+            >
+              Apply to this round
+            </Button>
+          </Link>
         </div>
       </div>
     </div>
