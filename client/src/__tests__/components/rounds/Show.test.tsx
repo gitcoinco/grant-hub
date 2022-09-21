@@ -7,7 +7,7 @@ import setupStore from "../../../store";
 import {
   buildProjectMetadata,
   buildRound,
-  renderWrapped
+  renderWrapped,
 } from "../../../utils/test_utils";
 
 jest.mock("../../../actions/rounds");
