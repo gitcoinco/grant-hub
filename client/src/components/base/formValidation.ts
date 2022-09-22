@@ -23,14 +23,21 @@ export async function validateApplication(
   formInputs: DynamicFormInputs
 ) {
   const schema = defaultInputs.reduce((acc, input) => {
-    const { id, required } = input;
+    const { id, required, type } = input;
+    console.log("validation", id, required, type);
     if (id !== undefined) {
       return {
         ...acc,
         [id]: required
           ? string().required(`${input.question} is required`)
           : string(),
-        isSafe: string().required("Is this project a safe is required"),
+        [id]:
+          type === "RECIPIENT"
+            ? string()
+                .matches(/^0x[a-fA-F0-9]{40}$/g, { excludeEmptyString: true })
+                .required("Recipient Address is not an address")
+            : string(),
+        isSafe: string().required("Is this address a safe is required"),
       };
     }
     return acc;

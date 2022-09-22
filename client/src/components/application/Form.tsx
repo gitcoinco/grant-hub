@@ -79,7 +79,7 @@ export default function Form({
 
   const handleInputAddress = async (e: ChangeHandlers) => {
     const { value } = e.target;
-    const isValid = isValidAddress(value);
+    const isValid = isValidAddress(value) && formInputs.isSafe === "No";
     if (!isValid) {
       setFormValidation({
         messages: ["Invalid address"],
