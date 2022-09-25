@@ -11,7 +11,7 @@ const validInputs = {
 };
 
 describe("Form Validation", () => {
-  it("returns originall inputs if they are valid", async () => {
+  it("returns original inputs if they are valid", async () => {
     const validation = await validateProjectForm(validInputs);
 
     expect(validation).toBe(validInputs);
@@ -43,11 +43,10 @@ describe("Form Validation", () => {
     }
   });
 
-  it("Validates application form", async () => {
+  it("Validates round application form", async () => {
     const formInputs = {
       2: "Text Area Response",
       4: "Recipient Address Response",
-      isSafe: "No",
     };
 
     const defaultInputs: RoundApplicationQuestion[] = [
@@ -88,7 +87,7 @@ describe("Form Validation", () => {
       );
     } catch (e) {
       const error = e as ValidationError;
-      expect(error.message).toBe("Text Question is required");
+      expect(error.message).toBe("Is this address a safe is required");
       expect(error.name).toBe("ValidationError");
     }
   });

@@ -4,6 +4,7 @@ import {
   FormInputs,
   RoundApplicationQuestion,
 } from "../../types";
+import { isValidAddress } from "../../utils/wallet";
 
 export async function validateProjectForm(inputs: FormInputs) {
   const schema = object({
@@ -18,13 +19,15 @@ export async function validateProjectForm(inputs: FormInputs) {
   return validatedInputs;
 }
 
+const isValid = (value: string) => isValidAddress(value);
+
 export async function validateApplication(
   defaultInputs: RoundApplicationQuestion[],
   formInputs: DynamicFormInputs
 ) {
   const schema = defaultInputs.reduce((acc, input) => {
     const { id, required, type } = input;
-    console.log("validation", id, required, type);
+    console.log("validation", id, required, type, formInputs[id]);
     if (id !== undefined) {
       return {
         ...acc,
@@ -32,10 +35,13 @@ export async function validateApplication(
           ? string().required(`${input.question} is required`)
           : string(),
         [id]:
-          type === "RECIPIENT"
+          isValid(formInputs[id]) && required && type === "RECIPIENT"
             ? string()
-                .matches(/^0x[a-fA-F0-9]{40}$/g, { excludeEmptyString: true })
-                .required("Recipient Address is not an address")
+                .matches(/^0x[a-fA-F0-9]{40}$/g, {
+                  excludeEmptyString: true,
+                  message: "Recipient Address must be a valid Ethereum address",
+                })
+                .required("Recipient Address is required")
             : string(),
         isSafe: string().required("Is this address a safe is required"),
       };
