@@ -79,13 +79,14 @@ export default function Form({
 
   const handleInputAddress = async (e: ChangeHandlers) => {
     const { value } = e.target;
-    const isValid = isValidAddress(value) && formInputs.isSafe === "No";
+    const isValid = isValidAddress(value);
     if (!isValid) {
       setFormValidation({
-        messages: ["Invalid address"],
+        messages: ["Please enter a valid address"],
         valid: false,
-        errorCount: validation.errorCount + 1,
+        errorCount: 1,
       });
+      setDisableSubmit(true);
     } else {
       setFormValidation(validation);
     }
@@ -129,6 +130,7 @@ export default function Form({
   };
 
   useEffect(() => {
+    setFormValidation({ ...validation, valid: true });
     const currentOptions = props.projects.map(
       (project): ProjectOption => ({
         id: project.id,
@@ -139,6 +141,8 @@ export default function Form({
 
     setProjectOptions(currentOptions);
   }, [props.allProjectMetadata]);
+
+  // todo: need a way to determine if each individual input is valid or not
 
   return (
     <div className="border-0 sm:border sm:border-solid border-tertiary-text rounded text-primary-text p-0 sm:p-4">
@@ -156,6 +160,7 @@ export default function Form({
                     disabled={preview}
                     changeHandler={handleProjectInput}
                     required={input.required ?? true}
+                    isValid={formValidation.valid}
                   />
                   <Toggle
                     projectMetadata={props.selectedProjectMetadata}
@@ -179,6 +184,7 @@ export default function Form({
                   disabled={preview}
                   changeHandler={handleInput}
                   required={input.required ?? false}
+                  isValid={formValidation.valid}
                 />
               );
             case "RECIPIENT":
@@ -196,6 +202,7 @@ export default function Form({
                         info=""
                         required={input.required ?? true}
                         disabled={preview}
+                        isValid={formValidation.valid}
                       />
                     </Stack>
                   </div>
@@ -212,6 +219,7 @@ export default function Form({
                     disabled={preview}
                     changeHandler={handleInputAddress}
                     required={input.required ?? true}
+                    isValid={formValidation.valid}
                   />
                 </>
               );
@@ -226,6 +234,7 @@ export default function Form({
                   disabled={preview}
                   changeHandler={handleInput}
                   required={input.required ?? false}
+                  isValid={formValidation.valid}
                 />
               );
             case "RADIO":
@@ -242,6 +251,7 @@ export default function Form({
                   disabled={preview}
                   changeHandler={handleInput}
                   required={input.required ?? false}
+                  isValid={formValidation.valid}
                 />
               );
             // case "MULTIPLE":
@@ -266,6 +276,7 @@ export default function Form({
                   disabled={preview}
                   changeHandler={handleInput}
                   required={input.required ?? false}
+                  isValid={formValidation.valid}
                 />
               );
           }
@@ -289,7 +300,7 @@ export default function Form({
             </ul>
           </div>
         ) : (
-          formInputs.isSafe && (
+          formInputs.isSafe === "Yes" && (
             <div
               className="p-4 border rounded border-yellow-900/10 bg-gitcoin-yellow mt-8"
               role="alert"
@@ -321,7 +332,14 @@ export default function Form({
             <div className="flex justify-end">
               <Button
                 variant={ButtonVariants.outline}
-                onClick={() => setPreview(false)}
+                onClick={() => {
+                  setPreview(false);
+                  setFormValidation({
+                    valid: true,
+                    messages: [],
+                    errorCount: 0,
+                  });
+                }}
               >
                 Back to Editing
               </Button>

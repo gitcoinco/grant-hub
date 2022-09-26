@@ -135,6 +135,7 @@ function ProjectForm({
           value={props.formMetaData.title}
           changeHandler={handleInput}
           required
+          isValid
         />
         <WebsiteInput
           label="Project Website"
@@ -142,6 +143,7 @@ function ProjectForm({
           value={props.formMetaData.website}
           changeHandler={handleInput}
           required
+          isValid
         />
         <ImageInput
           label="Project Logo"
@@ -169,6 +171,7 @@ function ProjectForm({
           value={props.formMetaData.projectTwitter}
           changeHandler={handleInput}
           required={false}
+          isValid
         />
         <TextInput
           label="Your Github Username"
@@ -177,6 +180,7 @@ function ProjectForm({
           value={props.formMetaData.userGithub}
           changeHandler={handleInput}
           required={false}
+          isValid
         />
         <TextInput
           label="Project Github Organization"
@@ -185,6 +189,7 @@ function ProjectForm({
           value={props.formMetaData.projectGithub}
           changeHandler={handleInput}
           required={false}
+          isValid
         />
         <TextArea
           label="Project Description"
@@ -193,6 +198,7 @@ function ProjectForm({
           value={props.formMetaData.description}
           changeHandler={handleInput}
           required
+          isValid
         />
         {!formValidation.valid && submitted && (
           <div
