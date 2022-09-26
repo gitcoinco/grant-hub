@@ -1,27 +1,27 @@
-import { useEffect, useState } from "react";
-import { ValidationError } from "yup";
 import { Stack } from "@chakra-ui/react";
+import { useEffect, useState } from "react";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
+import { ValidationError } from "yup";
+import { submitApplication } from "../../actions/roundApplication";
+import { RootState } from "../../reducers";
 import {
   ChangeHandlers,
-  RoundApplicationMetadata,
-  ProjectOption,
-  Round,
   DynamicFormInputs,
   Metadata,
+  ProjectOption,
+  Round,
+  RoundApplicationMetadata,
 } from "../../types";
+import { isValidAddress } from "../../utils/wallet";
+import Button, { ButtonVariants } from "../base/Button";
+import { validateApplication } from "../base/formValidation";
 import {
   Select,
   TextArea,
   TextInput,
   TextInputAddress,
 } from "../grants/inputs";
-import { validateApplication } from "../base/formValidation";
 import Radio from "../grants/Radio";
-import Button, { ButtonVariants } from "../base/Button";
-import { RootState } from "../../reducers";
-import { submitApplication } from "../../actions/roundApplication";
-import { isValidAddress } from "../../utils/wallet";
 import Toggle from "../grants/Toggle";
 
 const validation = {
@@ -106,6 +106,7 @@ export default function Form({
         valid: true,
         errorCount: 0,
       });
+      setDisableSubmit(false);
     } catch (e) {
       const error = e as ValidationError;
       console.log(error);
