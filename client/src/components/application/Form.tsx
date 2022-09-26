@@ -270,9 +270,9 @@ export default function Form({
               );
           }
         })}
-        {!formValidation.valid && preview && (
+        {!formValidation.valid && preview ? (
           <div
-            className="p-4 text-red-700 border rounded border-red-900/10 bg-red-50 mt-8"
+            className="p-4 text-gitcoin-pink-500 border rounded border-red-900/10 bg-gitcoin-pink-100 mt-8"
             role="alert"
           >
             <strong className="text-sm font-medium">
@@ -288,6 +288,26 @@ export default function Form({
               ))}
             </ul>
           </div>
+        ) : (
+          formInputs.isSafe && (
+            <div
+              className="p-4 border rounded border-yellow-900/10 bg-gitcoin-yellow mt-8"
+              role="alert"
+            >
+              <strong className="text-sm text-gitcoin-gold font-medium">
+                Make sure your Gnosis Safe or multi-sig wallet is deployed on
+                Optimism
+              </strong>
+              <ol>
+                <li className="mt-1 ml-4 text-black text-sm list-disc list-inside">
+                  Looks like the payout wallet address you entered may not be a
+                  Gnosis Safe or multi-sig that has been deployed on Optimism.
+                  Make sure your Gnosis Safe or multi-sig wallet is deployed on
+                  Optimism before proceeding.
+                </li>
+              </ol>
+            </div>
+          )
         )}
         <div className="flex justify-end">
           {!preview ? (

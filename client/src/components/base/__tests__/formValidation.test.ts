@@ -47,6 +47,7 @@ describe("Form Validation", () => {
     const formInputs = {
       2: "Text Area Response",
       4: "Recipient Address Response",
+      isSafe: "Yes",
     };
 
     const defaultInputs: RoundApplicationQuestion[] = [
@@ -87,7 +88,7 @@ describe("Form Validation", () => {
       );
     } catch (e) {
       const error = e as ValidationError;
-      expect(error.message).toBe("Is this address a safe is required");
+      expect(error.message).toBe("Text Question is required");
       expect(error.name).toBe("ValidationError");
     }
   });

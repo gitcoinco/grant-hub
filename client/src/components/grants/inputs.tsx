@@ -72,6 +72,7 @@ export function TextInputAddress({
       </Tooltip>
       <legend>{info}</legend>
       <input
+        className="border-gitcoin-yellow"
         type="text"
         id={label}
         name={name}
