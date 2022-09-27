@@ -14,9 +14,7 @@ export default function Radio({
   changeHandler,
   required,
   disabled,
-  isValid,
 }: RadioInputProps) {
-  const borderColor = isValid ? "border-gray-300" : "border-gitcoin-pink-500";
   return (
     <div className="mt-6 w-full sm:w-1/2 relative">
       <div className=" flex">
@@ -44,7 +42,7 @@ export default function Radio({
                   checked={choice === value}
                   onChange={changeHandler}
                   type="radio"
-                  className={`focus:ring-indigo-500 text-indigo-600 ${borderColor} w-4 flex-none`}
+                  className="focus:ring-indigo-500 text-indigo-600 w-4 flex-none"
                 />
                 <label htmlFor={choiceId} className="ml-3 mb-0">
                   {choice}

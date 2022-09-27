@@ -17,9 +17,7 @@ export function TextInput({
   disabled,
   changeHandler,
   required,
-  isValid,
 }: InputProps) {
-  const borderColor = isValid ? "border-gray-300" : "border-gitcoin-pink-500";
   return (
     <div className="relative mt-6 w-full sm:w-1/2">
       <div className=" flex">
@@ -34,7 +32,6 @@ export function TextInput({
       </div>
       <legend>{info}</legend>
       <input
-        className={borderColor}
         type="text"
         id={label}
         name={name}
@@ -57,9 +54,7 @@ export function TextInputAddress({
   disabled,
   changeHandler,
   required,
-  isValid,
 }: AddressInputProps) {
-  const borderColor = isValid ? "border-gray-300" : "border-gitcoin-gold";
   return (
     <div className="relative mt-6 w-full sm:w-1/2">
       <div className=" flex">
@@ -88,7 +83,6 @@ export function TextInputAddress({
       </Tooltip>
       <legend>{info}</legend>
       <input
-        className={borderColor}
         type="text"
         id={label}
         name={name}
@@ -196,9 +190,7 @@ export function Select({
   disabled,
   changeHandler,
   required,
-  isValid,
 }: SelectInputProps) {
-  const borderColor = isValid ? "border-gray-300" : "border-gitcoin-pink-500";
   return (
     <div className="relative">
       <div className=" flex">
@@ -213,7 +205,6 @@ export function Select({
       </div>
       <legend>{info}</legend>
       <select
-        className={borderColor}
         id={name}
         name={name}
         disabled={disabled}

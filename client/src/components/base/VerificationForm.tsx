@@ -65,7 +65,6 @@ export default function VerificationForm({
           value={props.formMetaData.projectGithub}
           changeHandler={handleInput}
           required={false}
-          isValid
         />
         <Github
           org={props.formMetaData.projectGithub ?? ""}
@@ -89,7 +88,6 @@ export default function VerificationForm({
           value={props.formMetaData.projectTwitter}
           changeHandler={handleInput}
           required={false}
-          isValid
         />
         <Twitter
           handle={props.formMetaData.projectTwitter ?? ""}

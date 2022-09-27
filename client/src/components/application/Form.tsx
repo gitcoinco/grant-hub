@@ -161,7 +161,6 @@ export default function Form({
                     disabled={preview}
                     changeHandler={handleProjectInput}
                     required={input.required ?? true}
-                    isValid={formValidation.valid}
                   />
                   <Toggle
                     projectMetadata={props.selectedProjectMetadata}
@@ -185,7 +184,6 @@ export default function Form({
                   disabled={preview}
                   changeHandler={handleInput}
                   required={input.required ?? false}
-                  isValid={formValidation.valid}
                 />
               );
             case "RECIPIENT":
@@ -203,7 +201,6 @@ export default function Form({
                         info=""
                         required={input.required ?? true}
                         disabled={preview}
-                        isValid={formValidation.valid}
                       />
                     </Stack>
                   </div>
@@ -220,7 +217,6 @@ export default function Form({
                     disabled={preview}
                     changeHandler={handleInputAddress}
                     required={input.required ?? true}
-                    isValid={formValidation.valid}
                   />
                 </>
               );
@@ -235,7 +231,6 @@ export default function Form({
                   disabled={preview}
                   changeHandler={handleInput}
                   required={input.required ?? false}
-                  isValid={formValidation.valid}
                 />
               );
             case "RADIO":
@@ -252,7 +247,6 @@ export default function Form({
                   disabled={preview}
                   changeHandler={handleInput}
                   required={input.required ?? false}
-                  isValid={formValidation.valid}
                 />
               );
             // case "MULTIPLE":
@@ -277,49 +271,49 @@ export default function Form({
                   disabled={preview}
                   changeHandler={handleInput}
                   required={input.required ?? false}
-                  isValid={formValidation.valid}
                 />
               );
           }
         })}
-        {!formValidation.valid && preview ? (
-          <div
-            className="p-4 text-gitcoin-pink-500 border rounded border-red-900/10 bg-gitcoin-pink-100 mt-8"
-            role="alert"
-          >
-            <strong className="text-sm font-medium">
-              There {formValidation.errorCount === 1 ? "was" : "were"}{" "}
-              {formValidation.errorCount}{" "}
-              {formValidation.errorCount === 1 ? "error" : "errors"} with your
-              form submission
-            </strong>
-
-            <ul className="mt-1 ml-2 text-xs list-disc list-inside">
-              {formValidation.messages.map((o) => (
-                <li key={o}>{o}</li>
-              ))}
-            </ul>
-          </div>
-        ) : (
-          formInputs.isSafe === "Yes" && (
+        {!formValidation.valid && preview && (
+          <div>
+            {formInputs.isSafe === "Yes" && (
+              <div
+                className="p-4 border rounded border-yellow-900/10 bg-gitcoin-yellow mt-8"
+                role="alert"
+              >
+                <strong className="text-sm text-gitcoin-gold font-medium">
+                  Make sure your Gnosis Safe or multi-sig wallet is deployed on
+                  Optimism
+                </strong>
+                <ol>
+                  <li className="mt-1 ml-4 text-black text-sm list-disc list-inside">
+                    Looks like the payout wallet address you entered may not be
+                    a Gnosis Safe or multi-sig that has been deployed on
+                    Optimism. Make sure your Gnosis Safe or multi-sig wallet is
+                    deployed on Optimism before proceeding.
+                  </li>
+                </ol>
+              </div>
+            )}
             <div
-              className="p-4 border rounded border-yellow-900/10 bg-gitcoin-yellow mt-8"
+              className="p-4 text-gitcoin-pink-500 border rounded border-red-900/10 bg-gitcoin-pink-100 mt-8"
               role="alert"
             >
-              <strong className="text-sm text-gitcoin-gold font-medium">
-                Make sure your Gnosis Safe or multi-sig wallet is deployed on
-                Optimism
+              <strong className="text-sm font-medium">
+                There {formValidation.errorCount === 1 ? "was" : "were"}{" "}
+                {formValidation.errorCount}{" "}
+                {formValidation.errorCount === 1 ? "error" : "errors"} with your
+                form submission
               </strong>
-              <ol>
-                <li className="mt-1 ml-4 text-black text-sm list-disc list-inside">
-                  Looks like the payout wallet address you entered may not be a
-                  Gnosis Safe or multi-sig that has been deployed on Optimism.
-                  Make sure your Gnosis Safe or multi-sig wallet is deployed on
-                  Optimism before proceeding.
-                </li>
-              </ol>
+
+              <ul className="mt-1 ml-2 text-xs list-disc list-inside">
+                {formValidation.messages.map((o) => (
+                  <li key={o}>{o}</li>
+                ))}
+              </ul>
             </div>
-          )
+          </div>
         )}
         <div className="flex justify-end">
           {!preview ? (
