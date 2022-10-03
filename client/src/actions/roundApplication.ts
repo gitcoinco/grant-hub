@@ -1,15 +1,15 @@
-import { Dispatch } from "redux";
 import { ethers } from "ethers";
-import { Status } from "../reducers/roundApplication";
-import { RootState } from "../reducers";
-import RoundApplicationBuilder from "../utils/RoundApplicationBuilder";
-import { Project, RoundApplication, SignedRoundApplication } from "../types";
-import PinataClient from "../services/pinata";
-import RoundABI from "../contracts/abis/Round.json";
-import { global } from "../global";
+import { Dispatch } from "redux";
+import RoundABI from "../contracts/abis/RoundImplementation.json";
 import { chains } from "../contracts/deployments";
-import generateUniqueRoundApplicationID from "../utils/roundApplication";
+import { global } from "../global";
+import { RootState } from "../reducers";
+import { Status } from "../reducers/roundApplication";
+import PinataClient from "../services/pinata";
+import { Project, RoundApplication, SignedRoundApplication } from "../types";
 import { objectToDeterministicJSON } from "../utils/deterministicJSON";
+import generateUniqueRoundApplicationID from "../utils/roundApplication";
+import RoundApplicationBuilder from "../utils/RoundApplicationBuilder";
 import { metadataToProject } from "../utils/utils";
 
 // FIXME: rename to ROUND_APPLICATION_APPLYING
@@ -106,14 +106,6 @@ export const submitApplication =
     }
 
     const project: Project = metadataToProject(projectMetadata, 0);
-
-    // FIXME: this is temporarily until the round manager adds the encrypted field
-    roundApplicationMetadata.applicationSchema.forEach((question) => {
-      if (/email|cool/i.test(question.question.toLowerCase())) {
-        // eslint-disable-next-line
-        question.encrypted = true;
-      }
-    });
 
     const { chainID } = state.web3;
     const chainName = chains[chainID!];
