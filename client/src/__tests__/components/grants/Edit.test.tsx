@@ -18,19 +18,18 @@ describe("<EditProject />", () => {
   describe("useEffect/fetchGrantData", () => {
     test("should be called the first time", async () => {
       const store = setupStore();
-      const metadata = buildProjectMetadata({id: 123});
-//       // (loadRound as jest.Mock).mockReturnValue({ type: "TEST" });
-//       // (unloadRounds as jest.Mock).mockReturnValue({ type: "TEST" });
-//       // (loadProjects as jest.Mock).mockReturnValue({ type: "TEST" });
+      const metadata = buildProjectMetadata({ id: 123 });
+      // (loadRound as jest.Mock).mockReturnValue({ type: "TEST" });
+      // (unloadRounds as jest.Mock).mockReturnValue({ type: "TEST" });
+      // (loadProjects as jest.Mock).mockReturnValue({ type: "TEST" });
 
       store.dispatch({
         type: "GRANT_METADATA_FETCHED",
-        data: metadata
+        data: metadata,
       });
 
       renderWrapped(<EditProject />, store);
-
-//       // expect(fetchGrantData).toBeCalledTimes(1);
+      // expect(fetchGrantData).toBeCalledTimes(1);
     });
   });
 });
