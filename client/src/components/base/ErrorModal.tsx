@@ -4,12 +4,18 @@ import { BaseModal } from "./BaseModal";
 
 type ErrorModalProps = {
   open: boolean;
+  children?: JSX.Element;
+  primaryBtnText?: string;
+  secondaryBtnText?: string;
   onClose: (open: boolean) => void;
   onRetry: () => void;
 };
 
 export default function ErrorModal({
   open,
+  children,
+  primaryBtnText,
+  secondaryBtnText,
   onClose,
   onRetry,
 }: ErrorModalProps): JSX.Element {
@@ -35,8 +41,8 @@ export default function ErrorModal({
           >
             <span>Error</span>
             <p className="mt-10 text-[14px] font-[400]">
-              There has been a systems error during the deployment of your
-              project.
+              {children ||
+                "There has been a systems error during the deployment of your project."}
             </p>
           </GridItem>
           <GridItem rowStart={3} colSpan={10}>
@@ -47,7 +53,7 @@ export default function ErrorModal({
                   onRetry();
                 }}
               >
-                Try Again
+                {secondaryBtnText || "Try Again"}
               </Button>
               <Button
                 onClick={() => {
@@ -55,7 +61,7 @@ export default function ErrorModal({
                 }}
                 className="bg-gitcoin-violet-400 text-white ml-2 px-10"
               >
-                Done
+                {primaryBtnText || "Done"}
               </Button>
             </div>
           </GridItem>
