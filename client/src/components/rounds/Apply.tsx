@@ -10,12 +10,13 @@ import {
   Status as ApplicationStatus,
 } from "../../reducers/roundApplication";
 import { Status as RoundStatus } from "../../reducers/rounds";
-import { grantPath, roundPath } from "../../routes";
+import { grantPath, grantsPath, roundPath } from "../../routes";
 import colors from "../../styles/colors";
 import { Round } from "../../types";
 import { applicationSteps } from "../../utils/steps";
 import Form from "../application/Form";
 import Button, { ButtonVariants } from "../base/Button";
+import ErrorModal from "../base/ErrorModal";
 import ExitModal from "../base/ExitModal";
 import Cross from "../icons/Cross";
 import StatusModal from "./StatusModal";
@@ -139,7 +140,22 @@ function Apply() {
   }, [props.applicationStatus, props.applicationError]);
 
   if (props.roundStatus === RoundStatus.Error) {
-    return <div>Error loading round data: {props.roundError}</div>;
+    // return <div>Error loading round data: {props.roundError}</div>;
+    <div>
+      <ErrorModal
+        open
+        primaryBtnText="Refresh Page"
+        secondaryBtnText="Close"
+        onClose={() => navigate(grantsPath())}
+        onRetry={() => navigate(0)}
+      >
+        <>
+          Error loading round data: {props.roundError}. If the issue persists,
+          contact us at{" "}
+          <a href="mailto:support@gitcoin.co">support@gitcoin.co</a>
+        </>
+      </ErrorModal>
+    </div>;
   }
 
   if (props.roundStatus !== RoundStatus.Loaded) {
@@ -147,7 +163,23 @@ function Apply() {
   }
 
   if (props.roundState === undefined || props.round === undefined) {
-    return <div>something went wrong</div>;
+    return (
+      <div>
+        <ErrorModal
+          open
+          primaryBtnText="Close"
+          secondaryBtnText="Refresh Page"
+          onRetry={() => navigate(grantsPath())}
+          onClose={() => navigate(0)}
+        >
+          <>
+            There has been an error loading the grant round data. Please try
+            refreshing the page. If the issue persists, contact us at{" "}
+            <a href="mailto:support@gitcoin.co">support@gitcoin.co</a>
+          </>
+        </ErrorModal>
+      </div>
+    );
   }
 
   return (
