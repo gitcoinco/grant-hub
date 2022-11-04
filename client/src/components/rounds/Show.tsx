@@ -127,9 +127,14 @@ function Round() {
           onClose={() => navigate(0)}
         >
           <>
-            Error loading round data: {props.error}. If the issue persists,
-            contact us at{" "}
-            <a href="mailto:support@gitcoin.co">support@gitcoin.co</a>
+            There has been an error loading the grant round data. Please try
+            refreshing the page. If the issue persists, contact us at{" "}
+            <a
+              className="text-gitcoin-violet-400"
+              href="mailto:support@gitcoin.co"
+            >
+              support@gitcoin.co
+            </a>
           </>
         </ErrorModal>
       </div>
@@ -156,7 +161,12 @@ function Round() {
           <>
             There has been an error loading the grant round data. Please try
             refreshing the page. If the issue persists, contact us at{" "}
-            <a href="mailto:support@gitcoin.co">support@gitcoin.co</a>
+            <a
+              className="text-gitcoin-violet-400"
+              href="mailto:support@gitcoin.co"
+            >
+              support@gitcoin.co
+            </a>
           </>
         </ErrorModal>
       </div>
