@@ -140,7 +140,6 @@ function Apply() {
   }, [props.applicationStatus, props.applicationError]);
 
   if (props.roundStatus === RoundStatus.Error) {
-    // return <div>Error loading round data: {props.roundError}</div>;
     <div>
       <ErrorModal
         open
