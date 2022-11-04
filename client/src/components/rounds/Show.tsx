@@ -132,7 +132,7 @@ function Round() {
             on{" "}
             <a
               target="_blank"
-              className="text-gitcoin-violet-400"
+              className="text-gitcoin-violet-400 outline-none"
               href="https://discord.com/invite/gitcoin"
               rel="noreferrer"
             >
@@ -167,7 +167,7 @@ function Round() {
             on{" "}
             <a
               target="_blank"
-              className="text-gitcoin-violet-400"
+              className="text-gitcoin-violet-400 outline-none"
               href="https://discord.com/invite/gitcoin"
               rel="noreferrer"
             >
