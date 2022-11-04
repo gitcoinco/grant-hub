@@ -154,7 +154,7 @@ function Apply() {
           refreshing the page. If the issue persists, please reach out to us on{" "}
           <a
             target="_blank"
-            className="text-gitcoin-violet-400"
+            className="text-gitcoin-violet-400 outline-none"
             href="https://discord.com/invite/gitcoin"
             rel="noreferrer"
           >
@@ -185,7 +185,7 @@ function Apply() {
             on{" "}
             <a
               target="_blank"
-              className="text-gitcoin-violet-400"
+              className="text-gitcoin-violet-400 outline-none"
               href="https://discord.com/invite/gitcoin"
               rel="noreferrer"
             >
