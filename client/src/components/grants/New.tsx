@@ -25,6 +25,40 @@ function NewProject() {
     []
   );
 
+  const currentSubText = (status: ProjectFormStatus) => {
+    let data: { title: string; description: string } | undefined;
+    switch (status) {
+      case ProjectFormStatus.Metadata:
+        data = {
+          title: "Project Details",
+          description: "Tell us more about what you’re working on.",
+        };
+        break;
+      case ProjectFormStatus.Verification:
+        data = {
+          title: "Project Socials",
+          description: "Tell us more about what you’re working on.",
+        };
+        break;
+      case ProjectFormStatus.Preview:
+        data = {
+          title: "Project Preview",
+          description:
+            "Here's a preview of what your project page will look like.",
+        };
+        break;
+      default:
+        return null;
+    }
+
+    return data ? (
+      <>
+        <h5 className="mb-2">{data.title}</h5>
+        <p>{data.description}</p>
+      </>
+    ) : null;
+  };
+
   const currentForm = (status: ProjectFormStatus) => {
     switch (status) {
       case ProjectFormStatus.Metadata:
@@ -53,9 +87,9 @@ function NewProject() {
   return (
     <div className="mx-4">
       <div className="flex flex-col sm:flex-row justify-between">
-        <h3 className="mb-2">Create Project</h3>
+        <h3 className="mb-2">Create a Project</h3>
         <div className="w-full mb-2 inline-block sm:hidden">
-          <p>Tell us what you’re working on.</p>
+          {currentSubText(formStatus)}
         </div>
         <Button
           variant={ButtonVariants.outlineDanger}
@@ -71,7 +105,7 @@ function NewProject() {
 
       <div className="w-full flex">
         <div className="w-full md:w-1/3 mb-2 hidden sm:inline-block">
-          <p>Tell us what you’re working on.</p>
+          {currentSubText(formStatus)}
           <p className="mt-8">
             Need Help? Check out the{" "}
             <a

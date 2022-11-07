@@ -19,10 +19,10 @@ export default function Header() {
             <div className="flex items-center">
               <img
                 className="py-4"
-                alt="Gitcoin Logo"
-                src="./assets/gitcoin-logo.svg"
+                alt="Grants Hub Logo"
+                src="./assets/grants-hub-logo.svg"
               />
-              <h3 className="ml-6 mt-1">Grant Hub</h3>
+              <h3 className="ml-6 mt-1">Grants Hub</h3>
             </div>
           </Link>
           <button
