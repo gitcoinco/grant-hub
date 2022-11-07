@@ -89,6 +89,12 @@ function Landing() {
       <div className="flex absolute top-0 left-8 md:left-10">
         <img
           className="py-4 mr-4"
+          alt="Gitcoin Logo"
+          src="./assets/gitcoin-logo.svg"
+        />
+        <span className="border border-gitcoin-separator my-[1.35rem] mr-4" />
+        <img
+          className="py-4 mr-4"
           alt="Grants Hub Logo"
           src="./assets/grants-hub-logo.svg"
         />
@@ -101,12 +107,10 @@ function Landing() {
         <div className="flex flex-1 flex-col justify-center container px-8 md:px-10">
           <h3 className="mb-4 pt-24 md:pt-0 md:mb-8">Grants Hub</h3>
           <h1 className="w-auto text-5xl md:text-7xl mb-8">
-            Build and fund your projects all in one place.
+            Bring your project to life.
           </h1>
           <p className="text-black text-xl w-full md:max-w-4xl">
-            Build and fund your projects all in one place -- from creating a
-            project to applying for grants to creating impact with your project
-            starting today!
+            Build and fund your projects all in one place.
           </p>
           {!isConnected && (
             <div className="mt-8 mb-8 md:mb-0">

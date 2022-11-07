@@ -95,14 +95,13 @@ function EditProject() {
       case ProjectFormStatus.Verification:
         data = {
           title: "Project Socials",
-          description: "Tell us more about what you’re working on.",
+          description: "Share where we can learn more about your project.",
         };
         break;
       case ProjectFormStatus.Preview:
         data = {
           title: "Project Preview",
-          description:
-            "Here's a preview of what your project page will look like.",
+          description: "Preview your project's page.",
         };
         break;
       default:
@@ -149,7 +148,6 @@ function EditProject() {
         <h3 className="mb-2">Edit Your Project</h3>
         <div className="w-full mb-2 inline-block sm:hidden">
           {currentSubText(formStatus)}
-          <p>Make sure to Save &amp; Exit, so your changes are saved.</p>
         </div>
         <Button
           variant={ButtonVariants.outlineDanger}
@@ -166,7 +164,6 @@ function EditProject() {
       <div className="w-full flex">
         <div className="w-full md:w-1/3 mb-2 hidden sm:inline-block">
           {currentSubText(formStatus)}
-          <p>Make sure to Save &amp; Exit, so your changes are saved.</p>
           <p className="mt-4">
             Need Help? Check out the{" "}
             <a

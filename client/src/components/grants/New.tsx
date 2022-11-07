@@ -37,14 +37,13 @@ function NewProject() {
       case ProjectFormStatus.Verification:
         data = {
           title: "Project Socials",
-          description: "Tell us more about what you’re working on.",
+          description: "Share where we can learn more about your project.",
         };
         break;
       case ProjectFormStatus.Preview:
         data = {
           title: "Project Preview",
-          description:
-            "Here's a preview of what your project page will look like.",
+          description: "Preview your project's page.",
         };
         break;
       default:
