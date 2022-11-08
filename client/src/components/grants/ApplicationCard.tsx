@@ -76,7 +76,7 @@ export default function ApplicationCard({
       {props.support && (
         <Box p={2} className="mt-4 mb-6">
           <p>
-            Have any questions about your grant round application? Contact{" "}
+            Have any questions about your grant round application?{" "}
             <a
               className="text-purple-500"
               target="_blank"
@@ -85,7 +85,7 @@ export default function ApplicationCard({
               }`}
               rel="noreferrer"
             >
-              [Program Support]
+              Contact the {props.round?.programName} support team.
             </a>
           </p>
         </Box>
