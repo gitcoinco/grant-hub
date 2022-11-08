@@ -24,8 +24,6 @@ export default function ApplicationCard({
     };
   });
 
-  console.log({ round: props.round });
-
   // todo: what date do we want to show here?
   // todo: show round date or application date or both? @michellema1208
   // const renderRoundDate = () => (
