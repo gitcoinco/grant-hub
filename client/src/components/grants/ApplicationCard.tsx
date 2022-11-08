@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { loadRound, unloadRounds } from "../../actions/rounds";
 import { RootState } from "../../reducers";
+import { RoundSupport } from "../../types";
 import { formatDate } from "../../utils/components";
 
 export default function ApplicationCard({
@@ -15,11 +16,15 @@ export default function ApplicationCard({
   const props = useSelector((state: RootState) => {
     const roundState = state.rounds[applicationData.roundID];
     const round = roundState ? roundState.round : undefined;
+    const support: RoundSupport | undefined = round?.roundMetadata?.support;
 
     return {
       round,
+      support,
     };
   });
+
+  console.log({ round: props.round });
 
   // todo: what date do we want to show here?
   // todo: show round date or application date or both? @michellema1208
@@ -68,14 +73,23 @@ export default function ApplicationCard({
           </Badge>
         </Box>
       </div>
-      <Box p={2} className="mt-4 mb-6">
-        <p>
-          Have any questions about your grant round application? Contact{" "}
-          <a className="text-purple-500" href="/">
-            [Program Support]
-          </a>
-        </p>
-      </Box>
+      {props.support && (
+        <Box p={2} className="mt-4 mb-6">
+          <p>
+            Have any questions about your grant round application? Contact{" "}
+            <a
+              className="text-purple-500"
+              target="_blank"
+              href={`${props.support.type === "Email" ? "mailto:" : ""}${
+                props.support.info
+              }`}
+              rel="noreferrer"
+            >
+              [Program Support]
+            </a>
+          </p>
+        </Box>
+      )}
     </Box>
   );
 }
