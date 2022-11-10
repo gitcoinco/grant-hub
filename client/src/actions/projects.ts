@@ -1,7 +1,6 @@
 import { datadogRum } from "@datadog/browser-rum";
 import { BigNumber, ethers } from "ethers";
 import { Dispatch } from "redux";
-// import ProjectRegistryABI from "../contracts/abis/ProjectRegistry.json";
 import { addressesByChainID } from "../contracts/deployments";
 import { global } from "../global";
 import { RootState } from "../reducers";
@@ -226,12 +225,18 @@ export const getRoundProjectsApplied =
         chainId,
         { projectID }
       );
+      const applications = applicationsFound.data.roundProjects;
 
       dispatch({
         type: PROJECT_APPLICATIONS_LOADED,
         projectID,
-        applications: applicationsFound.data.roundProjects,
+        applications,
       });
+
+      if (applications) {
+        console.log("applications", applications);
+        // dispatch<any>(updateApplicationStatusFromContract(applications, projectsMetaPtr));
+      }
     } catch (error: any) {
       datadogRum.addError(error, { projectID });
       dispatch({
@@ -240,6 +245,58 @@ export const getRoundProjectsApplied =
         error,
       });
     }
+  };
+
+export function fetchFromIPFS(cid: string) {
+  return fetch(`https://gitcoin.mypinata.cloud/ipfs/${cid}`).then((resp) => {
+    if (resp.ok) {
+      return resp.json();
+    }
+
+    return Promise.reject(resp);
+  });
+}
+export const updateApplicationStatusFromContract =
+  (applications: any[], projectsMetaPtr: any, filterByStatus?: string) =>
+  //  eslint-disable-next-line @typescript-eslint/no-unused-vars
+  (dispatch: Dispatch) => {
+    // Handle scenario where operator hasn't review any projects in the round
+    if (!projectsMetaPtr)
+      return filterByStatus
+        ? applications.filter(
+            (application) => application.status === filterByStatus
+          )
+        : applications;
+
+    // const applicationsFromContract = await fetchFromIPFS(projectsMetaPtr.pointer);
+
+    // Iterate over all applications indexed by graph
+    applications.map((application) => {
+      try {
+        // fetch matching application index from contract
+        // const index = applicationsFromContract.findIndex(
+        //   (applicationFromContract: any) =>
+        //     application.id === applicationFromContract.id
+        // );
+        // update status of application from contract / default to pending
+        // todo: should I dispatch and action here to update status?
+        // const appStatus =
+        //   index >= 0 ? applicationsFromContract[index].status : "PENDING";
+        // application.status = appStatus;
+      } catch {
+        // todo: also here should I dispatch an action to update status?
+        // application.status = "PENDING";
+      }
+      return application;
+    });
+
+    if (filterByStatus) {
+      return applications.filter(
+        (application) => application.status === filterByStatus
+      );
+    }
+
+    return applications;
   };
 
 export const unloadProjects = () => projectsUnload();

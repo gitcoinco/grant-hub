@@ -2,7 +2,10 @@ import { Box } from "@chakra-ui/react";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
-import { getRoundProjectsApplied } from "../../actions/projects";
+import {
+  getRoundProjectsApplied,
+  updateApplicationStatusFromContract,
+} from "../../actions/projects";
 import { RootState } from "../../reducers";
 import colors from "../../styles/colors";
 import { FormInputs, Metadata, Project } from "../../types";
@@ -40,7 +43,7 @@ export default function Details({
   const dispatch = useDispatch();
   const props = useSelector((state: RootState) => {
     const chainId = state.web3.chainID;
-    const { applicationsStatus } = state.projects;
+    const { applicationsLoadingStatus } = state.projects;
     const projectID = generateUniqueRoundApplicationID(
       chainId!,
       Number(params.id || "0")
@@ -51,12 +54,13 @@ export default function Details({
       chainId,
       projectID,
       applications,
-      status: applicationsStatus,
+      status: applicationsLoadingStatus,
     };
   });
 
   useEffect(() => {
     dispatch(getRoundProjectsApplied(props.projectID, props.chainId!));
+    dispatch(updateApplicationStatusFromContract(props.applications, ""));
   }, [dispatch, props.projectID, props.chainId]);
 
   const renderApplications = () => (
