@@ -94,7 +94,7 @@ function ProjectsList() {
     }
   }, [props.projectIDs, props.existingApplication]);
 
-  if (props.loading) {
+  if (props.loading && !props.error) {
     return <>loading...</>;
   }
 
