@@ -2,7 +2,6 @@ import { Box } from "@chakra-ui/react";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
-import { fetchGrantData } from "../../actions/grantsMetadata";
 import {
   getRoundProjectsApplied,
   updateApplicationStatusFromContract,
@@ -51,8 +50,7 @@ export default function Details({
     );
     const { applications } = state.projects;
     const pointer: string | undefined =
-      state.grantsMetadata[Number(projectID)]?.metadata?.pointer;
-    console.log("************* pointer", pointer);
+      state.grantsMetadata[Number(params.id)]?.metadata?.pointer;
     return {
       chainId,
       projectID,
@@ -62,21 +60,14 @@ export default function Details({
     };
   });
 
-  // console.log("************* props", props);
-
   useEffect(() => {
     dispatch(getRoundProjectsApplied(props.projectID, props.chainId!));
-    dispatch(fetchGrantData(Number(params.id)));
-  }, [dispatch, props.projectID, props.chainId]);
-
-  useEffect(() => {
-    // todo: find a good application pointer to use here for testing
     if (props.pointer) {
       dispatch(
         updateApplicationStatusFromContract(props.applications, props.pointer)
       );
     }
-  }, [props.applications, props.pointer]);
+  }, [props.projectID, props.chainId]);
 
   const renderApplications = () => (
     <>
