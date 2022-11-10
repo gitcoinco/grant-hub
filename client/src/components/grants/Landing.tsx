@@ -108,7 +108,7 @@ function Landing() {
           <h3 className="mb-4 pt-24 md:pt-0 md:mb-4">
             <img src="/assets/gitcoinWordLogo.svg" alt="Gitcoin logo" />
           </h3>
-          <h1 className="w-auto text-5xl md:text-7xl mb-8 ml-0">Grants Hub</h1>
+          <h1 className="w-auto text-5xl md:text-7xl mb-8 -ml-1">Grants Hub</h1>
           <p className="text-black text-xl w-full md:max-w-4xl">
             Build and fund your project all in one place, and bring your vision
             to life.
