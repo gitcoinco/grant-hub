@@ -4,6 +4,7 @@ import { Dispatch } from "redux";
 import { addressesByChainID } from "../contracts/deployments";
 import { global } from "../global";
 import { RootState } from "../reducers";
+import PinataClient from "../services/pinata";
 import { ProjectEventsMap } from "../types";
 import { ChainId, graphqlFetch } from "../utils/graphql";
 import { fetchGrantData } from "./grantsMetadata";
@@ -247,15 +248,6 @@ export const getRoundProjectsApplied =
     }
   };
 
-export function fetchFromIPFS(cid: string) {
-  return fetch(`https://gitcoin.mypinata.cloud/ipfs/${cid}`).then((resp) => {
-    if (resp.ok) {
-      return resp.json();
-    }
-
-    return Promise.reject(resp);
-  });
-}
 export const updateApplicationStatusFromContract =
   (applications: any[], projectsMetaPtr: any, filterByStatus?: string) =>
   //  eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -268,26 +260,35 @@ export const updateApplicationStatusFromContract =
           )
         : applications;
 
-    // const applicationsFromContract = await fetchFromIPFS(projectsMetaPtr.pointer);
-
-    // Iterate over all applications indexed by graph
-    applications.map((application) => {
-      try {
-        // fetch matching application index from contract
-        // const index = applicationsFromContract.findIndex(
-        //   (applicationFromContract: any) =>
-        //     application.id === applicationFromContract.id
-        // );
-        // update status of application from contract / default to pending
-        // todo: should I dispatch and action here to update status?
-        // const appStatus =
-        //   index >= 0 ? applicationsFromContract[index].status : "PENDING";
-        // application.status = appStatus;
-      } catch {
-        // todo: also here should I dispatch an action to update status?
-        // application.status = "PENDING";
-      }
-      return application;
+    const pinataClient = new PinataClient();
+    const applicationsFromContract = Promise.resolve(
+      pinataClient.fetchText(projectsMetaPtr)
+    );
+    applicationsFromContract.then((appsFromContract) => {
+      console.log("applicationsFromContract", applicationsFromContract);
+      // todo: take action here to update the status of the applications
+      const applicationsParsed: [] = JSON.parse(appsFromContract);
+      console.log("applicationsParsed", applicationsParsed);
+      // Iterate over all applications indexed by graph
+      // applicationsParsed.map((application: any) => {
+      //   try {
+      //     console.log("application", application);
+      //     // fetch matching application index from contract
+      //     // const index = applicationsFromContract.findIndex(
+      //     //   (applicationFromContract: any) =>
+      //     //     application.id === applicationFromContract.id
+      //     // );
+      //     // update status of application from contract / default to pending
+      //     // todo: should I dispatch and action here to update status?
+      //     // const appStatus =
+      //     //   index >= 0 ? applicationsFromContract[index].status : "PENDING";
+      //     // application.status = appStatus;
+      //   } catch {
+      //     // todo: also here should I dispatch an action to update status?
+      //     // application.status = "PENDING";
+      //   }
+      //   return application;
+      // });
     });
 
     if (filterByStatus) {
