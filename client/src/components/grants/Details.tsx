@@ -2,9 +2,10 @@ import { Box } from "@chakra-ui/react";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
+import { useAccount } from "wagmi";
 import {
+  fetchProjectsMetadata,
   getRoundProjectsApplied,
-  updateApplicationStatusFromContract,
 } from "../../actions/projects";
 import { RootState } from "../../reducers";
 import colors from "../../styles/colors";
@@ -41,6 +42,7 @@ export default function Details({
 }) {
   const params = useParams();
   const dispatch = useDispatch();
+  const { address } = useAccount();
   const props = useSelector((state: RootState) => {
     const chainId = state.web3.chainID;
     const { applicationsLoadingStatus } = state.projects;
@@ -49,25 +51,21 @@ export default function Details({
       Number(params.id || "0")
     );
     const { applications } = state.projects;
-    const pointer: string | undefined =
-      state.grantsMetadata[Number(params.id)]?.metadata?.pointer;
     return {
       chainId,
       projectID,
       applications,
       status: applicationsLoadingStatus,
-      pointer,
     };
   });
 
   useEffect(() => {
     dispatch(getRoundProjectsApplied(props.projectID, props.chainId!));
-    if (props.pointer) {
-      dispatch(
-        updateApplicationStatusFromContract(props.applications, props.pointer)
-      );
-    }
-  }, [props.projectID, props.chainId]);
+  }, [props.projectID, props.chainId, address]);
+
+  useEffect(() => {
+    dispatch(fetchProjectsMetadata(props.chainId!, address!, props.projectID));
+  }, [props.projectID, props.chainId, address]);
 
   const renderApplications = () => (
     <>

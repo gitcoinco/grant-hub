@@ -4,7 +4,6 @@ import { Dispatch } from "redux";
 import { addressesByChainID } from "../contracts/deployments";
 import { global } from "../global";
 import { RootState } from "../reducers";
-import PinataClient from "../services/pinata";
 import { ProjectEventsMap } from "../types";
 import { ChainId, graphqlFetch } from "../utils/graphql";
 import { fetchGrantData } from "./grantsMetadata";
@@ -57,6 +56,27 @@ interface ProjectApplicationsErrorAction {
   error: string;
 }
 
+export const PROJECT_STATUS_LOADING = "PROJECT_STATUS_LOADING";
+interface ProjectStatusLoadingAction {
+  type: typeof PROJECT_STATUS_LOADING;
+  projectID: string;
+}
+
+export const PROJECT_STATUS_LOADED = "PROJECT_STATUS_LOADED";
+interface ProjectStatusLoadedAction {
+  type: typeof PROJECT_STATUS_LOADED;
+  projectID: string;
+  applicationStatus: any;
+  status: string;
+}
+
+export const PROJECT_STATUS_ERROR = "PROJECT_STATUS_ERROR";
+interface ProjectStatusErrorAction {
+  type: typeof PROJECT_STATUS_ERROR;
+  projectID: string;
+  error: string;
+}
+
 export type ProjectsActions =
   | ProjectsLoadingAction
   | ProjectsLoadedAction
@@ -65,7 +85,10 @@ export type ProjectsActions =
   | ProjectApplicationsLoadingAction
   | ProjectApplicationsNotFoundAction
   | ProjectApplicationsLoadedAction
-  | ProjectApplicationsErrorAction;
+  | ProjectApplicationsErrorAction
+  | ProjectStatusLoadingAction
+  | ProjectStatusLoadedAction
+  | ProjectStatusErrorAction;
 
 const projectsLoading = () => ({
   type: PROJECTS_LOADING,
@@ -83,6 +106,23 @@ const projectError = (error: string) => ({
 
 const projectsUnload = () => ({
   type: PROJECTS_UNLOADED,
+});
+
+const projectStatusLoading = () => ({
+  type: PROJECT_STATUS_LOADING,
+});
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const projectStatusLoaded = (projectID: string, status: string) => ({
+  type: PROJECT_STATUS_LOADED,
+  projectID,
+  status,
+});
+
+const projectStatusError = (projectID: string, error: any) => ({
+  type: PROJECT_STATUS_ERROR,
+  projectID,
+  error,
 });
 
 const fetchProjectCreatedEvents = async (chainID: number, account: string) => {
@@ -171,6 +211,60 @@ const fetchProjectCreatedEvents = async (chainID: number, account: string) => {
   };
 };
 
+// create a function to fetch the project metadata from events
+export const fetchProjectsMetadata =
+  (chainID: number, account: string, projectId: string) =>
+  async (dispatch: Dispatch) => {
+    const addresses = addressesByChainID(chainID!);
+    dispatch(projectStatusLoading());
+    try {
+      // todo: fetch all projects for current owner and get the status
+
+      const statusEventSig = ethers.utils.id(
+        "ProjectsMataPtrUpdated(MetaPtr,MetaPtr)"
+      );
+      const createdFilter = {
+        address: addresses.projectRegistry,
+        fromBlock: "0x00",
+        toBlock: "latest",
+        topics: [statusEventSig, null, ethers.utils.hexZeroPad(account, 32)],
+      };
+      // FIXME: remove when the fantom RPC bug has been fixed
+      if (chainID === 250 || chainID === 4002) {
+        createdFilter.address = undefined;
+      }
+
+      // FIXME: use queryFilter when the fantom RPC bug has been fixed
+      // const createdEvents = await contract.queryFilter(createdFilter);
+      let createdEvents = await global.web3Provider!.getLogs(createdFilter);
+      console.log("statusEventSig", statusEventSig);
+      console.log("createdFilter", createdFilter);
+      // FIXME: remove when the fantom RPC bug has been fixed
+      createdEvents = createdEvents.filter(
+        (e) => e.address === addresses.projectRegistry
+      );
+
+      console.log("******* createdEvents *******", createdEvents);
+
+      if (createdEvents.length === 0) {
+        return {
+          createdEvents: [],
+        };
+      }
+
+      return {
+        createdEvents,
+      };
+    } catch (error) {
+      console.error("error from fetching status metadata", error);
+      dispatch(projectStatusError(projectId, error));
+    }
+
+    return {
+      createdEvents: [],
+    };
+  };
+
 export const loadProjects =
   (withMetaData?: boolean) =>
   async (dispatch: Dispatch, getState: () => RootState) => {
@@ -232,7 +326,6 @@ export const getRoundProjectsApplied =
       const applicationsFound: any = await graphqlFetch(
         `query roundProjects($projectID: String) {
           roundProjects(where: { project: $projectID }) {
-            status
             round {
               id
             }
@@ -262,58 +355,6 @@ export const getRoundProjectsApplied =
         error: error.message,
       });
     }
-  };
-
-export const updateApplicationStatusFromContract =
-  (applications: any[], projectsMetaPtr: any, filterByStatus?: string) =>
-  //  eslint-disable-next-line @typescript-eslint/no-unused-vars
-  (dispatch: Dispatch) => {
-    // Handle scenario where operator hasn't review any projects in the round
-    if (!projectsMetaPtr)
-      return filterByStatus
-        ? applications.filter(
-            (application) => application.status === filterByStatus
-          )
-        : applications;
-
-    const pinataClient = new PinataClient();
-    const applicationsFromContract = Promise.resolve(
-      pinataClient.fetchText(projectsMetaPtr)
-    );
-    applicationsFromContract.then((appsFromContract) => {
-      console.log("applicationsFromContract", applicationsFromContract);
-      // todo: take action here to update the status of the applications
-      const applicationsParsed: [] = JSON.parse(appsFromContract);
-      console.log("applicationsParsed", applicationsParsed);
-      // Iterate over all applications indexed by graph
-      // applicationsParsed.map((application: any) => {
-      //   try {
-      //     console.log("application", application);
-      //     // fetch matching application index from contract
-      //     // const index = applicationsFromContract.findIndex(
-      //     //   (applicationFromContract: any) =>
-      //     //     application.id === applicationFromContract.id
-      //     // );
-      //     // update status of application from contract / default to pending
-      //     // todo: should I dispatch and action here to update status?
-      //     // const appStatus =
-      //     //   index >= 0 ? applicationsFromContract[index].status : "PENDING";
-      //     // application.status = appStatus;
-      //   } catch {
-      //     // todo: also here should I dispatch an action to update status?
-      //     // application.status = "PENDING";
-      //   }
-      //   return application;
-      // });
-    });
-
-    if (filterByStatus) {
-      return applications.filter(
-        (application) => application.status === filterByStatus
-      );
-    }
-
-    return applications;
   };
 
 export const unloadProjects = () => projectsUnload();

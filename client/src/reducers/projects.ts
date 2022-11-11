@@ -1,13 +1,16 @@
 import {
   ProjectsActions,
-  PROJECTS_LOADED,
   PROJECTS_ERROR,
+  PROJECTS_LOADED,
   PROJECTS_LOADING,
   PROJECTS_UNLOADED,
   PROJECT_APPLICATIONS_ERROR,
   PROJECT_APPLICATIONS_LOADED,
   PROJECT_APPLICATIONS_LOADING,
   PROJECT_APPLICATIONS_NOT_FOUND,
+  PROJECT_STATUS_ERROR,
+  PROJECT_STATUS_LOADED,
+  PROJECT_STATUS_LOADING,
 } from "../actions/projects";
 import { ProjectEventsMap } from "../types";
 
@@ -30,7 +33,7 @@ export type Application = {
   round: {
     id: string;
   };
-  status: AppStatus;
+  applicationStatus: AppStatus;
 };
 
 export interface ProjectsState {
@@ -111,7 +114,7 @@ export const projectsReducer = (
             round: {
               id: roundID,
             },
-            status: AppStatus.NotFound,
+            applicationStatus: AppStatus.NotFound,
           },
         ],
         error: undefined,
@@ -140,6 +143,37 @@ export const projectsReducer = (
         applications: state.applications,
         error,
         applicationsLoadingStatus: Status.Error,
+      };
+    }
+
+    case PROJECT_STATUS_LOADING: {
+      return {
+        ...state,
+        status: Status.Loading,
+      };
+    }
+
+    case PROJECT_STATUS_LOADED: {
+      const {
+        applicationStatus,
+      }: {
+        applicationStatus: string;
+      } = action;
+      return {
+        ...state,
+        applications: [
+          // update the status of the application
+          ...state.applications.map((application) => ({
+            ...application,
+            applicationStatus: applicationStatus as AppStatus,
+          })),
+        ],
+      };
+    }
+
+    case PROJECT_STATUS_ERROR: {
+      return {
+        ...state,
       };
     }
 
