@@ -211,28 +211,45 @@ const fetchProjectCreatedEvents = async (chainID: number, account: string) => {
   };
 };
 
-// create a function to fetch the project metadata from events
-export const fetchProjectsMetadata =
-  (chainID: number, account: string, projectId: string) =>
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export const fetchProjectsMetadataUpdatedEvents =
+  (account: string, projectId: string, roundId: string) =>
   async (dispatch: Dispatch) => {
-    const addresses = addressesByChainID(chainID!);
+    console.log("roundId", roundId);
     dispatch(projectStatusLoading());
     try {
       // todo: fetch all projects for current owner and get the status
+      const abi = [
+        "event ProjectsMataPtrUpdated(MetaPtr oldMetaPtr, MetaPtr newMetaPtr)",
+      ];
+
+      // todo: get the round address
+      const contract = new ethers.Contract(
+        "0xbD81499fD6c579271DB45d3445569D1d7E96080C",
+        abi,
+        global.web3Provider!
+      );
+
+      console.log("contract", contract);
+
+      const events = contract.filters.ProjectsMataPtrUpdated();
+
+      console.log("events", events);
 
       const statusEventSig = ethers.utils.id(
         "ProjectsMataPtrUpdated(MetaPtr,MetaPtr)"
       );
+      console.log("statusEventSig", statusEventSig);
       const createdFilter = {
-        address: addresses.projectRegistry,
+        address: "0xDda2a1827Ca45A0ce010B57D574A607Dbd21bE6E",
         fromBlock: "0x00",
         toBlock: "latest",
-        topics: [statusEventSig, null, ethers.utils.hexZeroPad(account, 32)],
+        topics: [statusEventSig, ethers.utils.hexZeroPad(account, 32)],
       };
       // FIXME: remove when the fantom RPC bug has been fixed
-      if (chainID === 250 || chainID === 4002) {
-        createdFilter.address = undefined;
-      }
+      // if (chainID === 250 || chainID === 4002) {
+      //   createdFilter.address = undefined;
+      // }
 
       // FIXME: use queryFilter when the fantom RPC bug has been fixed
       // const createdEvents = await contract.queryFilter(createdFilter);
@@ -241,20 +258,20 @@ export const fetchProjectsMetadata =
       console.log("createdFilter", createdFilter);
       // FIXME: remove when the fantom RPC bug has been fixed
       createdEvents = createdEvents.filter(
-        (e) => e.address === addresses.projectRegistry
+        (e) => e.address === "0xDda2a1827Ca45A0ce010B57D574A607Dbd21bE6E"
       );
 
       console.log("******* createdEvents *******", createdEvents);
 
-      if (createdEvents.length === 0) {
-        return {
-          createdEvents: [],
-        };
-      }
+      // if (createdEvents.length === 0) {
+      //   return {
+      //     createdEvents: [],
+      //   };
+      // }
 
-      return {
-        createdEvents,
-      };
+      // return {
+      //   createdEvents,
+      // };
     } catch (error) {
       console.error("error from fetching status metadata", error);
       dispatch(projectStatusError(projectId, error));

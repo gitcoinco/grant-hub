@@ -3,11 +3,9 @@ import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import { useAccount } from "wagmi";
-import {
-  fetchProjectsMetadata,
-  getRoundProjectsApplied,
-} from "../../actions/projects";
+import { getRoundProjectsApplied } from "../../actions/projects";
 import { RootState } from "../../reducers";
+import { Status } from "../../reducers/projects";
 import colors from "../../styles/colors";
 import { FormInputs, Metadata, Project } from "../../types";
 import generateUniqueRoundApplicationID from "../../utils/roundApplication";
@@ -55,7 +53,7 @@ export default function Details({
       chainId,
       projectID,
       applications,
-      status: applicationsLoadingStatus,
+      applicationsLoadingStatus,
     };
   });
 
@@ -63,23 +61,26 @@ export default function Details({
     dispatch(getRoundProjectsApplied(props.projectID, props.chainId!));
   }, [props.projectID, props.chainId, address]);
 
-  useEffect(() => {
-    dispatch(fetchProjectsMetadata(props.chainId!, address!, props.projectID));
-  }, [props.projectID, props.chainId, address]);
-
   const renderApplications = () => (
     <>
-      {props.applications.length !== 0 && showApplications && (
-        <Box p={1}>
-          <span className="text-[20px]">My Applications</span>
-        </Box>
-      )}
+      {props.applications.length !== 0 &&
+        showApplications &&
+        props.applicationsLoadingStatus === Status.Loaded && (
+          <Box p={1}>
+            <span className="text-[20px]">My Applications</span>
+          </Box>
+        )}
       <Box>
         {props.applications.length !== 0 &&
           showApplications &&
+          props.applicationsLoadingStatus === Status.Loaded &&
           props.applications.map((application) => {
             const roundID = application?.round?.id;
-            const cardData = { application, roundID };
+            const cardData = {
+              application,
+              roundID,
+              projectID: props.projectID,
+            };
             return (
               <Box key={roundID} m={2}>
                 <ApplicationCard applicationData={cardData} />
