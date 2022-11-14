@@ -72,7 +72,6 @@ describe("projects reducer", () => {
   it("PROJECT_STATUS_LOADED updates state", async () => {
     const newState: ProjectsState = projectsReducer(state, {
       type: "PROJECT_STATUS_LOADED",
-      projectID: "12345",
       applicationStatus: AppStatus.Approved,
       roundID: "0x1234",
     });

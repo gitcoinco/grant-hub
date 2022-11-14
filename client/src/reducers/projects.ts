@@ -160,21 +160,13 @@ export const projectsReducer = (
     case PROJECT_STATUS_LOADED: {
       const {
         applicationStatus,
-        projectID,
         roundID,
       }: {
         applicationStatus: string;
-        projectID: string;
         roundID: string;
       } = action;
-      console.log("PROJECT_STATUS_LOADED", {
-        applicationStatus,
-        roundID,
-        projectID,
-      });
       return {
         ...state,
-        // update the application status
         applications: state.applications.map((app) => {
           if (app.round.id === roundID) {
             return {

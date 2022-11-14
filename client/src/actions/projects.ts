@@ -68,7 +68,6 @@ export const PROJECT_STATUS_LOADED = "PROJECT_STATUS_LOADED";
 interface ProjectStatusLoadedAction {
   type: typeof PROJECT_STATUS_LOADED;
   roundID: string;
-  projectID: string;
   applicationStatus: AppStatus;
 }
 
@@ -116,14 +115,9 @@ const projectStatusLoading = (projectID: string) => ({
 });
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const projectStatusLoaded = (
-  roundID: string,
-  projectID: string,
-  appStatus: AppStatus
-) => ({
+const projectStatusLoaded = (roundID: string, appStatus: AppStatus) => ({
   type: PROJECT_STATUS_LOADED,
   roundID,
-  projectID,
   applicationStatus: appStatus,
 });
 
@@ -227,10 +221,10 @@ function hex2str(hex: string) {
   return str;
 }
 
+// fetch the updated status for a project application
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const fetchProjectsMetadataUpdatedEvents =
-  (account: string, projectId: string, roundId: string) =>
-  async (dispatch: Dispatch) => {
+  (projectId: string, roundId: string) => async (dispatch: Dispatch) => {
     dispatch(projectStatusLoading(projectId));
     // const Abi = ["event ProjectsMetaPtrUpdated(MetaPtr oldMetaPtr, MetaPtr newMetaPtr)"];
     // FIXME: use contract filters when fantom bug is fixed
@@ -244,8 +238,7 @@ export const fetchProjectsMetadataUpdatedEvents =
       const statusEventSig = ethers.utils.id(
         "ProjectsMetaPtrUpdated((uint256,string),(uint256,string))"
       );
-      console.log("statusEventSig", statusEventSig);
-      const createdFilter = {
+      const statusFilter = {
         address: roundId,
         fromBlock: "0x00",
         toBlock: "latest",
@@ -253,14 +246,10 @@ export const fetchProjectsMetadataUpdatedEvents =
       };
 
       // FIXME: use queryFilter when the fantom RPC bug has been fixed
-      // const createdEvents = await contract.queryFilter(createdFilter);
-      const statusEvents = await global.web3Provider!.getLogs(createdFilter);
+      // const statusEvents = await contract.queryFilter(statusFilter);
+      const statusEvents = await global.web3Provider!.getLogs(statusFilter);
       if (statusEvents.length === 0) return;
 
-      console.log("******* ProjectsMetaPtrUpdated Events *******", {
-        roundId,
-        statusEvents,
-      });
       const decodedEvents = statusEvents.map((event) => {
         console.log("event", event);
         return ethers.utils.defaultAbiCoder.decode(
@@ -285,23 +274,8 @@ export const fetchProjectsMetadataUpdatedEvents =
       const ipfsStatusHashTrimmed = ipfsStatusHash.replace(/[^\w\s]/gi, "");
       const ipfsClient = new PinataClient();
       const ipfsStatus = await ipfsClient.fetchJson(ipfsStatusHashTrimmed);
-      console.log("IPFS Status: ", ipfsStatus);
 
-      // todo: filter out events that are not for this projectId
-      // ipfsStatus.map((status: any) => {
-      //   console.log("status", { status, projectId });
-      //   if (status.id === projectId) {
-      //     dispatch(projectStatusLoaded(projectId, status.status));
-      //   }
-      // });
-
-      dispatch(
-        projectStatusLoaded(
-          roundId,
-          projectId,
-          ipfsStatus[0].status as AppStatus
-        )
-      );
+      dispatch(projectStatusLoaded(roundId, ipfsStatus[0].status as AppStatus));
     } catch (error) {
       console.error("error from fetching status metadata", error);
       dispatch(projectStatusError(projectId, error));

@@ -1,7 +1,6 @@
 import { Badge, Box, Spinner } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useAccount } from "wagmi";
 import { fetchProjectsMetadataUpdatedEvents } from "../../actions/projects";
 import { loadRound } from "../../actions/rounds";
 import { RootState } from "../../reducers";
@@ -15,7 +14,6 @@ export default function ApplicationCard({
   applicationData: any;
 }) {
   const [roundData, setRoundData] = useState<any>();
-  const { address } = useAccount();
   const dispatch = useDispatch();
   const props = useSelector((state: RootState) => {
     const roundState = state.rounds[applicationData.roundID];
@@ -34,12 +32,11 @@ export default function ApplicationCard({
   useEffect(() => {
     dispatch(
       fetchProjectsMetadataUpdatedEvents(
-        address!,
         applicationData.projectID,
         applicationData.roundID
       )
     );
-  }, [applicationData.projectID, address, applicationData.roundID]);
+  }, [applicationData.projectID, applicationData.roundID]);
 
   // todo: what date do we want to show here?
   // todo: show round date or application date or both? @michellema1208
