@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useAccount } from "wagmi";
 import { fetchProjectsMetadataUpdatedEvents } from "../../actions/projects";
-import { loadRound, unloadRounds } from "../../actions/rounds";
+import { loadRound } from "../../actions/rounds";
 import { RootState } from "../../reducers";
 import { AppStatus } from "../../reducers/projects";
 import { RoundSupport } from "../../types";
@@ -59,7 +59,6 @@ export default function ApplicationCard({
 
   useEffect(() => {
     if (applicationData.roundID !== undefined) {
-      dispatch(unloadRounds());
       dispatch(loadRound(applicationData.roundID));
     }
   }, [dispatch, applicationData.roundID]);
