@@ -114,9 +114,10 @@ const projectStatusLoading = (projectID: string) => ({
 });
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const projectStatusLoaded = (projectID: string) => ({
+const projectStatusLoaded = (projectID: string, appStatus: AppStatus) => ({
   type: PROJECT_STATUS_LOADED,
   projectID,
+  appStatus,
 });
 
 const projectStatusError = (projectID: string, error: any) => ({
@@ -211,6 +212,14 @@ const fetchProjectCreatedEvents = async (chainID: number, account: string) => {
   };
 };
 
+function hex2str(hex: string) {
+  let str = "";
+  for (let n = 0; n < hex.length; n += 2) {
+    str += String.fromCharCode(parseInt(hex.substr(n, 2), 16));
+  }
+  return str;
+}
+
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const fetchProjectsMetadataUpdatedEvents =
   (account: string, projectId: string, roundId: string) =>
@@ -238,30 +247,44 @@ export const fetchProjectsMetadataUpdatedEvents =
 
       // FIXME: use queryFilter when the fantom RPC bug has been fixed
       // const createdEvents = await contract.queryFilter(createdFilter);
-      const createdEvents = await global.web3Provider!.getLogs(createdFilter);
+      const statusEvents = await global.web3Provider!.getLogs(createdFilter);
+      if (statusEvents.length === 0) return;
 
       console.log("******* ProjectsMetaPtrUpdated Events *******", {
         roundId,
-        createdEvents,
+        statusEvents,
+      });
+      const decodedEvents = statusEvents.map((event) => {
+        console.log("event", event);
+        return ethers.utils.defaultAbiCoder.decode(
+          [
+            "string",
+            "bytes32",
+            "bytes32",
+            "bytes32",
+            "bytes32",
+            "bytes32",
+            "bytes32",
+            "bytes32",
+            "bytes32",
+            "bytes32",
+          ],
+          event.data
+        );
       });
 
-      if (createdEvents.length === 0) {
-        return {
-          createdEvents: [],
-        };
-      }
+      const firsHalfIpfsHash = hex2str(decodedEvents[0][8]);
+      const secondHalfIpfsHash = hex2str(decodedEvents[0][9]);
+      const ipfsStatusHash = firsHalfIpfsHash + secondHalfIpfsHash;
 
-      return {
-        createdEvents,
-      };
+      console.log("IPFS Hash: ", ipfsStatusHash);
+
+      // todo: mocked for now
+      dispatch(projectStatusLoaded(projectId, AppStatus.Approved));
     } catch (error) {
       console.error("error from fetching status metadata", error);
       dispatch(projectStatusError(projectId, error));
     }
-
-    return {
-      createdEvents: [],
-    };
   };
 
 export const loadProjects =
