@@ -67,6 +67,7 @@ interface ProjectStatusLoadingAction {
 export const PROJECT_STATUS_LOADED = "PROJECT_STATUS_LOADED";
 interface ProjectStatusLoadedAction {
   type: typeof PROJECT_STATUS_LOADED;
+  roundID: string;
   projectID: string;
   applicationStatus: AppStatus;
 }
@@ -115,8 +116,13 @@ const projectStatusLoading = (projectID: string) => ({
 });
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const projectStatusLoaded = (projectID: string, appStatus: AppStatus) => ({
+const projectStatusLoaded = (
+  roundID: string,
+  projectID: string,
+  appStatus: AppStatus
+) => ({
   type: PROJECT_STATUS_LOADED,
+  roundID,
   projectID,
   applicationStatus: appStatus,
 });
@@ -290,7 +296,11 @@ export const fetchProjectsMetadataUpdatedEvents =
       // });
 
       dispatch(
-        projectStatusLoaded(projectId, ipfsStatus[0].status as AppStatus)
+        projectStatusLoaded(
+          roundId,
+          projectId,
+          ipfsStatus[0].status as AppStatus
+        )
       );
     } catch (error) {
       console.error("error from fetching status metadata", error);

@@ -5,6 +5,7 @@ import { useAccount } from "wagmi";
 import { fetchProjectsMetadataUpdatedEvents } from "../../actions/projects";
 import { loadRound, unloadRounds } from "../../actions/rounds";
 import { RootState } from "../../reducers";
+import { AppStatus } from "../../reducers/projects";
 import { RoundSupport } from "../../types";
 import { formatDate } from "../../utils/components";
 
@@ -29,6 +30,7 @@ export default function ApplicationCard({
     };
   });
 
+  // This fetches the latest status for each of the users applications when loaded
   useEffect(() => {
     dispatch(
       fetchProjectsMetadataUpdatedEvents(
@@ -82,7 +84,10 @@ export default function ApplicationCard({
         </Box>
         <Box className="pl-2 mt-2 md:mt-0 text-gitcoin-gray-400">
           <Badge className="bg-gitcoin-gray-100" borderRadius="full" p={2}>
-            {applicationData.application.applicationStatus}
+            {applicationData.application.applicationStatus !==
+            AppStatus.Approved
+              ? "Pending"
+              : "Approved"}
           </Badge>
         </Box>
       </div>

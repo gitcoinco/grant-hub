@@ -161,21 +161,29 @@ export const projectsReducer = (
       const {
         applicationStatus,
         projectID,
+        roundID,
       }: {
         applicationStatus: string;
         projectID: string;
+        roundID: string;
       } = action;
-      console.log("applicationStatus", applicationStatus);
+      console.log("PROJECT_STATUS_LOADED", {
+        applicationStatus,
+        roundID,
+        projectID,
+      });
       return {
         ...state,
-        applications: [
-          // update the status of the application
-          ...state.applications.map((application) => ({
-            ...application,
-            projectId: projectID,
-            applicationStatus: applicationStatus as AppStatus,
-          })),
-        ],
+        // update the application status
+        applications: state.applications.map((app) => {
+          if (app.round.id === roundID) {
+            return {
+              ...app,
+              applicationStatus: applicationStatus as AppStatus,
+            };
+          }
+          return app;
+        }),
         applicationsLoadingStatus: Status.Loaded,
       };
     }
