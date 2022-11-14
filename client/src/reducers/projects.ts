@@ -43,6 +43,7 @@ export interface ProjectsState {
   events: ProjectEventsMap;
   applications: Application[];
   applicationsLoadingStatus: Status;
+  applicationsLoading: Status;
 }
 
 const initialState: ProjectsState = {
@@ -52,6 +53,7 @@ const initialState: ProjectsState = {
   events: {},
   applications: [],
   applicationsLoadingStatus: Status.Undefined,
+  applicationsLoading: Status.Undefined,
 };
 
 export const projectsReducer = (
@@ -101,7 +103,7 @@ export const projectsReducer = (
         ...state,
         applications: [],
         error: undefined,
-        applicationsLoadingStatus: Status.Loading,
+        applicationsLoading: Status.Loading,
       };
     }
 
@@ -118,7 +120,7 @@ export const projectsReducer = (
           },
         ],
         error: undefined,
-        applicationsLoadingStatus: Status.Loaded,
+        applicationsLoading: Status.Loaded,
       };
     }
 
@@ -132,7 +134,7 @@ export const projectsReducer = (
         ...state,
         applications,
         error: undefined,
-        applicationsLoadingStatus: Status.Loaded,
+        applicationsLoading: Status.Loaded,
       };
     }
 
@@ -142,14 +144,14 @@ export const projectsReducer = (
         ...state,
         applications: state.applications,
         error,
-        applicationsLoadingStatus: Status.Error,
+        applicationsLoading: Status.Error,
       };
     }
 
     case PROJECT_STATUS_LOADING: {
       return {
         ...state,
-        status: Status.Loading,
+        applicationsLoadingStatus: Status.Loading,
       };
     }
 
@@ -168,12 +170,16 @@ export const projectsReducer = (
             applicationStatus: applicationStatus as AppStatus,
           })),
         ],
+        applicationsLoadingStatus: Status.Loaded,
       };
     }
 
     case PROJECT_STATUS_ERROR: {
+      const { error } = action;
       return {
         ...state,
+        applicationsLoadingStatus: Status.Error,
+        error,
       };
     }
 

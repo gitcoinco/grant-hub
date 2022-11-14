@@ -1,5 +1,6 @@
 import "@testing-library/jest-dom";
 import {
+  AppStatus,
   projectsReducer,
   ProjectsState,
   Status,
@@ -15,6 +16,7 @@ describe("projects reducer", () => {
       ids: [],
       events: {},
       applications: [],
+      applicationsLoading: Status.Undefined,
       applicationsLoadingStatus: Status.Undefined,
     };
   });
@@ -24,7 +26,7 @@ describe("projects reducer", () => {
       type: "PROJECT_APPLICATIONS_LOADING",
     });
 
-    expect(newState.applicationsLoadingStatus).toBe(Status.Loading);
+    expect(newState.applicationsLoading).toBe(Status.Loading);
   });
 
   it("PROJECT_APPLICATIONS_LOADED updates state", async () => {
@@ -34,7 +36,7 @@ describe("projects reducer", () => {
       applications: [],
     });
 
-    expect(newState.applicationsLoadingStatus).toBe(Status.Loaded);
+    expect(newState.applicationsLoading).toBe(Status.Loaded);
   });
 
   it("PROJECT_APPLICATIONS_NOT_FOUND updates state", async () => {
@@ -44,12 +46,42 @@ describe("projects reducer", () => {
       roundID: "0x1234",
     });
 
-    expect(newState.applicationsLoadingStatus).toBe(Status.Loaded);
+    expect(newState.applicationsLoading).toBe(Status.Loaded);
   });
 
   it("PROJECT_APPLICATIONS_ERROR updates state", async () => {
     const newState: ProjectsState = projectsReducer(state, {
       type: "PROJECT_APPLICATIONS_ERROR",
+      projectID: "12345",
+      error: "error",
+    });
+
+    expect(newState.applicationsLoading).toBe(Status.Error);
+    expect(newState.error).toBe("error");
+  });
+
+  it("PROJECT_STATUS_LOADING updates state", async () => {
+    const newState: ProjectsState = projectsReducer(state, {
+      type: "PROJECT_STATUS_LOADING",
+      projectID: "12345",
+    });
+
+    expect(newState.applicationsLoadingStatus).toBe(Status.Loading);
+  });
+
+  it("PROJECT_STATUS_LOADED updates state", async () => {
+    const newState: ProjectsState = projectsReducer(state, {
+      type: "PROJECT_STATUS_LOADED",
+      projectID: "12345",
+      applicationStatus: AppStatus.Approved,
+    });
+
+    expect(newState.applicationsLoadingStatus).toBe(Status.Loaded);
+  });
+
+  it("PROJECT_STATUS_ERROR updates state", async () => {
+    const newState: ProjectsState = projectsReducer(state, {
+      type: "PROJECT_STATUS_ERROR",
       projectID: "12345",
       error: "error",
     });

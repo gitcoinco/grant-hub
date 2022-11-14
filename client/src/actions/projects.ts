@@ -4,6 +4,7 @@ import { Dispatch } from "redux";
 import { addressesByChainID } from "../contracts/deployments";
 import { global } from "../global";
 import { RootState } from "../reducers";
+import { AppStatus } from "../reducers/projects";
 import { ProjectEventsMap } from "../types";
 import { ChainId, graphqlFetch } from "../utils/graphql";
 import { fetchGrantData } from "./grantsMetadata";
@@ -66,8 +67,7 @@ export const PROJECT_STATUS_LOADED = "PROJECT_STATUS_LOADED";
 interface ProjectStatusLoadedAction {
   type: typeof PROJECT_STATUS_LOADED;
   projectID: string;
-  applicationStatus: any;
-  status: string;
+  applicationStatus: AppStatus;
 }
 
 export const PROJECT_STATUS_ERROR = "PROJECT_STATUS_ERROR";
@@ -108,15 +108,15 @@ const projectsUnload = () => ({
   type: PROJECTS_UNLOADED,
 });
 
-const projectStatusLoading = () => ({
+const projectStatusLoading = (projectID: string) => ({
   type: PROJECT_STATUS_LOADING,
+  projectID,
 });
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const projectStatusLoaded = (projectID: string, status: string) => ({
+const projectStatusLoaded = (projectID: string) => ({
   type: PROJECT_STATUS_LOADED,
   projectID,
-  status,
 });
 
 const projectStatusError = (projectID: string, error: any) => ({
@@ -215,63 +215,45 @@ const fetchProjectCreatedEvents = async (chainID: number, account: string) => {
 export const fetchProjectsMetadataUpdatedEvents =
   (account: string, projectId: string, roundId: string) =>
   async (dispatch: Dispatch) => {
-    console.log("roundId", roundId);
-    dispatch(projectStatusLoading());
+    dispatch(projectStatusLoading(projectId));
+    // const Abi = ["event ProjectsMetaPtrUpdated(MetaPtr oldMetaPtr, MetaPtr newMetaPtr)"];
+    // FIXME: use contract filters when fantom bug is fixed
+    // const contract = new ethers.Contract(
+    //   roundId,
+    //   Abi,
+    //   global.web3Provider!
+    // );
+
     try {
-      // todo: fetch all projects for current owner and get the status
-      const abi = [
-        "event ProjectsMataPtrUpdated(MetaPtr oldMetaPtr, MetaPtr newMetaPtr)",
-      ];
-
-      // todo: get the round address
-      const contract = new ethers.Contract(
-        "0xbD81499fD6c579271DB45d3445569D1d7E96080C",
-        abi,
-        global.web3Provider!
-      );
-
-      console.log("contract", contract);
-
-      const events = contract.filters.ProjectsMataPtrUpdated();
-
-      console.log("events", events);
-
       const statusEventSig = ethers.utils.id(
-        "ProjectsMataPtrUpdated(MetaPtr,MetaPtr)"
+        "ProjectsMetaPtrUpdated((uint256,string),(uint256,string))"
       );
       console.log("statusEventSig", statusEventSig);
       const createdFilter = {
-        address: "0xDda2a1827Ca45A0ce010B57D574A607Dbd21bE6E",
+        address: roundId,
         fromBlock: "0x00",
         toBlock: "latest",
-        topics: [statusEventSig, ethers.utils.hexZeroPad(account, 32)],
+        topics: [statusEventSig],
       };
-      // FIXME: remove when the fantom RPC bug has been fixed
-      // if (chainID === 250 || chainID === 4002) {
-      //   createdFilter.address = undefined;
-      // }
 
       // FIXME: use queryFilter when the fantom RPC bug has been fixed
       // const createdEvents = await contract.queryFilter(createdFilter);
-      let createdEvents = await global.web3Provider!.getLogs(createdFilter);
-      console.log("statusEventSig", statusEventSig);
-      console.log("createdFilter", createdFilter);
-      // FIXME: remove when the fantom RPC bug has been fixed
-      createdEvents = createdEvents.filter(
-        (e) => e.address === "0xDda2a1827Ca45A0ce010B57D574A607Dbd21bE6E"
-      );
+      const createdEvents = await global.web3Provider!.getLogs(createdFilter);
 
-      console.log("******* createdEvents *******", createdEvents);
+      console.log("******* ProjectsMetaPtrUpdated Events *******", {
+        roundId,
+        createdEvents,
+      });
 
-      // if (createdEvents.length === 0) {
-      //   return {
-      //     createdEvents: [],
-      //   };
-      // }
+      if (createdEvents.length === 0) {
+        return {
+          createdEvents: [],
+        };
+      }
 
-      // return {
-      //   createdEvents,
-      // };
+      return {
+        createdEvents,
+      };
     } catch (error) {
       console.error("error from fetching status metadata", error);
       dispatch(projectStatusError(projectId, error));

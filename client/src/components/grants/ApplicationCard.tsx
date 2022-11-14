@@ -20,10 +20,12 @@ export default function ApplicationCard({
     const roundState = state.rounds[applicationData.roundID];
     const round = roundState ? roundState.round : undefined;
     const support: RoundSupport | undefined = round?.roundMetadata?.support;
+    const { chainID } = state.web3;
 
     return {
       round,
       support,
+      chainID,
     };
   });
 

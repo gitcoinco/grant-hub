@@ -43,7 +43,7 @@ export default function Details({
   const { address } = useAccount();
   const props = useSelector((state: RootState) => {
     const chainId = state.web3.chainID;
-    const { applicationsLoadingStatus } = state.projects;
+    const { applicationsLoading } = state.projects;
     const projectID = generateUniqueRoundApplicationID(
       chainId!,
       Number(params.id || "0")
@@ -53,7 +53,7 @@ export default function Details({
       chainId,
       projectID,
       applications,
-      applicationsLoadingStatus,
+      applicationsLoading,
     };
   });
 
@@ -65,7 +65,7 @@ export default function Details({
     <>
       {props.applications.length !== 0 &&
         showApplications &&
-        props.applicationsLoadingStatus === Status.Loaded && (
+        props.applicationsLoading === Status.Loaded && (
           <Box p={1}>
             <span className="text-[20px]">My Applications</span>
           </Box>
@@ -73,7 +73,7 @@ export default function Details({
       <Box>
         {props.applications.length !== 0 &&
           showApplications &&
-          props.applicationsLoadingStatus === Status.Loaded &&
+          props.applicationsLoading === Status.Loaded &&
           props.applications.map((application) => {
             const roundID = application?.round?.id;
             const cardData = {
