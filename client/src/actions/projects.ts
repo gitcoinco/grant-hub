@@ -5,6 +5,7 @@ import { addressesByChainID } from "../contracts/deployments";
 import { global } from "../global";
 import { RootState } from "../reducers";
 import { AppStatus } from "../reducers/projects";
+import PinataClient from "../services/pinata";
 import { ProjectEventsMap } from "../types";
 import { ChainId, graphqlFetch } from "../utils/graphql";
 import { fetchGrantData } from "./grantsMetadata";
@@ -117,7 +118,7 @@ const projectStatusLoading = (projectID: string) => ({
 const projectStatusLoaded = (projectID: string, appStatus: AppStatus) => ({
   type: PROJECT_STATUS_LOADED,
   projectID,
-  appStatus,
+  applicationStatus: appStatus,
 });
 
 const projectStatusError = (projectID: string, error: any) => ({
@@ -272,15 +273,25 @@ export const fetchProjectsMetadataUpdatedEvents =
           event.data
         );
       });
-
       const firsHalfIpfsHash = hex2str(decodedEvents[0][8]);
       const secondHalfIpfsHash = hex2str(decodedEvents[0][9]);
-      const ipfsStatusHash = firsHalfIpfsHash + secondHalfIpfsHash;
+      const ipfsStatusHash = firsHalfIpfsHash.concat(secondHalfIpfsHash);
+      const ipfsStatusHashTrimmed = ipfsStatusHash.replace(/[^\w\s]/gi, "");
+      const ipfsClient = new PinataClient();
+      const ipfsStatus = await ipfsClient.fetchJson(ipfsStatusHashTrimmed);
+      console.log("IPFS Status: ", ipfsStatus);
 
-      console.log("IPFS Hash: ", ipfsStatusHash);
+      // todo: filter out events that are not for this projectId
+      // ipfsStatus.map((status: any) => {
+      //   console.log("status", { status, projectId });
+      //   if (status.id === projectId) {
+      //     dispatch(projectStatusLoaded(projectId, status.status));
+      //   }
+      // });
 
-      // todo: mocked for now
-      dispatch(projectStatusLoaded(projectId, AppStatus.Approved));
+      dispatch(
+        projectStatusLoaded(projectId, ipfsStatus[0].status as AppStatus)
+      );
     } catch (error) {
       console.error("error from fetching status metadata", error);
       dispatch(projectStatusError(projectId, error));

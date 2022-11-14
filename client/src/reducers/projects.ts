@@ -30,6 +30,7 @@ export enum AppStatus {
 }
 
 export type Application = {
+  projectId: string;
   round: {
     id: string;
   };
@@ -113,6 +114,7 @@ export const projectsReducer = (
         ...state,
         applications: [
           {
+            projectId: action.projectID,
             round: {
               id: roundID,
             },
@@ -158,15 +160,19 @@ export const projectsReducer = (
     case PROJECT_STATUS_LOADED: {
       const {
         applicationStatus,
+        projectID,
       }: {
         applicationStatus: string;
+        projectID: string;
       } = action;
+      console.log("applicationStatus", applicationStatus);
       return {
         ...state,
         applications: [
           // update the status of the application
           ...state.applications.map((application) => ({
             ...application,
+            projectId: projectID,
             applicationStatus: applicationStatus as AppStatus,
           })),
         ],
