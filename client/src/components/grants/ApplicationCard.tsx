@@ -1,7 +1,7 @@
 import { Badge, Box, Spinner } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchProjectsMetadataUpdatedEvents } from "../../actions/projects";
+import { fetchApplicationStatusUpdatedEvents } from "../../actions/projects";
 import { loadRound } from "../../actions/rounds";
 import { RootState } from "../../reducers";
 import { AppStatus } from "../../reducers/projects";
@@ -31,7 +31,7 @@ export default function ApplicationCard({
   // This fetches the latest status for each of the users applications when loaded
   useEffect(() => {
     dispatch(
-      fetchProjectsMetadataUpdatedEvents(
+      fetchApplicationStatusUpdatedEvents(
         applicationData.projectID,
         applicationData.roundID
       )

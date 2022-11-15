@@ -223,7 +223,7 @@ function hex2str(hex: string) {
 
 // fetch the updated status for a project application
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export const fetchProjectsMetadataUpdatedEvents =
+export const fetchApplicationStatusUpdatedEvents =
   (projectId: string, roundId: string) => async (dispatch: Dispatch) => {
     dispatch(projectStatusLoading(projectId));
     // const Abi = ["event ProjectsMetaPtrUpdated(MetaPtr oldMetaPtr, MetaPtr newMetaPtr)"];
