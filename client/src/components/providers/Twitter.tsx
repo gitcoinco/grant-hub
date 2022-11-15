@@ -42,8 +42,9 @@ export default function Twitter({
   }, [props.formMetaData.projectTwitter]);
 
   const { signer } = global;
-  // Open Twitter authUrl in centered window
-  function openTwitterOAuthUrl(url: string): void {
+
+  // Fetch Twitter OAuth2 url from the IAM procedure
+  async function handleFetchTwitterOAuth(): Promise<void> {
     const width = 600;
     const height = 800;
     // eslint-disable-next-line no-restricted-globals
@@ -51,17 +52,13 @@ export default function Twitter({
     // eslint-disable-next-line no-restricted-globals
     const top = screen.height / 2 - height / 2;
 
-    // Pass data to the page via props
-    window.open(
-      url,
+    const authWindow = window.open(
+      "",
       "_blank",
       // eslint-disable-next-line max-len
       `toolbar=no, location=no, directories=no, status=no, menubar=no, resizable=no, copyhistory=no, width=${width}, height=${height}, top=${top}, left=${left}`
     );
-  }
 
-  // Fetch Twitter OAuth2 url from the IAM procedure
-  async function handleFetchTwitterOAuth(): Promise<void> {
     // Fetch data from external API
     const res = await fetch(
       `${process.env.REACT_APP_PASSPORT_PROCEDURE_URL?.replace(
@@ -79,8 +76,10 @@ export default function Twitter({
       }
     );
     const data = await res.json();
-    // open new window for authUrl
-    openTwitterOAuthUrl(data.authUrl);
+
+    if (authWindow) {
+      authWindow.location = data.authUrl;
+    }
   }
 
   // Listener to watch for oauth redirect response on other windows (on the same host)
