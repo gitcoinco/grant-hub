@@ -279,6 +279,7 @@ export const fetchApplicationStatusUpdatedEvents =
       dispatch(projectStatusLoaded(roundId, ipfsStatus[0].status as AppStatus));
     } catch (error) {
       console.error("error from fetching status metadata", error);
+      datadogRum.addError(error, { projectId });
       dispatch(projectStatusError(projectId, error));
     }
   };
