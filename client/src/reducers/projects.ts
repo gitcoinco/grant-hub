@@ -24,8 +24,7 @@ export enum Status {
 export enum AppStatus {
   Approved = "APPROVED",
   Rejected = "REJECTED",
-  Pending = "PENDING",
-  NotFound = "NOT_FOUND",
+  InReview = "IN_REVIEW",
   Unknown = "UNKNOWN",
 }
 
@@ -34,7 +33,7 @@ export type Application = {
   round: {
     id: string;
   };
-  applicationStatus: AppStatus;
+  applicationStatus: AppStatus | undefined;
 };
 
 export interface ProjectsState {
@@ -42,7 +41,7 @@ export interface ProjectsState {
   error: string | undefined;
   ids: number[];
   events: ProjectEventsMap;
-  applications: Application[];
+  applications: Application[] | undefined;
   applicationsLoadingStatus: Status;
   applicationsLoading: Status;
 }
@@ -118,7 +117,7 @@ export const projectsReducer = (
             round: {
               id: roundID,
             },
-            applicationStatus: AppStatus.NotFound,
+            applicationStatus: AppStatus.Unknown,
           },
         ],
         error: undefined,
@@ -167,7 +166,7 @@ export const projectsReducer = (
       } = action;
       return {
         ...state,
-        applications: state.applications.map((app) => {
+        applications: state.applications?.map((app) => {
           if (app.round.id === roundID) {
             return {
               ...app,

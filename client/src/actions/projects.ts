@@ -199,8 +199,6 @@ const fetchProjectCreatedEvents = async (chainID: number, account: string) => {
   }
 
   let updatedEvents = await global.web3Provider!.getLogs(updatedFilter);
-  console.log(updatedEventSig);
-  console.log(updatedFilter);
   // FIXME: remove when the fantom RPC bug has been fixed
   updatedEvents = updatedEvents.filter(
     (e) => e.address === addresses.projectRegistry
@@ -248,7 +246,10 @@ export const fetchApplicationStatusUpdatedEvents =
       // FIXME: use queryFilter when the fantom RPC bug has been fixed
       // const statusEvents = await contract.queryFilter(statusFilter);
       const statusEvents = await global.web3Provider!.getLogs(statusFilter);
-      if (statusEvents.length === 0) return;
+      if (statusEvents.length === 0) {
+        dispatch(projectStatusLoaded(roundId, AppStatus.Unknown));
+        return;
+      }
 
       const decodedEvents = statusEvents.map((event) => {
         console.log("event", event);
@@ -359,11 +360,6 @@ export const getRoundProjectsApplied =
         projectID,
         applications,
       });
-
-      if (applications) {
-        console.log("applications", applications);
-        // dispatch<any>(updateApplicationStatusFromContract(applications, projectsMetaPtr));
-      }
     } catch (error: any) {
       datadogRum.addError(error, { projectID });
       dispatch({

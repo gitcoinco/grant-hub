@@ -63,7 +63,7 @@ export default function Details({
 
   const renderApplications = () => (
     <>
-      {props.applications.length !== 0 &&
+      {props.applications?.length !== 0 &&
         showApplications &&
         props.applicationsLoading === Status.Loaded && (
           <Box p={1}>
@@ -71,10 +71,10 @@ export default function Details({
           </Box>
         )}
       <Box>
-        {props.applications.length !== 0 &&
+        {props.applications?.length !== 0 &&
           showApplications &&
           props.applicationsLoading === Status.Loaded &&
-          props.applications.map((application) => {
+          props.applications?.map((application) => {
             const roundID = application?.round?.id;
             const cardData = {
               application,
