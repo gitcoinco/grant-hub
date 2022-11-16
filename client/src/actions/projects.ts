@@ -213,7 +213,7 @@ const fetchProjectCreatedEvents = async (chainID: number, account: string) => {
   };
 };
 
-export const updateApplicationStatusFromContract = async (
+export const updateApplicationStatus = async (
   project: any,
   roundId: string,
   dispatch: Dispatch
@@ -280,7 +280,7 @@ export const getApplicationsByRoundId =
         // eslint-disable-next-line
         res.data.roundProjects.map((project: any) => {
           try {
-            updateApplicationStatusFromContract(project, roundId, dispatch);
+            updateApplicationStatus(project, roundId, dispatch);
           } catch (error) {
             datadogRum.addError(error, { projectID: project.id });
             dispatch(projectStatusError(project.id, error));
