@@ -1,7 +1,7 @@
 import { Badge, Box, Spinner } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchApplicationStatusUpdatedEvents } from "../../actions/projects";
+import { getApplicationsByRoundId } from "../../actions/projects";
 import { loadRound } from "../../actions/rounds";
 import { RootState } from "../../reducers";
 import { AppStatus } from "../../reducers/projects";
@@ -27,16 +27,6 @@ export default function ApplicationCard({
       chainID,
     };
   });
-
-  // This fetches the latest status for each of the users applications when loaded
-  useEffect(() => {
-    dispatch(
-      fetchApplicationStatusUpdatedEvents(
-        applicationData.projectID,
-        applicationData.roundID
-      )
-    );
-  }, [applicationData.projectID, applicationData.roundID]);
 
   // todo: what date do we want to show here?
   // todo: show round date or application date or both? @michellema1208
@@ -66,6 +56,11 @@ export default function ApplicationCard({
     }
   }, [props.round]);
 
+  // This fetches the latest status for each of the users applications when loaded
+  useEffect(() => {
+    getApplicationsByRoundId(applicationData.roundID, props.chainID);
+  }, [applicationData.roundID]);
+
   return (
     <Box p={2} className="border-gray-300" borderWidth="1px" borderRadius="md">
       <Box p={2} mb={4}>
@@ -80,7 +75,11 @@ export default function ApplicationCard({
         </Box>
         <Box className="pl-2 mt-2 md:mt-0 text-gitcoin-gray-400">
           <Badge className="bg-gitcoin-gray-100" borderRadius="full" p={2}>
-            {applicationData.application.applicationStatus === AppStatus.Unknown
+            {applicationData.application.applicationStatus === undefined
+              ? "In Review"
+              : null}
+            {applicationData.application.applicationStatus ===
+            AppStatus.InReview
               ? "In Review"
               : null}
             {applicationData.application.applicationStatus ===

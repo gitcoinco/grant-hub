@@ -175,7 +175,6 @@ export interface RoundApplication {
       | undefined;
   }>;
 }
-
 export interface SignedRoundApplication {
   signature: string;
   application: RoundApplication;
