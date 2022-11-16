@@ -229,12 +229,10 @@ export const updateApplicationStatusFromContract = async (
     const statusData = await ipfsClient.fetchJson(
       project.round.projectsMetaPtr.pointer
     );
-
     statusData.forEach((projectStatus: any) => {
-      // using index 0 to get the latest one, not confirmed yet that this is the correct way
       if (project.id === projectStatus.id) {
         dispatch(
-          projectStatusLoaded(roundId, statusData[0].status as AppStatus)
+          projectStatusLoaded(roundId, projectStatus.status as AppStatus)
         );
       }
     });
