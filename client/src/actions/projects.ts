@@ -213,13 +213,15 @@ const fetchProjectCreatedEvents = async (chainID: number, account: string) => {
   };
 };
 
-const updateApplicationStatusFromContract = async (project: any) => {
-  console.log("updateApplicationStatusFromContract", project);
-  // dispatch(projectStatusLoading(project.id));
+export const updateApplicationStatusFromContract = async (
+  project: any,
+  roundId: string,
+  dispatch: Dispatch
+) => {
+  dispatch(projectStatusLoading(project.id));
   // handle when operator has not reviewed the application yet
   if (!project.round.projectsMetaPtr.pointer) {
-    console.log("no projectsMetaPtr");
-    // dispatch(projectStatusLoaded(project.round.id, AppStatus.InReview));
+    dispatch(projectStatusLoaded(project.round.id, AppStatus.InReview));
   }
 
   try {
@@ -228,88 +230,70 @@ const updateApplicationStatusFromContract = async (project: any) => {
       project.round.projectsMetaPtr.pointer
     );
 
-    console.log("statusData", { id: project.id, statusData });
-    if (project.id === statusData[0].id) {
-      console.log("match", project.id);
-      // dispatch(projectStatusLoaded(project.round.id, statusData[0].status));
-    }
+    statusData.forEach((projectStatus: any) => {
+      // using index 0 to get the latest one, not confirmed yet that this is the correct way
+      if (project.id === projectStatus.id) {
+        dispatch(
+          projectStatusLoaded(roundId, statusData[0].status as AppStatus)
+        );
+      }
+    });
   } catch (error) {
-    // dispatch(projectStatusError(project.id, error));
-    console.error("Error fetching application status from contract", error);
+    datadogRum.addError(error, { projectID: project.id });
+    dispatch(projectStatusError(project.id, error));
   }
 };
 
-export const getApplicationsByRoundId = async (
-  roundId: string,
-  chainId: any
-) => {
-  try {
-    // query the subgraph for all rounds by the given account in the given program
-    const res = await graphqlFetch(
-      `
-        query GetApplicationsByRoundId($roundId: String!, $status: String) {
-          roundProjects(where: {
-            round: $roundId
-      ` +
-        // TODO : uncomment when indexing IPFS via graph
-        // (status ? `status: $status` : ``)
-        // +
+export const getApplicationsByRoundId =
+  (roundId: string, chainId: any) => async (dispatch: Dispatch) => {
+    try {
+      // query the subgraph for all rounds by the given account in the given program
+      const res = await graphqlFetch(
         `
-          }) {
-            id
-            metaPtr {
-              protocol
-              pointer
-            }
-            status
-            round {
-              projectsMetaPtr {
+          query GetApplicationsByRoundId($roundId: String!, $status: String) {
+            roundProjects(where: {
+              round: $roundId
+        ` +
+          // TODO : uncomment when indexing IPFS via graph
+          // (status ? `status: $status` : ``)
+          // +
+          `
+            }) {
+              id
+              metaPtr {
                 protocol
                 pointer
               }
+              status
+              round {
+                projectsMetaPtr {
+                  protocol
+                  pointer
+                }
+              }
             }
           }
-        }
-      `,
-      chainId,
-      { roundId }
-    );
+        `,
+        chainId,
+        { roundId }
+      );
 
-    const grantApplications: any[] = [];
-    const ipfsClient = new PinataClient();
-
-    for (const project of res.data.roundProjects) {
-      // eslint-disable-next-line
-      const metadata = await ipfsClient.fetchJson(project.metaPtr.pointer);
-
-      // const signature = metadata?.signature;
-      const application = metadata.application
-        ? metadata.application
-        : metadata;
-
-      grantApplications.push({
-        ...application,
-        status: project.status,
-        id: project.id,
-        projectsMetaPtr: project.round.projectsMetaPtr,
-      });
+      if (res.data.roundProjects.length > 0) {
+        // eslint-disable-next-line
+        res.data.roundProjects.map((project: any) => {
+          try {
+            updateApplicationStatusFromContract(project, roundId, dispatch);
+          } catch (error) {
+            datadogRum.addError(error, { projectID: project.id });
+            dispatch(projectStatusError(project.id, error));
+          }
+        });
+      }
+    } catch (error) {
+      datadogRum.addError(error, { roundId });
+      console.error("getApplicationsByRoundId() error", error);
     }
-
-    if (res.data.roundProjects.length > 0) {
-      // eslint-disable-next-line
-      res.data.roundProjects.map((project: any) => {
-        try {
-          console.log("Updating Status", project);
-          updateApplicationStatusFromContract(project);
-        } catch (error) {
-          console.error("updateApplicationStatusFromContract() error", error);
-        }
-      });
-    }
-  } catch (error) {
-    console.error("getApplicationsByRoundId() error", error);
-  }
-};
+  };
 
 export const loadProjects =
   (withMetaData?: boolean) =>

@@ -58,7 +58,7 @@ export default function ApplicationCard({
 
   // This fetches the latest status for each of the users applications when loaded
   useEffect(() => {
-    getApplicationsByRoundId(applicationData.roundID, props.chainID);
+    dispatch(getApplicationsByRoundId(applicationData.roundID, props.chainID));
   }, [applicationData.roundID]);
 
   return (
