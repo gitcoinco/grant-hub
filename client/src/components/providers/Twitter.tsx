@@ -72,8 +72,7 @@ export default function Twitter({
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          // callback: process.env.REACT_APP_PUBLIC_PASSPORT_TWITTER_CALLBACK,
-          callback: window.location.href,
+          callback: process.env.REACT_APP_PUBLIC_PASSPORT_TWITTER_CALLBACK,
         }),
       }
     );
