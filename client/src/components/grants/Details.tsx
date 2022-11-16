@@ -46,7 +46,7 @@ export default function Details({
     const { applicationsLoading } = state.projects;
     const projectID = generateUniqueRoundApplicationID(
       chainId!,
-      Number(params.id || "0")
+      Number(params.id)
     );
     const { applications } = state.projects;
     return {

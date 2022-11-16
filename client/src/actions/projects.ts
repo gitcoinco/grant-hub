@@ -251,11 +251,13 @@ export const fetchApplicationStatusUpdatedEvents =
         return;
       }
 
+      // console.log("statusEvents", statusEvents);
+
       const decodedEvents = statusEvents.map((event) => {
         console.log("event", event);
         return ethers.utils.defaultAbiCoder.decode(
           [
-            "string",
+            "bytes32",
             "bytes32",
             "bytes32",
             "bytes32",
