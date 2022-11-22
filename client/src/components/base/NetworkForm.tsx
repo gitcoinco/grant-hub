@@ -1,7 +1,7 @@
 // import { datadogRum } from "@datadog/browser-rum";
 import { shallowEqual, useSelector } from "react-redux";
 import { useState } from "react";
-import { useSwitchNetwork } from "wagmi";
+import { useNetwork } from "wagmi";
 import { RootState } from "../../reducers";
 import { ChangeHandlers, ProjectFormStatus } from "../../types";
 import { Select } from "../grants/inputs";
@@ -23,28 +23,19 @@ function NetworkForm({
     props.currentChain
   );
   const [showModal, setShowModal] = useState<boolean>(false);
-  const { chains, switchNetworkAsync } = useSwitchNetwork();
+  const { chains } = useNetwork();
 
-  const handleNetworkSelect = (e: ChangeHandlers) => {
-    setSwitchTo(parseInt(e.target.value, 10));
+  const handleNetworkSelect = async (e: ChangeHandlers) => {
+    const { value } = e.target;
+    setSwitchTo(parseInt(value, 10));
+
+    if (value !== props.currentChain?.toString()) {
+      setShowModal(true);
+    }
   };
 
-  const nextStep = async () => {
-    if (switchTo !== undefined) {
-      if (props.currentChain !== switchTo) {
-        if (!showModal) {
-          setShowModal(true);
-          return;
-        }
-
-        if (switchNetworkAsync) {
-          await switchNetworkAsync(switchTo);
-        }
-      }
-
-      setVerifying(ProjectFormStatus.Metadata);
-      setShowModal(false);
-    }
+  const nextStep = () => {
+    setVerifying(ProjectFormStatus.Metadata);
   };
 
   return (
@@ -59,7 +50,15 @@ function NetworkForm({
             defaultValue={props.currentChain}
             label={
               <span className="text-xs">
-                For more details on network selection, read more.
+                For more details on network selection,{" "}
+                <a
+                  href="https://support.gitcoin.co/gitcoin-knowledge-base/gitcoin-grants-protocol/what-is-grants-hub"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-gitcoin-violet-400"
+                >
+                  read more.
+                </a>
               </span>
             }
             options={chains.map((i) => ({ id: i.id, title: i.name }))}
@@ -69,7 +68,7 @@ function NetworkForm({
         </div>
         <div className="flex w-full justify-end mt-6">
           <Button
-            disabled={false}
+            disabled={switchTo !== props.currentChain}
             variant={ButtonVariants.primary}
             onClick={nextStep}
           >
@@ -79,9 +78,10 @@ function NetworkForm({
       </form>
       <NetworkSwitchModal
         modalOpen={showModal}
-        handleSwitch={nextStep}
         toggleModal={setShowModal}
-        network={chains.find((i) => i.id === switchTo)?.name as string}
+        networkId={switchTo}
+        networkName={chains.find((i) => i.id === switchTo)?.name as string}
+        onSwitch={() => setShowModal(false)}
       />
     </div>
   );

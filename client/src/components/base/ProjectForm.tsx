@@ -98,17 +98,10 @@ function ProjectForm({
     <div className="border-0 sm:border sm:border-solid border-tertiary-text rounded text-primary-text p-0 sm:p-4">
       <form onSubmit={(e) => e.preventDefault()}>
         <div className="relative mt-4 w-full sm:w-1/2">
-          <div className="mb-2">
-            Which network would you like to create this project on?
-          </div>
           <Select
             name="network"
             defaultValue={props.currentChain}
-            label={
-              <span className="text-xs">
-                For more details on network selection, read more.
-              </span>
-            }
+            label="Project Deployment Network:"
             options={chains.map((i) => ({ id: i.id, title: i.name }))}
             changeHandler={() => null}
             disabled

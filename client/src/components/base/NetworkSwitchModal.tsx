@@ -1,20 +1,34 @@
 // import colors from "../../styles/colors";
+import { useSwitchNetwork } from "wagmi";
 import { BaseModal } from "./BaseModal";
 import Button, { ButtonVariants } from "./Button";
 
 interface NetworkSwitchModalProps {
   modalOpen: boolean;
-  network?: string;
+  networkId?: number;
+  networkName?: string;
   toggleModal: (status: boolean) => void;
-  handleSwitch: () => void;
+  onSwitch?: (networkId?: number) => void;
 }
 
 export default function NetworkSwitchModal({
   modalOpen,
-  network,
+  networkId,
+  networkName,
   toggleModal,
-  handleSwitch,
+  onSwitch,
 }: NetworkSwitchModalProps) {
+  const { switchNetworkAsync } = useSwitchNetwork();
+
+  const handleNetworkSwitch = async () => {
+    if (switchNetworkAsync) {
+      await switchNetworkAsync(networkId);
+      if (onSwitch) {
+        onSwitch(networkId);
+      }
+    }
+  };
+
   return (
     <BaseModal
       isOpen={modalOpen}
@@ -25,9 +39,9 @@ export default function NetworkSwitchModal({
       <section className="w-full">
         <div className="flex">
           <div className="w-full text-center">
-            <h5 className="font-semibold mb-2">Switch Network to Continue</h5>
+            <h5 className="font-semibold mb-2">Switch Networks to Continue</h5>
             <p className="mb-6">
-              To create a project on {network}, you need to switch the network
+              To create a project on {networkName}, you need to switch networks
               on your wallet.
             </p>
           </div>
@@ -41,7 +55,10 @@ export default function NetworkSwitchModal({
               Cancel
             </span>
           </Button>
-          <Button onClick={handleSwitch} variant={ButtonVariants.primary}>
+          <Button
+            onClick={handleNetworkSwitch}
+            variant={ButtonVariants.primary}
+          >
             <span className="inline-flex flex-1 justify-center items-center">
               Switch Network
             </span>
