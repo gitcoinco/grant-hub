@@ -80,7 +80,6 @@ function NetworkForm({
         modalOpen={showModal}
         toggleModal={setShowModal}
         networkId={switchTo}
-        networkName={chains.find((i) => i.id === switchTo)?.name as string}
         onSwitch={() => setShowModal(false)}
       />
     </div>
