@@ -40,7 +40,7 @@ export default function NetworkSwitchModal({
       onClose={() => toggleModal(false)}
       hideCloseButton
     >
-      <section className="w-full">
+      <section className="w-full" data-testid="network-switch-modal">
         <div className="flex">
           <div className="w-full text-center">
             <h5 className="font-semibold mb-2">Switch Networks to Continue</h5>
@@ -54,6 +54,7 @@ export default function NetworkSwitchModal({
           <Button
             variant={ButtonVariants.outline}
             onClick={() => toggleModal(false)}
+            styles={["cancel-button"]}
           >
             <span className="inline-flex flex-1 justify-center items-center">
               Cancel
@@ -62,6 +63,7 @@ export default function NetworkSwitchModal({
           <Button
             onClick={handleNetworkSwitch}
             variant={ButtonVariants.primary}
+            styles={["switch-button"]}
           >
             <span className="inline-flex flex-1 justify-center items-center">
               Switch Network

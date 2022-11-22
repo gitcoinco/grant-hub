@@ -1,7 +1,7 @@
 // import { datadogRum } from "@datadog/browser-rum";
 import { shallowEqual, useSelector } from "react-redux";
 import { useState } from "react";
-import { useNetwork } from "wagmi";
+import { useSwitchNetwork } from "wagmi";
 import { RootState } from "../../reducers";
 import { ChangeHandlers, ProjectFormStatus } from "../../types";
 import { Select } from "../grants/inputs";
@@ -23,7 +23,7 @@ function NetworkForm({
     props.currentChain
   );
   const [showModal, setShowModal] = useState<boolean>(false);
-  const { chains } = useNetwork();
+  const { chains } = useSwitchNetwork();
 
   const handleNetworkSelect = async (e: ChangeHandlers) => {
     const { value } = e.target;
@@ -39,7 +39,10 @@ function NetworkForm({
   };
 
   return (
-    <div className="border-0 sm:border sm:border-solid border-tertiary-text rounded text-primary-text p-0 sm:p-4">
+    <div
+      className="border-0 sm:border sm:border-solid border-tertiary-text rounded text-primary-text p-0 sm:p-4"
+      data-testid="network-form"
+    >
       <form onSubmit={(e) => e.preventDefault()}>
         <div className="relative mt-4 w-full sm:w-1/2">
           <div className="mb-2">
