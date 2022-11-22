@@ -1,4 +1,3 @@
-// import { datadogRum } from "@datadog/browser-rum";
 import { shallowEqual, useSelector } from "react-redux";
 import { useState } from "react";
 import { useSwitchNetwork } from "wagmi";
