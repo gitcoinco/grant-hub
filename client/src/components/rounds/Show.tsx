@@ -207,7 +207,7 @@ function Round() {
 
   return (
     <div className="h-full w-full absolute flex flex-col justify-center items-center">
-      <div className="w-full lg:w-1/3 sm:w-2/3 px-6 md:mx-0">
+      <div className="w-full lg:w-1/3 sm:w-2/3 px-4 md:mx-0">
         <h2 className="text-center uppercase text-2xl">
           {roundData?.programName}
         </h2>
