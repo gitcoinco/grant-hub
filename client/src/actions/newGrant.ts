@@ -103,11 +103,6 @@ export const publishGrant =
       ? oldGrantMetadata.metadata?.createdAt
       : Date.now();
 
-    console.log({
-      application,
-      now: Date.now(),
-    });
-
     dispatch(grantStatus(Status.UploadingJSON));
     const resp = await pinataClient.pinJSON(application);
     const metadataCID = resp.IpfsHash;
