@@ -73,7 +73,9 @@ export const publishGrant =
     const { metadata: formMetaData, credentials: formCredentials } =
       state.projectForm;
 
-    const { id: grantId } = getProjectURIComponents(fullId || "");
+    const { id: grantId } = fullId
+      ? getProjectURIComponents(fullId)
+      : { id: undefined };
 
     const oldGrantMetadata = state.grantsMetadata[fullId || ""];
 
@@ -100,6 +102,11 @@ export const publishGrant =
     application.createdAt = oldGrantMetadata
       ? oldGrantMetadata.metadata?.createdAt
       : Date.now();
+
+    console.log({
+      application,
+      now: Date.now(),
+    });
 
     dispatch(grantStatus(Status.UploadingJSON));
     const resp = await pinataClient.pinJSON(application);
