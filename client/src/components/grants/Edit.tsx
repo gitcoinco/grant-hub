@@ -169,6 +169,7 @@ function EditProject() {
           <Preview
             currentProjectId={params.id}
             setVerifying={(verifyUpdate) => setFormStatus(verifyUpdate)}
+            updating
           />
         );
       default:

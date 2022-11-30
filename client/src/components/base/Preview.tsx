@@ -18,9 +18,11 @@ import ErrorModal from "./ErrorModal";
 export default function Preview({
   currentProjectId,
   setVerifying,
+  updating,
 }: {
   currentProjectId?: string;
   setVerifying: (verifying: ProjectFormStatus) => void;
+  updating?: boolean;
 }) {
   const dispatch = useDispatch();
 
@@ -53,7 +55,7 @@ export default function Preview({
   const publishProject = async () => {
     setSubmitted(true);
     showModal(true);
-    dispatch(publishGrant(currentProjectId));
+    dispatch(publishGrant(currentProjectId, updating));
   };
 
   const navigate = useNavigate();

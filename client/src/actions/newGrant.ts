@@ -66,7 +66,7 @@ export const grantCreated = ({
 });
 
 export const publishGrant =
-  (grantId?: string) =>
+  (grantId?: string, updating?: boolean) =>
   async (dispatch: Dispatch, getState: () => RootState) => {
     const state = getState();
     const { metadata: formMetaData, credentials: formCredentials } =
@@ -92,7 +92,9 @@ export const publishGrant =
     }
 
     application.credentials = formCredentials;
-    application.createdAt = Date.now();
+    if (!updating) {
+      application.createdAt = Date.now();
+    }
 
     dispatch(grantStatus(Status.UploadingJSON));
     const resp = await pinataClient.pinJSON(application);
