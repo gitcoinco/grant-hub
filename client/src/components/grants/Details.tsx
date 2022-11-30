@@ -209,7 +209,7 @@ export default function Details({
             </div>
           </div>
         </div>
-        <div className="max-w-md hidden md:flex flex-col">
+        <div className="max-w-md w-full hidden md:flex flex-col">
           {renderApplications()}
         </div>
       </div>
