@@ -101,6 +101,9 @@ export default function Twitter({
       const queryCode = e.data.code;
       const queryState = e.data.state;
 
+      console.log("---------- queryState", queryState);
+      console.log("---------- queryCode", queryCode);
+
       fetchVerifiableCredential(
         process.env.REACT_APP_PASSPORT_IAM_URL || "",
         {
@@ -119,6 +122,8 @@ export default function Twitter({
             credential: VerifiableCredential;
           }): Promise<void> => {
             const { provider } = verified.credential.credentialSubject;
+            console.log("---------- provider", provider);
+            console.log("---------- handle", handle);
             if (
               provider &&
               parseHandle(provider).toLocaleLowerCase() ===
