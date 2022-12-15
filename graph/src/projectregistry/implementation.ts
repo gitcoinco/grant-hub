@@ -19,6 +19,9 @@ export function handleProjectCreated(event: ProjectCreatedEvent): void {
   log.debug("handleProjectCreated: {}", [event.params.projectID.toString()]);
 
   let project = new Project(event.params.projectID.toHexString());
+  project.createdAt = event.block.timestamp;
+  project.updatedAt = event.block.timestamp;
+
   project.save();
 
   let account = Account.load(event.params.owner.toHexString());
@@ -55,6 +58,7 @@ export function handleMetadataUpdated(event: MetadataUpdatedEvent): void {
   metaPtr.save();
 
   project.metaPtr = metaPtr.id;
+  project.updatedAt = event.block.timestamp;
   project.save();
 }
 
@@ -87,6 +91,9 @@ export function handleOwnerAdded(event: OwnerAddedEvent): void {
   accountProject.account = account.id;
   accountProject.project = project.id;
   accountProject.save();
+
+  project.updatedAt = event.block.timestamp;
+  project.save();
 }
 
 export function handleOwnerRemoved(event: OwnerRemovedEvent): void {
@@ -120,4 +127,7 @@ export function handleOwnerRemoved(event: OwnerRemovedEvent): void {
   }
 
   store.remove("AccountProject", accountProject.id);
+
+  project.updatedAt = event.block.timestamp;
+  project.save();
 }
