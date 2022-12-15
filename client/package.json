@@ -67,7 +67,8 @@
     "test:coverage": "jest --watchAll=false --coverage",
     "eject": "react-scripts eject",
     "lint": "eslint --ext .js,.jsx,.ts,.tsx ./src --cache",
-    "lint:fix": "eslint ./src --fix --cache"
+    "lint:fix": "eslint ./src --fix --cache",
+    "prepare": "husky install"
   },
   "eslintConfig": {
     "extends": [
@@ -104,10 +105,16 @@
     "eslint-plugin-react": "^7.28.0",
     "eslint-plugin-react-hooks": "^4.3.0",
     "hardhat-deploy": "^0.11.4",
+    "husky": "^8.0.2",
     "jest-environment-jsdom": "^29.0.3",
     "jest-when": "^3.5.1",
     "msw": "^0.47.0",
     "postcss-import": "^14.1.0",
     "prettier": "^2.6.2"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
   }
 }
