@@ -77,7 +77,7 @@ function ProjectForm({
       setFeedback([{ title: "", type: "none", message: "" }]);
     } catch (e) {
       const error = e as ValidationError;
-      datadogRum.addError(error); // XXX:
+      datadogRum.addError(error);
       setFormValidation({
         messages: error.inner.map((er) => (er as ValidationError).message),
         valid: false,
