@@ -1,5 +1,6 @@
 import { Dispatch } from "redux";
 // import { RootState } from "../reducers";
+import { datadogLogs } from "@datadog/browser-logs";
 import { datadogRum } from "@datadog/browser-rum";
 import { BigNumber, ethers } from "ethers";
 import ProgramABI from "../contracts/abis/ProgramImplementation.json";
@@ -86,8 +87,8 @@ export const loadRound =
       // address validation
       ethers.utils.getAddress(address);
     } catch (e) {
-      // XXX: error? -> info/warning?
       datadogRum.addError(e);
+      datadogLogs.logger.warn(`invalid address or address checksum ${address}`);
       dispatch(loadingError(address, "invalid address or address checksum"));
       console.error(e);
       return;
@@ -114,7 +115,10 @@ export const loadRound =
       const ast: BigNumber = await contract.applicationsStartTime();
       applicationsStartTime = ast.toNumber();
     } catch (e) {
-      datadogRum.addError(e); // XXX:
+      datadogRum.addError(e);
+      datadogLogs.logger.error(
+        `contract: error loading application start time ${contract.address}`
+      );
       dispatch(loadingError(address, "error loading application start time"));
       console.error(e);
       return;
@@ -131,7 +135,10 @@ export const loadRound =
       const aet: BigNumber = await contract.applicationsEndTime();
       applicationsEndTime = aet.toNumber();
     } catch (e) {
-      datadogRum.addError(e); // XXX:
+      datadogRum.addError(e);
+      datadogLogs.logger.error(
+        `contract: error loading application end time ${contract.address}`
+      );
       dispatch(loadingError(address, "error loading application end time"));
       console.error(e);
       return;
@@ -148,7 +155,10 @@ export const loadRound =
       const rst: BigNumber = await contract.roundStartTime();
       roundStartTime = rst.toNumber();
     } catch (e) {
-      datadogRum.addError(e); // XXX:
+      datadogRum.addError(e);
+      datadogLogs.logger.error(
+        `contract: error loading round start time ${contract.address}`
+      );
       dispatch(loadingError(address, "error loading round start time"));
       console.error(e);
       return;
@@ -165,7 +175,10 @@ export const loadRound =
       const ret: BigNumber = await contract.roundEndTime();
       roundEndTime = ret.toNumber();
     } catch (e) {
-      datadogRum.addError(e); // XXX:
+      datadogRum.addError(e);
+      datadogLogs.logger.error(
+        `contract: error loading round end time ${contract.address}`
+      );
       dispatch(loadingError(address, "error loading round end time"));
       console.error(e);
       return;
@@ -182,6 +195,9 @@ export const loadRound =
       token = await contract.token();
     } catch (e) {
       datadogRum.addError(e);
+      datadogLogs.logger.error(
+        `contract: error loading round token ${contract.address}`
+      );
       dispatch(loadingError(address, "error loading round token"));
       console.error(e);
       return;
@@ -198,6 +214,9 @@ export const loadRound =
       roundMetaPtr = await contract.roundMetaPtr();
     } catch (e) {
       datadogRum.addError(e);
+      datadogLogs.logger.error(
+        `contract: error loading round metaPtr ${contract.address}`
+      );
       dispatch(loadingError(address, "error loading round metaPtr"));
       console.error(e);
       return;
@@ -215,6 +234,9 @@ export const loadRound =
       roundMetadata = JSON.parse(resp);
     } catch (e) {
       datadogRum.addError(e);
+      datadogLogs.logger.error(
+        `contract: error loading round metadata ${contract.address}`
+      );
       dispatch(loadingError(address, "error loading round metadata"));
       console.error(e);
       return;
@@ -231,6 +253,9 @@ export const loadRound =
       applicationMetaPtr = await contract.applicationMetaPtr();
     } catch (e) {
       datadogRum.addError(e);
+      datadogLogs.logger.error(
+        `contract: error loading application metaPtr ${contract.address}`
+      );
       dispatch(loadingError(address, "error loading application metaPtr"));
       console.error(e);
       return;
@@ -269,6 +294,7 @@ export const loadRound =
       applicationMetadata.projectQuestionId = projectQuestionId;
     } catch (e) {
       datadogRum.addError(e);
+      datadogLogs.logger.error("ipfs: error loading application metadata");
       dispatch(loadingError(address, "error loading application metadata"));
       console.error(e);
       return;
@@ -294,6 +320,9 @@ export const loadRound =
         programMetaPtr = await programContract.metaPtr();
       } catch (e) {
         datadogRum.addError(e);
+        datadogLogs.logger.error(
+          `contract: error loading program metaPtr ${programContract.address}`
+        );
         dispatch(loadingError(address, "error loading program metaPtr"));
         console.error(e);
         return;
@@ -312,6 +341,7 @@ export const loadRound =
         programName = programMetadata.name;
       } catch (e) {
         datadogRum.addError(e);
+        datadogLogs.logger.error("ipfs: error loading program metadata");
         dispatch(loadingError(address, "error loading program metadata"));
         console.error(e);
         return;
