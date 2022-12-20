@@ -1,11 +1,11 @@
 import { ethers } from "ethers";
 import { Buffer } from "buffer";
 import { Provider } from "@wagmi/core";
+import { datadogLogs } from "@datadog/browser-logs";
 import { isJestRunning } from "../utils/utils";
 import { global } from "../global";
 
 const LitJsSdk = isJestRunning() ? null : require("lit-js-sdk");
-// XXX: data dog?
 // @ts-ignore
 window.Buffer = Buffer;
 
@@ -95,32 +95,37 @@ export default class Lit {
     litProvider.getSigner = () => global.signer;
     litProvider.listAccounts = () => [global.address as string];
 
-    // Obtain Auth Signature to verify signer is wallet owner
-    const authSig = await LitJsSdk.checkAndSignAuthMessage({
-      chain: this.chain,
-      customProvider: litProvider,
-    });
+    try {
+      // Obtain Auth Signature to verify signer is wallet owner
+      const authSig = await LitJsSdk.checkAndSignAuthMessage({
+        chain: this.chain,
+        customProvider: litProvider,
+      });
 
-    // Encrypting Content and generating symmetric key
-    const { encryptedString, symmetricKey } = await LitJsSdk.encryptString(
-      content
-    );
+      // Encrypting Content and generating symmetric key
+      const { encryptedString, symmetricKey } = await LitJsSdk.encryptString(
+        content
+      );
 
-    // Saving the Encrypted Content to the Lit Nodes
-    const encryptedSymmetricKey = await this.litNodeClient.saveEncryptionKey({
-      unifiedAccessControlConditions: this.isRoundOperatorAccessControl(),
-      symmetricKey,
-      authSig,
-      chain: this.chain,
-    });
+      // Saving the Encrypted Content to the Lit Nodes
+      const encryptedSymmetricKey = await this.litNodeClient.saveEncryptionKey({
+        unifiedAccessControlConditions: this.isRoundOperatorAccessControl(),
+        symmetricKey,
+        authSig,
+        chain: this.chain,
+      });
 
-    return {
-      encryptedString,
-      encryptedSymmetricKey: LitJsSdk.uint8arrayToString(
-        encryptedSymmetricKey,
-        "base16"
-      ),
-    };
+      return {
+        encryptedString,
+        encryptedSymmetricKey: LitJsSdk.uint8arrayToString(
+          encryptedSymmetricKey,
+          "base16"
+        ),
+      };
+    } catch {
+      datadogLogs.logger.error("Lit: Failed to encrypt string");
+      return null;
+    }
   }
 
   /**
@@ -134,26 +139,30 @@ export default class Lit {
     if (!this.litNodeClient) {
       await this.connect();
     }
+    try {
+      // Obtain Auth Signature to verify signer is wallet owner
+      const authSig = await LitJsSdk.checkAndSignAuthMessage({
+        chain: this.chain,
+      });
 
-    // Obtain Auth Signature to verify signer is wallet owner
-    const authSig = await LitJsSdk.checkAndSignAuthMessage({
-      chain: this.chain,
-    });
+      // Obtaining the Decrypted Symmetric Key
+      const symmetricKey = await this.litNodeClient.getEncryptionKey({
+        unifiedAccessControlConditions: this.isRoundOperatorAccessControl(),
+        toDecrypt: encryptedSymmetricKey,
+        chain: this.chain,
+        authSig,
+      });
 
-    // Obtaining the Decrypted Symmetric Key
-    const symmetricKey = await this.litNodeClient.getEncryptionKey({
-      unifiedAccessControlConditions: this.isRoundOperatorAccessControl(),
-      toDecrypt: encryptedSymmetricKey,
-      chain: this.chain,
-      authSig,
-    });
+      // Obtaining the Decrypted Data
+      const decryptedString = await LitJsSdk.decryptString(
+        encryptedStr,
+        symmetricKey
+      );
 
-    // Obtaining the Decrypted Data
-    const decryptedString = await LitJsSdk.decryptString(
-      encryptedStr,
-      symmetricKey
-    );
-
-    return decryptedString;
+      return decryptedString;
+    } catch {
+      datadogLogs.logger.error("Lit: Failed to decrypt string");
+      return null;
+    }
   }
 }
