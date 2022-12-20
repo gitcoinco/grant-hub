@@ -88,7 +88,7 @@ export default function Twitter({
       verificationError(
         "Couldn't connect to Twitter. Please try verifying again"
       );
-      datadogLogs.logger.error("Twitter verification failed", error);
+      datadogLogs.logger.error("Twitter verification failed");
       datadogRum.addError(error, { provider: CredentialProvider.Twitter });
     }
   }

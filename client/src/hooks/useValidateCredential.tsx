@@ -6,7 +6,7 @@ import { CredentialProvider } from "../types";
 const IAM_SERVER = "did:key:z6MkghvGHLobLEdj1bgRLhS4LPGJAvbMA1tn2zcRyqmYU5LC";
 const verifier = new PassportVerifier();
 
-export default function useValidateCredential( // XXX: data dog?
+export default function useValidateCredential(
   vc: VerifiableCredential | undefined,
   providerId: CredentialProvider,
   handle: string | undefined
