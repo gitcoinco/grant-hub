@@ -75,6 +75,7 @@ export const fetchVerifiableCredential = async (
 
   // fetch a credential from the API that fits the version, payload and passes the signature message challenge
   const response: { data: CredentialResponseBody } = await axios.post(
+    // XXX: data dog?
     `${iamUrl.replace(/\/*?$/, "")}/v${payload.version}/verify`,
     {
       payload,

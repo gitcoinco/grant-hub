@@ -51,7 +51,7 @@ export const getProjectURIComponents = (id: string) => {
   const split = id.split(":");
   if (split.length < 3) {
     datadogRum.addError("Invalid project id", { id });
-    datadogLogs.logger.error("Invalid project id", { id });
+    datadogLogs.logger.error("Invalid project id", { id }); // XXX: info/warning
     throw new Error("Invalid project ID");
   }
   return {

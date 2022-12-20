@@ -10,7 +10,7 @@ export default function useLocalStorage(key: string, defaultValue: any): any[] {
       const item = localStorage.get(key);
       return item ? JSON.parse(item) : defaultValue;
     } catch (error) {
-      datadogRum.addError(error);
+      datadogRum.addError(error); // XXX: info
       console.error(error);
       return defaultValue;
     }
@@ -23,7 +23,7 @@ export default function useLocalStorage(key: string, defaultValue: any): any[] {
       setStoredValue(valueToStore);
       localStorage.add(key, JSON.stringify(valueToStore));
     } catch (error) {
-      datadogRum.addError(error);
+      datadogRum.addError(error); // XXX: info
       console.error(error);
     }
   };

@@ -107,7 +107,7 @@ export default function Form({
       return ValidationStatus.Valid;
     } catch (e) {
       const error = e as ValidationError;
-      datadogRum.addError(error);
+      datadogRum.addError(error); // XXX:
       console.log(error);
       setFormValidation({
         messages: error.inner.map((er) => (er as ValidationError).message),

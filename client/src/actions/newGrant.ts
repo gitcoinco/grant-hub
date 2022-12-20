@@ -87,7 +87,7 @@ export const publishGrant =
     const pinataClient = new PinataClient();
     dispatch(grantStatus(Status.UploadingImages));
     if (formMetaData?.bannerImgData !== undefined) {
-      const resp = await pinataClient.pinFile(formMetaData.bannerImgData);
+      const resp = await pinataClient.pinFile(formMetaData.bannerImgData); // XXX: add datadog?
       application.bannerImg = resp.IpfsHash;
     }
 

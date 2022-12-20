@@ -48,6 +48,7 @@ export default function Twitter({
 
   // Fetch Twitter OAuth2 url from the IAM procedure
   async function handleFetchTwitterOAuth(): Promise<void> {
+    // XXX: data dog?
     const width = 600;
     const height = 800;
     // eslint-disable-next-line no-restricted-globals
@@ -139,7 +140,7 @@ export default function Twitter({
             "Couldn't connect to Twitter. Please try verifying again"
           );
           datadogLogs.logger.error("Twitter verification failed", error);
-          datadogRum.addError(error, { provider: CredentialProvider.Twitter });
+          datadogRum.addError(error, { provider: CredentialProvider.Twitter }); // XXX: monitor pp server instead?
         })
         .finally(() => {});
     }

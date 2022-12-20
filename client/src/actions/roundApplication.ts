@@ -255,7 +255,7 @@ export const submitApplication =
       status: Status.UploadingMetadata,
     });
 
-    const resp = await pinataClient.pinJSON(signedApplication);
+    const resp = await pinataClient.pinJSON(signedApplication); // XXX: data dog?
     const metaPtr = {
       protocol: "1",
       pointer: resp.IpfsHash,
@@ -340,7 +340,7 @@ export const checkRoundApplications =
     } catch (e) {
       // FIXME: dispatch an error?
       datadogRum.addError(e);
-      console.error("error getting round applications");
+      console.error("error getting round applications"); // XXX: on data dog
     } finally {
       if (applicationEvents.length === 0) {
         dispatch({

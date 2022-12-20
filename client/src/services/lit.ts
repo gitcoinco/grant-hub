@@ -5,7 +5,7 @@ import { isJestRunning } from "../utils/utils";
 import { global } from "../global";
 
 const LitJsSdk = isJestRunning() ? null : require("lit-js-sdk");
-
+// XXX: data dog?
 // @ts-ignore
 window.Buffer = Buffer;
 

@@ -86,6 +86,7 @@ export const loadRound =
       // address validation
       ethers.utils.getAddress(address);
     } catch (e) {
+      // XXX: error? -> info/warning?
       datadogRum.addError(e);
       dispatch(loadingError(address, "invalid address or address checksum"));
       console.error(e);
@@ -113,7 +114,7 @@ export const loadRound =
       const ast: BigNumber = await contract.applicationsStartTime();
       applicationsStartTime = ast.toNumber();
     } catch (e) {
-      datadogRum.addError(e);
+      datadogRum.addError(e); // XXX:
       dispatch(loadingError(address, "error loading application start time"));
       console.error(e);
       return;
@@ -130,7 +131,7 @@ export const loadRound =
       const aet: BigNumber = await contract.applicationsEndTime();
       applicationsEndTime = aet.toNumber();
     } catch (e) {
-      datadogRum.addError(e);
+      datadogRum.addError(e); // XXX:
       dispatch(loadingError(address, "error loading application end time"));
       console.error(e);
       return;
@@ -147,7 +148,7 @@ export const loadRound =
       const rst: BigNumber = await contract.roundStartTime();
       roundStartTime = rst.toNumber();
     } catch (e) {
-      datadogRum.addError(e);
+      datadogRum.addError(e); // XXX:
       dispatch(loadingError(address, "error loading round start time"));
       console.error(e);
       return;
@@ -164,7 +165,7 @@ export const loadRound =
       const ret: BigNumber = await contract.roundEndTime();
       roundEndTime = ret.toNumber();
     } catch (e) {
-      datadogRum.addError(e);
+      datadogRum.addError(e); // XXX:
       dispatch(loadingError(address, "error loading round end time"));
       console.error(e);
       return;

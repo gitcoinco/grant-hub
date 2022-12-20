@@ -20,7 +20,7 @@ class ErrorBoundary extends React.Component<Props, State> {
   }
 
   componentDidCatch(error: any) {
-    datadogRum.addError(error);
+    datadogRum.addError(error); // XXX:
     console.error(error);
   }
 

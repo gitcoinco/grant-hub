@@ -136,7 +136,7 @@ export default function Github({
               "There was an issue with verifying your GitHub account, please try again.";
           }
           verificationError(errorMessage);
-          datadogRum.addError(error, { provider: CredentialProvider.Github });
+          datadogRum.addError(error, { provider: CredentialProvider.Github }); // XXX: monitor passport server instead?
           datadogLogs.logger.error("GitHub verification failed", error);
         });
     }
