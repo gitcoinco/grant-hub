@@ -3,7 +3,6 @@ import { datadogLogs } from "@datadog/browser-logs";
 import {
   RequestPayload,
   IssuedChallenge,
-  CredentialResponseBody,
   VerifiableCredentialRecord,
 } from "@gitcoinco/passport-sdk-types";
 
@@ -23,16 +22,16 @@ export const fetchChallengeCredential = async (
   let response;
   try {
     response = await axios.post(
-    `${iamUrl.replace(/\/*?$/, "")}/v${payload.version}/challenge`,
-    {
-      payload: {
-        address: payload.address,
-        type: payload.type,
-      },
-    }
-  );
+      `${iamUrl.replace(/\/*?$/, "")}/v${payload.version}/challenge`,
+      {
+        payload: {
+          address: payload.address,
+          type: payload.type,
+        },
+      }
+    );
   } catch (error) {
-    datadogLogs.logger.error("Error fetching challenge credential " + error);
+    datadogLogs.logger.error(`Error fetching challenge credential ${error}`);
   }
   return {
     challenge: response?.data.credential,
@@ -79,7 +78,7 @@ export const fetchVerifiableCredential = async (
   payload.proofs = { ...payload.proofs, ...{ signature } };
 
   // fetch a credential from the API that fits the version, payload and passes the signature message challenge
-  
+
   let response;
   try {
     response = await axios.post(
@@ -90,7 +89,7 @@ export const fetchVerifiableCredential = async (
       }
     );
   } catch (error) {
-    datadogLogs.logger.error("Error fetching verifiable credential " + error);
+    datadogLogs.logger.error(`Error fetching verifiable credential ${error}`);
   }
 
   // return everything that was used to create the credential (along with the credential)
