@@ -255,7 +255,7 @@ export const submitApplication =
       status: Status.UploadingMetadata,
     });
 
-    var resp 
+    let resp;
     try {
       resp = await pinataClient.pinJSON(signedApplication);
     } catch (e) {
