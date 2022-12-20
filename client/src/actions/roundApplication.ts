@@ -255,12 +255,22 @@ export const submitApplication =
       status: Status.UploadingMetadata,
     });
 
-    const resp = await pinataClient.pinJSON(signedApplication); // XXX: data dog?
+    var resp 
+    try {
+      resp = await pinataClient.pinJSON(signedApplication);
+    } catch (e) {
+      dispatchAndLogApplicationError(
+        dispatch,
+        roundAddress,
+        "error uploading round application metadata",
+        Status.UploadingMetadata
+      );
+      return;
+    }
     const metaPtr = {
       protocol: "1",
       pointer: resp.IpfsHash,
     };
-
     dispatch({
       type: ROUND_APPLICATION_LOADING,
       roundAddress,
@@ -339,8 +349,9 @@ export const checkRoundApplications =
       });
     } catch (e) {
       // FIXME: dispatch an error?
+      datadogLogs.logger.warn("error getting round applications");
       datadogRum.addError(e);
-      console.error("error getting round applications"); // XXX: on data dog
+      console.error("error getting round applications");
     } finally {
       if (applicationEvents.length === 0) {
         dispatch({
