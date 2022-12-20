@@ -124,7 +124,10 @@ export default class Lit {
       };
     } catch {
       datadogLogs.logger.error("Lit: Failed to encrypt string");
-      return null;
+      return {
+        encryptedString: null,
+        encryptedSymmetricKey: null,
+      };
     }
   }
 
