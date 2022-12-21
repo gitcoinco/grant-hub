@@ -38,10 +38,16 @@ describe("<Show />", () => {
 
     beforeEach(() => {
       store = setupStore();
-      const round = buildRound({ address: "0x0000000000000000000000000000000000000001" });
+      const round = buildRound({
+        address: "0x0000000000000000000000000000000000000001",
+      });
 
       store.dispatch(web3ChainIDLoaded(5));
-      store.dispatch({ type: "ROUNDS_ROUND_LOADED", address: "0x0000000000000000000000000000000000000001", round });
+      store.dispatch({
+        type: "ROUNDS_ROUND_LOADED",
+        address: "0x0000000000000000000000000000000000000001",
+        round,
+      });
     });
 
     describe("<SwitchNetworkModal />", () => {

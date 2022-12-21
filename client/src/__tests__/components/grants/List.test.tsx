@@ -12,11 +12,7 @@ import { RootState } from "../../../reducers";
 import { ApplicationModalStatus } from "../../../reducers/roundApplication";
 import setupStore from "../../../store";
 import { Metadata, ProjectEventsMap } from "../../../types";
-import {
-  buildProjectMetadata,
-  buildRound,
-  renderWrapped,
-} from "../../../utils/test_utils";
+import { buildRound, renderWrapped } from "../../../utils/test_utils";
 
 jest.mock("../../../actions/projects");
 jest.mock("../../../actions/rounds");
@@ -304,7 +300,9 @@ describe("<List />", () => {
         });
 
         test("should be visible if user didn't apply yet", async () => {
-          const round = buildRound({ address: "0x0000000000000000000000000000000000000001" });
+          const round = buildRound({
+            address: "0x0000000000000000000000000000000000000001",
+          });
 
           store.dispatch(web3ChainIDLoaded(5));
 
