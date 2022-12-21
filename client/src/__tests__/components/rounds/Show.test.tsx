@@ -6,6 +6,7 @@ import { web3ChainIDLoaded } from "../../../actions/web3";
 import Show from "../../../components/rounds/Show";
 import setupStore from "../../../store";
 import {
+  addressFrom,
   buildProjectMetadata,
   buildRound,
   renderWrapped,
@@ -17,7 +18,7 @@ jest.mock("../../../actions/projects");
 jest.mock("react-router-dom", () => ({
   ...jest.requireActual("react-router-dom"),
   useParams: () => ({
-    roundId: "0x0000000000000000000000000000000000000001",
+    roundId: addressFrom(1),
     chainId: 5,
   }),
 }));
@@ -39,13 +40,13 @@ describe("<Show />", () => {
     beforeEach(() => {
       store = setupStore();
       const round = buildRound({
-        address: "0x0000000000000000000000000000000000000001",
+        address: addressFrom(1),
       });
 
       store.dispatch(web3ChainIDLoaded(5));
       store.dispatch({
         type: "ROUNDS_ROUND_LOADED",
-        address: "0x0000000000000000000000000000000000000001",
+        address: addressFrom(1),
         round,
       });
     });

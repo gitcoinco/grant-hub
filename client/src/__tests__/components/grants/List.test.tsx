@@ -12,7 +12,7 @@ import { RootState } from "../../../reducers";
 import { ApplicationModalStatus } from "../../../reducers/roundApplication";
 import setupStore from "../../../store";
 import { Metadata, ProjectEventsMap } from "../../../types";
-import { buildRound, renderWrapped } from "../../../utils/test_utils";
+import { addressFrom, buildRound, renderWrapped } from "../../../utils/test_utils";
 
 jest.mock("../../../actions/projects");
 jest.mock("../../../actions/rounds");
@@ -126,7 +126,7 @@ describe("<List />", () => {
 
       when(useLocalStorage as jest.Mock)
         .calledWith("roundToApply", null)
-        .mockReturnValue(["5:0x0000000000000000000000000000000000000001"]);
+        .mockReturnValue([`5:${addressFrom(1)}`]);
 
       store.dispatch({
         type: "PROJECTS_LOADED",
@@ -158,7 +158,7 @@ describe("<List />", () => {
 
       when(useLocalStorage as jest.Mock)
         .calledWith("roundToApply", null)
-        .mockReturnValue(["5:0x0000000000000000000000000000000000000001"]);
+        .mockReturnValue([`5:${addressFrom(1)}`]);
 
       store.dispatch({
         type: "PROJECTS_LOADED",
@@ -284,7 +284,7 @@ describe("<List />", () => {
       });
 
       describe("when roundToApply is set", () => {
-        const roundAddress = "0x0000000000000000000000000000000000000001";
+        const roundAddress = addressFrom(1);
 
         beforeEach(() => {
           when(useLocalStorage as jest.Mock)
@@ -301,14 +301,14 @@ describe("<List />", () => {
 
         test("should be visible if user didn't apply yet", async () => {
           const round = buildRound({
-            address: "0x0000000000000000000000000000000000000001",
+            address: addressFrom(1),
           });
 
           store.dispatch(web3ChainIDLoaded(5));
 
           store.dispatch({
             type: "ROUNDS_ROUND_LOADED",
-            address: "0x0000000000000000000000000000000000000001",
+            address: addressFrom(1),
             round,
           });
 
@@ -356,7 +356,7 @@ describe("<List />", () => {
         let roundAddress: string;
 
         beforeEach(() => {
-          roundAddress = "0x0000000000000000000000000000000000000001";
+          roundAddress = addressFrom(1);
 
           when(useLocalStorage as jest.Mock)
             .calledWith("roundToApply", null)

@@ -5,6 +5,7 @@ import {
   ProjectsState,
   Status,
 } from "../../reducers/projects";
+import { addressFrom } from "../../utils/test_utils";
 
 describe("projects reducer", () => {
   let state: ProjectsState;
@@ -25,14 +26,14 @@ describe("projects reducer", () => {
       applications: {
         "1": [
           {
-            roundID: "0x0000000000000000000000000000000000000001",
+            roundID: addressFrom(1),
             status: "PENDING" as AppStatus,
             chainId: 1,
           },
         ],
         "2": [
           {
-            roundID: "0x0000000000000000000000000000000000000002",
+            roundID: addressFrom(2),
             status: "PENDING" as AppStatus,
             chainId: 1,
           },
@@ -48,7 +49,7 @@ describe("projects reducer", () => {
     expect(newState.applications).toEqual({
       "1": [
         {
-          roundID: "0x0000000000000000000000000000000000000001",
+          roundID: addressFrom(1),
           status: "PENDING",
           chainId: 1,
         },
@@ -63,7 +64,7 @@ describe("projects reducer", () => {
       applications: {
         "1": [
           {
-            roundID: "0x0000000000000000000000000000000000000001",
+            roundID: addressFrom(1),
             status: "PENDING" as AppStatus,
             chainId: 1,
           },
@@ -76,7 +77,7 @@ describe("projects reducer", () => {
       projectID: "2",
       applications: [
         {
-          roundID: "0x0000000000000000000000000000000000000002",
+          roundID: addressFrom(2),
           status: "APPROVED",
           chainId: 1,
         },
@@ -86,14 +87,14 @@ describe("projects reducer", () => {
     expect(newState.applications).toEqual({
       "1": [
         {
-          roundID: "0x0000000000000000000000000000000000000001",
+          roundID: addressFrom(1),
           status: "PENDING",
           chainId: 1,
         },
       ],
       "2": [
         {
-          roundID: "0x0000000000000000000000000000000000000002",
+          roundID: addressFrom(2),
           status: "APPROVED",
           chainId: 1,
         },
