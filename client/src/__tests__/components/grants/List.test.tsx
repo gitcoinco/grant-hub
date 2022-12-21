@@ -12,7 +12,11 @@ import { RootState } from "../../../reducers";
 import { ApplicationModalStatus } from "../../../reducers/roundApplication";
 import setupStore from "../../../store";
 import { Metadata, ProjectEventsMap } from "../../../types";
-import { addressFrom, buildRound, renderWrapped } from "../../../utils/test_utils";
+import {
+  addressFrom,
+  buildRound,
+  renderWrapped,
+} from "../../../utils/test_utils";
 
 jest.mock("../../../actions/projects");
 jest.mock("../../../actions/rounds");

@@ -3,11 +3,16 @@ import { ReduxRouter } from "@lagunovsky/redux-react-router";
 import { ChakraProvider } from "@chakra-ui/react";
 import { render } from "@testing-library/react";
 import { Provider } from "react-redux";
+import { ethers } from "ethers";
 import history from "../history";
 import setupStore from "../store";
 import { FormInputs, Metadata, Round } from "../types";
 import { Alert } from "../types/alert";
-import { ethers } from "ethers";
+
+export function addressFrom(n: number): string {
+  const bn = ethers.BigNumber.from(n);
+  return ethers.utils.hexZeroPad(bn.toHexString(), 20);
+}
 
 export const buildAlert = (attrs = {}): Alert => ({
   id: 1,
@@ -106,10 +111,5 @@ export const renderWrapped = (ui: React.ReactElement, store = setupStore()) => {
 
   return { store, ...render(wrapped) };
 };
-
-export function addressFrom(n: number): string {
-  const bn = ethers.BigNumber.from(n);
-  return ethers.utils.hexZeroPad(bn.toHexString(), 20);
-}
 
 export default {};
