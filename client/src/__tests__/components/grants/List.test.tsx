@@ -162,7 +162,7 @@ describe("<List />", () => {
 
       when(useLocalStorage as jest.Mock)
         .calledWith("roundToApply", null)
-        .mockReturnValue(["5:0x1234"]);
+        .mockReturnValue(["5:0x0000000000000000000000000000000000000001"]);
 
       store.dispatch({
         type: "PROJECTS_LOADED",
@@ -288,7 +288,7 @@ describe("<List />", () => {
       });
 
       describe("when roundToApply is set", () => {
-        const roundAddress = "0x1234";
+        const roundAddress = "0x0000000000000000000000000000000000000001";
 
         beforeEach(() => {
           when(useLocalStorage as jest.Mock)
@@ -304,22 +304,15 @@ describe("<List />", () => {
         });
 
         test("should be visible if user didn't apply yet", async () => {
-          const round = buildRound({ address: "0x1234" });
+          const round = buildRound({ address: "0x0000000000000000000000000000000000000001" });
 
           store.dispatch(web3ChainIDLoaded(5));
 
           store.dispatch({
             type: "ROUNDS_ROUND_LOADED",
-            address: "0x1234",
+            address: "0x0000000000000000000000000000000000000001",
             round,
           });
-
-          store.dispatch({
-            type: "GRANT_METADATA_FETCHED",
-            data: buildProjectMetadata({}),
-          });
-
-          store.dispatch({ type: "PROJECTS_LOADED", events: projectEventsMap });
 
           store.dispatch({ type: "ROUND_APPLICATION_NOT_FOUND", roundAddress });
 
@@ -365,7 +358,7 @@ describe("<List />", () => {
         let roundAddress: string;
 
         beforeEach(() => {
-          roundAddress = "0x1234";
+          roundAddress = "0x0000000000000000000000000000000000000001";
 
           when(useLocalStorage as jest.Mock)
             .calledWith("roundToApply", null)

@@ -9,7 +9,7 @@ import setupStore from "../../store";
 describe("roundApplication reducer", () => {
   let state: RoundApplicationState;
   let store: ReturnType<typeof setupStore>;
-  const roundAddress: string = "0x1234";
+  const roundAddress: string = "0x0000000000000000000000000000000000000001";
 
   beforeEach(() => {
     state = {};
