@@ -3,6 +3,7 @@ import { screen } from "@testing-library/react";
 import { when } from "jest-when";
 import { Store } from "redux";
 import { loadAllChainsProjects, loadProjects } from "../../../actions/projects";
+import { loadRound } from "../../../actions/rounds";
 import { checkRoundApplications } from "../../../actions/roundApplication";
 import { web3ChainIDLoaded } from "../../../actions/web3";
 import List from "../../../components/grants/List";
@@ -18,6 +19,7 @@ import {
 } from "../../../utils/test_utils";
 
 jest.mock("../../../actions/projects");
+jest.mock("../../../actions/rounds");
 jest.mock("../../../actions/roundApplication");
 jest.mock("../../../hooks/useLocalStorage");
 
@@ -54,6 +56,7 @@ const projectsMetadata: Metadata[] = [
 describe("<List />", () => {
   beforeEach(() => {
     (useLocalStorage as jest.Mock).mockReturnValue([null]);
+    (loadRound as jest.Mock).mockReturnValue({ type: "TEST" });
   });
 
   describe("useEffect/loadAllChainsProjects", () => {
@@ -84,6 +87,68 @@ describe("<List />", () => {
       renderWrapped(<List />, store);
 
       expect(screen.getByText("Error")).toBeInTheDocument();
+    });
+  });
+
+  describe("useEffect/loadRound", () => {
+    test("should not be called if roundToApply is not set", async () => {
+      const store = setupStore();
+
+      // mocked to avoid it failing, but not used here.
+      (loadProjects as jest.Mock).mockReturnValue({ type: "TEST" });
+      (checkRoundApplications as jest.Mock).mockReturnValue({ type: "TEST" });
+
+      when(useLocalStorage as jest.Mock)
+        .calledWith("roundToApply", null)
+        .mockReturnValue([null]);
+
+      store.dispatch({
+        type: "PROJECTS_LOADED",
+        events: {
+          "1:1:1": {
+            createdAtBlock: 1111,
+            updatedAtBlock: 1112,
+          },
+        },
+      });
+      store.dispatch({
+        type: "GRANT_METADATA_FETCHED",
+        data: projectsMetadata[0],
+      });
+
+      renderWrapped(<List />, store);
+
+      expect(loadRound).toBeCalledTimes(0);
+    });
+
+    test("should be called once if roundToApply is set", async () => {
+      const store = setupStore();
+
+      // mocked to avoid it failing, but not used here.
+      (loadProjects as jest.Mock).mockReturnValue({ type: "TEST" });
+      (checkRoundApplications as jest.Mock).mockReturnValue({ type: "TEST" });
+
+      when(useLocalStorage as jest.Mock)
+        .calledWith("roundToApply", null)
+        .mockReturnValue(["5:0x0000000000000000000000000000000000000001"]);
+
+      store.dispatch({
+        type: "PROJECTS_LOADED",
+        events: {
+          "1:1:1": {
+            createdAtBlock: 1111,
+            updatedAtBlock: 1112,
+          },
+        },
+      });
+      store.dispatch({
+        type: "GRANT_METADATA_FETCHED",
+        data: projectsMetadata[0],
+      });
+
+      renderWrapped(<List />, store);
+
+      expect(loadRound).toBeCalledTimes(1);
     });
   });
 
