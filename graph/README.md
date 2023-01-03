@@ -61,6 +61,7 @@ yarn prepare:<NETWORK_TO_DEPLOY_SUBGRAPH>
 
 | network        |
 | -------------- |
+| mainnet        |
 | optimism       |
 | goerli         |
 | fantom         |
