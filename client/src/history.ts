@@ -1,4 +1,7 @@
-import { createHashHistory } from "history";
+import { createHashHistory, createBrowserHistory } from "history";
+import { isIpfsBasename } from "./utils/ipfs";
 
-const history = createHashHistory();
-export default history;
+const hashHistory = createHashHistory();
+const browserHistory = createBrowserHistory();
+
+export default isIpfsBasename() ? hashHistory : browserHistory;

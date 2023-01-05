@@ -37,10 +37,6 @@ initDatadog();
 
 datadogRum.addAction("Init");
 
-const isPathnameValid = process.env.REACT_APP_PATHNAME
-  ? window.location.pathname === process.env.REACT_APP_PATHNAME
-  : true;
-
 root.render(
   <ErrorBoundary>
     <WagmiConfig client={wagmiClient}>
@@ -50,23 +46,19 @@ root.render(
             <ReduxRouter history={history} store={store}>
               <Layout>
                 <Routes>
-                  {isPathnameValid && (
-                    <>
-                      <Route
-                        path={slugs.root}
-                        element={<Navigate to={slugs.grants} />}
-                      />
-                      <Route path={slugs.grants} element={<ProjectsList />} />
-                      <Route path={slugs.project} element={<Project />} />
-                      <Route path={slugs.newGrant} element={<NewProject />} />
-                      <Route path={slugs.edit} element={<EditProject />} />
-                      <Route path={slugs.round} element={<RoundShow />} />
-                      <Route
-                        path={slugs.roundApplication}
-                        element={<RoundApply />}
-                      />
-                    </>
-                  )}
+                  <Route
+                    path={slugs.root}
+                    element={<Navigate to={slugs.grants} />}
+                  />
+                  <Route path={slugs.grants} element={<ProjectsList />} />
+                  <Route path={slugs.project} element={<Project />} />
+                  <Route path={slugs.newGrant} element={<NewProject />} />
+                  <Route path={slugs.edit} element={<EditProject />} />
+                  <Route path={slugs.round} element={<RoundShow />} />
+                  <Route
+                    path={slugs.roundApplication}
+                    element={<RoundApply />}
+                  />
                   <Route path="*" element={<PageNotFound />} />
                 </Routes>
               </Layout>
