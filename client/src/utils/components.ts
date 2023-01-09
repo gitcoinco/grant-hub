@@ -37,9 +37,5 @@ export const formatDate = (ts: number) => {
 
 export const formatTimeUTC = (ts: number) => {
   const date = new Date(ts * 1000);
-  return date.toLocaleTimeString("en-US", {
-    hour: "numeric",
-    minute: "numeric",
-    hour12: false,
-  });
+  return date.toUTCString();
 };
