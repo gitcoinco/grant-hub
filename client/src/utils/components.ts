@@ -37,5 +37,5 @@ export const formatDate = (ts: number) => {
 
 export const formatTimeUTC = (ts: number) => {
   const date = new Date(ts * 1000);
-  return date.toUTCString();
+  return date.toUTCString().replace("GMT", "UTC");
 };
