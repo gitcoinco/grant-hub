@@ -8,6 +8,7 @@ export const slugs = {
   newGrant: `/projects/new`,
   round: `/chains/:chainId/rounds/:roundId`,
   roundApplication: `/chains/:chainId/rounds/:roundId/apply`,
+  roundApplicationView: `/chains/:chainId/rounds/:roundId/view/:ipfsHash`,
 };
 
 export const rootPath = () => {
@@ -64,4 +65,16 @@ export const roundApplicationPath = (chainId: string, roundId: string) => {
   );
   datadogLogs.logger.info(`====> URL: ${window.location.href}`);
   return `/chains/${chainId}/rounds/${roundId}/apply`;
+};
+
+export const roundApplicationViewPath = (
+  chainId: string,
+  roundId: string,
+  ipfsHash: string
+) => {
+  datadogLogs.logger.info(
+    `====> Route: /chains/${chainId}/rounds/${roundId}/view/${ipfsHash}`
+  );
+  datadogLogs.logger.info(`====> URL: ${window.location.href}`);
+  return `/chains/${chainId}/rounds/${roundId}/view/${ipfsHash}`;
 };

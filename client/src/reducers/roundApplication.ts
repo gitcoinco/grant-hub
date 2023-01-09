@@ -1,12 +1,13 @@
 import {
-  ROUND_APPLICATION_LOADING,
+  APPLICATION_DATA_LOADED,
+  RoundApplicationActions,
   ROUND_APPLICATION_ERROR,
-  ROUND_APPLICATION_LOADED,
+  ROUND_APPLICATION_ERROR_RESET,
   ROUND_APPLICATION_FOUND,
+  ROUND_APPLICATION_LOADED,
+  ROUND_APPLICATION_LOADING,
   ROUND_APPLICATION_NOT_FOUND,
   ROUND_APPLICATION_RESET,
-  RoundApplicationActions,
-  ROUND_APPLICATION_ERROR_RESET,
 } from "../actions/roundApplication";
 
 export const enum Status {
@@ -39,6 +40,13 @@ export type RoundApplicationState = {
     status: Status;
     error?: RoundApplicationError;
     projectsIDs: Array<number>; // projects IDs that applied to the round
+    metadataFromIpfs?: {
+      [ipfsHash: string]: {
+        publishedApplicationData: any;
+        status: Status;
+        error?: any;
+      };
+    };
   };
 };
 
@@ -151,6 +159,22 @@ export const roundApplicationReducer = (
         [action.roundAddress]: {
           ...application,
           status: Status.Undefined,
+        },
+      };
+    }
+
+    case APPLICATION_DATA_LOADED: {
+      const application = state[action.roundAddress];
+      return {
+        ...state,
+        [action.roundAddress]: {
+          ...application,
+          metadataFromIpfs: {
+            [action.ipfsHash]: {
+              publishedApplicationData: action.applicationData,
+              status: Status.Found,
+            },
+          },
         },
       };
     }
