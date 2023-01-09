@@ -46,16 +46,20 @@ export default function Form({
   round,
   onSubmit,
   showErrorModal,
+  readonly,
+  publishedApplication,
 }: {
   roundApplication: RoundApplicationMetadata;
   round: Round;
   onSubmit: () => void;
   showErrorModal: boolean;
+  readonly?: boolean;
+  publishedApplication?: any;
 }) {
   const dispatch = useDispatch();
 
   const [formInputs, setFormInputs] = useState<DynamicFormInputs>({});
-  const [preview, setPreview] = useState(false);
+  const [preview, setPreview] = useState(readonly || false);
   const [formValidation, setFormValidation] = useState(validation);
   const [projectOptions, setProjectOptions] = useState<ProjectOption[]>();
   const [showProjectDetails] = useState(true);
@@ -85,6 +89,22 @@ export default function Form({
   }, shallowEqual);
 
   const schema = roundApplication.applicationSchema;
+
+  useEffect(() => {
+    const inputValues: DynamicFormInputs = {};
+    publishedApplication.application.answers.forEach((answer: any) => {
+      inputValues[answer.questionId] = answer.answer ?? "***";
+    });
+    inputValues[Object.keys(inputValues).length] =
+      publishedApplication.application.recipient;
+    inputValues[Object.keys(inputValues).length] =
+      publishedApplication.application.project.title;
+    console.log("DASA inputValues", inputValues);
+    setFormInputs(inputValues);
+  }, [publishedApplication]);
+
+  console.log("DASA publishedApplication", publishedApplication);
+  console.log("DASA schema", schema);
 
   const validate = async (inputs: DynamicFormInputs) => {
     try {
@@ -198,7 +218,26 @@ export default function Form({
         {schema.map((input) => {
           switch (input.type) {
             case "PROJECT":
-              return (
+              return readonly ? (
+                <TextInput
+                  key={input.id}
+                  label={input.question}
+                  placeholder={input.info}
+                  name={`${input.id}`}
+                  value={formInputs[`${input.id}`] ?? ""}
+                  disabled={preview}
+                  changeHandler={(e) => {
+                    handleInput(e);
+                  }}
+                  required={input.required ?? false}
+                  feedback={
+                    feedback.find((fb) => fb.title === `${input.id}`) ?? {
+                      type: "none",
+                      message: "",
+                    }
+                  }
+                />
+              ) : (
                 <Fragment key={input.id}>
                   <div className="mt-6 w-full sm:w-1/2 relative">
                     <CustomSelect
@@ -257,26 +296,28 @@ export default function Form({
               /* Radio for safe or multi-sig */
               return (
                 <>
-                  <div className="relative mt-2">
-                    <Stack>
-                      <Radio
-                        label="Is your payout wallet a Gnosis Safe or multi-sig?"
-                        choices={["Yes", "No"]}
-                        changeHandler={handleInput}
-                        name="isSafe"
-                        value={formInputs.isSafe}
-                        info=""
-                        required={input.required ?? true}
-                        disabled={preview}
-                        feedback={
-                          feedback.find((fb) => fb.title === "isSafe") ?? {
-                            type: "none",
-                            message: "",
+                  {!readonly && (
+                    <div className="relative mt-2">
+                      <Stack>
+                        <Radio
+                          label="Is your payout wallet a Gnosis Safe or multi-sig?"
+                          choices={["Yes", "No"]}
+                          changeHandler={handleInput}
+                          name="isSafe"
+                          value={formInputs.isSafe}
+                          info=""
+                          required={input.required ?? true}
+                          disabled={preview}
+                          feedback={
+                            feedback.find((fb) => fb.title === "isSafe") ?? {
+                              type: "none",
+                              message: "",
+                            }
                           }
-                        }
-                      />
-                    </Stack>
-                  </div>
+                        />
+                      </Stack>
+                    </div>
+                  )}
                   {/* todo: do we need this tooltip for all networks? */}
                   <TextInputAddress
                     key={input.id}
@@ -392,32 +433,34 @@ export default function Form({
             </ul>
           </div>
         )}
-        <div className="flex justify-end">
-          {!preview ? (
-            <Button
-              variant={ButtonVariants.primary}
-              onClick={() => handlePreviewClick()}
-            >
-              Preview Application
-            </Button>
-          ) : (
-            <div className="flex justify-end">
-              <Button
-                variant={ButtonVariants.outline}
-                onClick={() => setPreview(false)}
-              >
-                Back to Editing
-              </Button>
+        {!readonly && (
+          <div className="flex justify-end">
+            {!preview ? (
               <Button
                 variant={ButtonVariants.primary}
-                onClick={handleSubmitApplication}
-                disabled={disableSubmit}
+                onClick={() => handlePreviewClick()}
               >
-                Submit
+                Preview Application
               </Button>
-            </div>
-          )}
-        </div>
+            ) : (
+              <div className="flex justify-end">
+                <Button
+                  variant={ButtonVariants.outline}
+                  onClick={() => setPreview(false)}
+                >
+                  Back to Editing
+                </Button>
+                <Button
+                  variant={ButtonVariants.primary}
+                  onClick={handleSubmitApplication}
+                  disabled={disableSubmit}
+                >
+                  Submit
+                </Button>
+              </div>
+            )}
+          </div>
+        )}
       </form>
       <ErrorModal
         open={showErrorModal}
