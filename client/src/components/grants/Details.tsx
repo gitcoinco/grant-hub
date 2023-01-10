@@ -10,6 +10,7 @@ import { CredentialProvider, FormInputs, Metadata, Project } from "../../types";
 import Calendar from "../icons/Calendar";
 import LinkIcon from "../icons/LinkIcon";
 import Shield from "../icons/Shield";
+import ProjectDetailsHeader from "../ProjectDetailsHeader";
 import ApplicationCard from "./ApplicationCard";
 
 function Verified() {
@@ -102,35 +103,11 @@ export default function Details({
 
   return (
     <div className="w-full mb-40">
-      <img
-        className="w-full mb-4"
-        src={
-          bannerImg instanceof Blob ? URL.createObjectURL(bannerImg) : bannerImg
-        }
-        onError={(e) => {
-          e.currentTarget.onerror = null;
-          e.currentTarget.src = "./assets/default-project-logo.png";
-        }}
-        alt="project banner"
+      <ProjectDetailsHeader
+        title={project?.title ?? ""}
+        bannerImg={bannerImg}
+        logoImg={logoImg}
       />
-      <div className="relative">
-        <div className="flex w-full justify-start absolute -top-14 left-8">
-          <div className="rounded-full h-20 w-20 bg-quaternary-text border border-tertiary-text flex justify-center items-center">
-            <img
-              className="rounded-full"
-              src={
-                logoImg instanceof Blob ? URL.createObjectURL(logoImg) : logoImg
-              }
-              onError={(e) => {
-                e.currentTarget.onerror = null;
-                e.currentTarget.src = "./assets/default-project-logo.png";
-              }}
-              alt="project logo"
-            />
-          </div>
-        </div>
-      </div>
-      <h4 className="mb-4 ml-1 mt-14">{project?.title}</h4>
       <div className="flex flex-1 flex-col md:flex-row">
         <div className="flex flex-1 flex-col w-full">
           <div className="grid grid-cols-1 md:grid-cols-2">
