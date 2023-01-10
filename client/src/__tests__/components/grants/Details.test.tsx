@@ -1,12 +1,12 @@
+import { PassportVerifier } from "@gitcoinco/passport-sdk-verifier";
 import "@testing-library/jest-dom";
 import { act, cleanup, screen } from "@testing-library/react";
-import { PassportVerifier } from "@gitcoinco/passport-sdk-verifier";
 import Details from "../../../components/grants/Details";
 import setupStore from "../../../store";
 import {
-  renderWrapped,
-  buildVerifiableCredential,
   buildProjectMetadata,
+  buildVerifiableCredential,
+  renderWrapped,
 } from "../../../utils/test_utils";
 
 const IAM_SERVER = "did:key:z6MkghvGHLobLEdj1bgRLhS4LPGJAvbMA1tn2zcRyqmYU5LC";
@@ -16,6 +16,13 @@ jest.mock("react-router-dom", () => ({
   useParams: () => ({
     chainId: "1",
     id: "2",
+  }),
+}));
+
+jest.mock("wagmi", () => ({
+  ...jest.requireActual("wagmi"),
+  useNetwork: () => ({
+    chain: jest.fn(),
   }),
 }));
 
