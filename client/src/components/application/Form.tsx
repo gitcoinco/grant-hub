@@ -99,12 +99,8 @@ export default function Form({
       publishedApplication.application.recipient;
     inputValues[Object.keys(inputValues).length] =
       publishedApplication.application.project.title;
-    console.log("DASA inputValues", inputValues);
     setFormInputs(inputValues);
   }, [publishedApplication]);
-
-  console.log("DASA publishedApplication", publishedApplication);
-  console.log("DASA schema", schema);
 
   const validate = async (inputs: DynamicFormInputs) => {
     try {
