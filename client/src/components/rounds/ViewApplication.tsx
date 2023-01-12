@@ -43,13 +43,6 @@ function ViewApplication() {
       ? applicationState.metadataFromIpfs![ipfsHash!]
       : null;
 
-    console.log("DASA roundState", roundState);
-    console.log("DASA applicationState", applicationState);
-    console.log(
-      "DASA publishedApplicationMetadata",
-      publishedApplicationMetadata
-    );
-
     const web3ChainId = state.web3.chainID;
     const roundChainId = Number(chainId);
 
@@ -68,8 +61,6 @@ function ViewApplication() {
       roundChainId,
     };
   }, shallowEqual);
-
-  console.log("DASA params", params);
 
   const isOnRoundChain = props.web3ChainId === props.roundChainId;
 
