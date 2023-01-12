@@ -61,11 +61,14 @@ export type InputProps = {
   changeHandler: (event: ChangeHandlers) => void;
   required: boolean;
   encrypted?: boolean;
+  containerClass?: string;
   feedback: {
     type: string;
     message: string;
   };
 };
+
+export type TextAreaProps = InputProps & { rows?: number };
 
 export type AddressInputProps = {
   label: string;
