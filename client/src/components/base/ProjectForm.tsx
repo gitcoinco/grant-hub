@@ -199,6 +199,8 @@ function ProjectForm({
           value={props.formMetaData.description}
           changeHandler={handleInput}
           required
+          rows={15}
+          containerClass="sm:w-full"
           feedback={
             feedback.find((fb) => fb.title === "description") ?? {
               type: "none",
@@ -206,6 +208,7 @@ function ProjectForm({
             }
           }
         />
+
         {!formValidation.valid && submitted && (
           <div
             className="p-4 text-gitcoin-pink-500 border rounded border-red-900/10 bg-gitcoin-pink-100 mt-8"
