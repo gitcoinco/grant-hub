@@ -208,6 +208,18 @@ function ProjectForm({
             }
           }
         />
+        <div className="pt-6 text-sm text-gray-400">
+          <span>Formatting with </span>
+          <a
+            className="text-gitcoin-violet-400"
+            href="https://www.markdownguide.org/basic-syntax/"
+            rel="noreferrer"
+            target="_blank"
+          >
+            Markdown
+          </a>
+          <span> is supported.</span>
+        </div>
 
         {!formValidation.valid && submitted && (
           <div

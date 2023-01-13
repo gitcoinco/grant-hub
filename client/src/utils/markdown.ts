@@ -8,12 +8,12 @@ const markdownIt = new MarkdownIt({
 
 const defaultLinkOpen =
   markdownIt.renderer.rules.link_open ||
-  function (tokens, idx, options, env, self) {
+  function defaultLinkOpen(tokens, idx, options, env, self) {
     return self.renderToken(tokens, idx, options);
   };
 
 // Open all links in a new tab and instruct search engines not to follow them
-markdownIt.renderer.rules.link_open = function (
+markdownIt.renderer.rules.link_open = function linkOpen(
   tokens,
   idx,
   options,

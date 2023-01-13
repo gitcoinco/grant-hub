@@ -228,6 +228,7 @@ export default function Details({
             <div className="pt-6 mb-12 ml-2 prose">
               {project?.description && (
                 <div
+                  // eslint-disable-next-line react/no-danger
                   dangerouslySetInnerHTML={{
                     __html: markdown.renderToHTML(project.description),
                   }}
