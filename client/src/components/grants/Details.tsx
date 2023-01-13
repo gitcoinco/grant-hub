@@ -225,7 +225,7 @@ export default function Details({
             <p className="text-primary-text ml-2 xl:mt-2 lg:mt-2 font-bold">
               Description
             </p>
-            <div className="pt-6 mb-12 ml-2 prose">
+            <div className="pt-6 mb-12 ml-2 prose prose-h1:text-lg prose-h2:text-base prose-h3:text-base">
               {project?.description && (
                 <div
                   // eslint-disable-next-line react/no-danger
