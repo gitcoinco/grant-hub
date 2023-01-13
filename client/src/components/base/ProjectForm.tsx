@@ -208,7 +208,7 @@ function ProjectForm({
             }
           }
         />
-        <div className="pt-6 text-sm text-gray-400">
+        <div className="pt-2 text-sm text-gray-400">
           <span>Formatting with </span>
           <a
             className="text-gitcoin-violet-400"
