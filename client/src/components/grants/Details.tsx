@@ -58,8 +58,7 @@ export default function Details({
         bannerImg={bannerImg}
         logoImg={logoImg}
       />
-      {/* add tab layout here */}
-      <Tabs defaultIndex={0}>
+      <Tabs className="mt-8" defaultIndex={0}>
         <TabList>
           <Tab>About</Tab>
           <Tab>Stats</Tab>
