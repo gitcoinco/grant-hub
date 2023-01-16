@@ -89,7 +89,7 @@ export default function VerificationForm({
           required={false}
           tooltip={`In order to successfully verify,
           please make sure that you are a public member of the Github organization.
-          Organization and user names are case sensitive.`}
+          Github organization and usernames are case sensitive.`}
           feedback={{ type: "none", message: "" }}
         />
         <Github
