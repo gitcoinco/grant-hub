@@ -26,11 +26,18 @@ export default function Rounds() {
       pending: pendingApplications,
       rejected: rejectedApplications,
     };
+
+    const activeRounds: any[] = [];
+    const currentRounds: any[] = [];
     const pastRounds: any[] = [];
+
+    // todo: setup the values for each above ^^
 
     return {
       projectChainId,
       applications,
+      activeRounds,
+      currentRounds,
       pastRounds,
     };
   });
@@ -38,13 +45,38 @@ export default function Rounds() {
   console.log("props", props);
 
   return (
-    <div className="w-full mb-40">
+    <div className="w-full mb-4">
       {/* list the application details here for each round */}
-      <span>Hello Rounds</span>
       {/* todo: setup logic for list item layouts for each category */}
-      {props.applications.all.map((app) => (
-        <RoundListItem applicationData={app} />
-      ))}
+      <div className="flex-col">
+        {props.applications.all.map((app) => {
+          if (app.status === "APPROVED") {
+            // todo:
+          }
+          return (
+            <>
+              <div className="flex-1">
+                <span className="text-gitcoin-grey-500 text-[12px] font-semibold">
+                  Active Rounds
+                </span>
+                <RoundListItem applicationData={app} />
+              </div>
+              <div className="flex-1">
+                <span className="text-gitcoin-grey-500 text-[12px] font-semibold">
+                  Current Applications
+                </span>
+                <RoundListItem applicationData={app} />
+              </div>
+              <div className="flex-1">
+                <span className="text-gitcoin-grey-500 text-[12px] font-semibold">
+                  Past Rounds
+                </span>
+                <RoundListItem applicationData={app} />
+              </div>
+            </>
+          );
+        })}
+      </div>
     </div>
   );
 }

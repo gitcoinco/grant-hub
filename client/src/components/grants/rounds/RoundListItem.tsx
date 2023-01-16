@@ -1,7 +1,8 @@
 import { useSelector } from "react-redux";
-import { Badge } from "@chakra-ui/react";
+import { Badge, Divider } from "@chakra-ui/react";
 import { RootState } from "../../../reducers";
 import { Application } from "../../../reducers/projects";
+import LinkManager, { LinkDisplayType } from "./LinkManager";
 // import { formatDate } from "../../../utils/components";
 
 export default function RoundListItem({
@@ -11,7 +12,7 @@ export default function RoundListItem({
 }) {
   const props = useSelector((state: RootState) => {
     // todo: get the round id
-    const roundId = "1";
+    const roundId = applicationData.roundID;
 
     return {
       state,
@@ -55,11 +56,32 @@ export default function RoundListItem({
   };
 
   return (
-    <div className="w-full mb-40">
-      {/* list the application details here for each round */}
-      <span>Hello RoundListItem</span>
-      {renderApplicationBadge()}
-      {/* todo: list item layout */}
+    <div>
+      <div className="w-full my-8 flex flex-row justify-between align-middle">
+        {/* todo: list the application details here for each round */}
+        <div className="flex">
+          <span>Program Name</span>
+        </div>
+        <div className="flex">
+          <span>Round Name</span>
+        </div>
+        <div className="flex">
+          <span>Dates</span>
+        </div>
+        <div className="flex">{renderApplicationBadge()}</div>
+        <div className="flex">
+          <LinkManager
+            linkProps={{
+              displayType: LinkDisplayType.External,
+              link: "https://google.com",
+              text: "View Application",
+            }}
+          />
+        </div>
+      </div>
+      <Divider className="mb-8" />
     </div>
   );
 }
+
+// todo: add tests for this component
