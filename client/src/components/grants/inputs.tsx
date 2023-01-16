@@ -83,7 +83,7 @@ export function TextInput({
             <span>{label}</span>
             {tooltip && (
               <Tooltip
-                className="shrink ml-2"
+                className="shrink"
                 bg="purple.900"
                 hasArrow
                 label={tooltip}
