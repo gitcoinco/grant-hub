@@ -21,7 +21,7 @@ export default function Rounds() {
   return (
     <div className="w-full mb-40">
       {/* list the application details here for each round */}
-      <span>Hello World!!!</span>
+      <span>Hello Rounds</span>
     </div>
   );
 }
