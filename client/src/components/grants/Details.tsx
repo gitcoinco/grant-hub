@@ -8,7 +8,7 @@ import { FormInputs, Metadata, Project } from "../../types";
 import ProjectDetailsHeader from "../ProjectDetailsHeader";
 import About from "./About";
 import Rounds from "./Rounds";
-import Stats from "./Stats";
+import Stats from "./stats/Stats";
 
 export default function Details({
   project,
