@@ -1,7 +1,7 @@
 import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import { useNetwork } from "wagmi";
-import { RootState } from "../../reducers";
+import { RootState } from "../../../reducers";
 
 export default function Rounds() {
   const params = useParams();
