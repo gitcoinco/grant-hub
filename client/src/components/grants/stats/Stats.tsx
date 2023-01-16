@@ -65,12 +65,7 @@ export default function RoundStats() {
   const renderRoundStats = () => (
     <>
       {section(
-        <RoundDetailsCard
-          data={{
-            round: null,
-            heading: "All-Time",
-          }}
-        />,
+        <RoundDetailsCard heading="All-Time" />,
         <>
           <StatCard
             heading="Est. Funding Received"
@@ -93,7 +88,8 @@ export default function RoundStats() {
       {props.details.map((detail) =>
         section(
           <RoundDetailsCard
-            data={{ round: detail.round, heading: detail.round?.programName }}
+            round={detail.round}
+            heading={detail.round?.programName}
           />,
           <>
             <StatCard

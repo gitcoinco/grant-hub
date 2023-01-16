@@ -1,11 +1,17 @@
 import { Box, Spinner } from "@chakra-ui/react";
 import { formatDate } from "../../../utils/components";
 
-export default function RoundDetailsCard({ data }: { data: any }) {
+export default function RoundDetailsCard({
+  heading,
+  round,
+}: {
+  heading: string;
+  round?: any;
+}) {
   const renderApplicationDate = () => (
     <>
-      {formatDate(data.round?.applicationsStartTime)} -{" "}
-      {formatDate(data.round?.applicationsEndTime)}
+      {formatDate(round?.applicationsStartTime)} -{" "}
+      {formatDate(round?.applicationsEndTime)}
     </>
   );
 
@@ -38,15 +44,13 @@ export default function RoundDetailsCard({ data }: { data: any }) {
   return (
     <Box p={2} className="h-full">
       <Box mb={2}>
-        <span className="text-[16px] text-gitcoin-gray-500">
-          {data.heading}
-        </span>
+        <span className="text-[16px] text-gitcoin-gray-500">{heading}</span>
       </Box>
-      {data.round && (
+      {round && (
         <div className="flex flex-1 flex-col md:flex-row justify-between">
           <Box className="text-[14px] text-gitcoin-gray-500">
-            <div className="mb-1">{data.round?.roundMetadata.name}</div>
-            {data.round ? (
+            <div className="mb-1">{round?.roundMetaname}</div>
+            {round ? (
               <span className="text-[14px] text-gitcoin-grey-400">
                 {renderApplicationDate()}
               </span>
