@@ -60,9 +60,9 @@ export default function Details({
       />
       <Tabs className="mt-8" defaultIndex={0}>
         <TabList>
-          <Tab>About</Tab>
-          <Tab>Stats</Tab>
-          <Tab>Rounds</Tab>
+          <Tab _focus={{ boxShadow: "none" }}>About</Tab>
+          <Tab _focus={{ boxShadow: "none" }}>Stats</Tab>
+          <Tab _focus={{ boxShadow: "none" }}>Rounds</Tab>
         </TabList>
         <TabPanels>
           <TabPanel>

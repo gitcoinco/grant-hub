@@ -1,5 +1,5 @@
-import { useSelector } from "react-redux";
 import { Badge, Divider } from "@chakra-ui/react";
+import { useSelector } from "react-redux";
 import { RootState } from "../../../reducers";
 import { Application } from "../../../reducers/projects";
 import LinkManager, { LinkDisplayType } from "./LinkManager";
@@ -74,7 +74,7 @@ export default function RoundListItem({
             linkProps={{
               displayType: LinkDisplayType.External,
               link: "https://google.com",
-              text: "View Application",
+              text: "View on Explorer",
             }}
           />
         </div>
