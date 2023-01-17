@@ -1,58 +1,66 @@
-import { useSelector } from "react-redux";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
+import { loadProjectStats } from "../../../actions/projects";
 import { RootState } from "../../../reducers";
+import LoadingSpinner from "../../base/LoadingSpinner";
 import RoundDetailsCard from "./RoundDetailsCard";
 import StatCard from "./StatCard";
 
-const DummyData = {
-  fundingReceived: "385.4055852789264",
-  uniqueContributors: "30",
-  avgContribution: "5.132435352789264",
-  totalContributions: "321",
-};
-
 export default function RoundStats() {
+  const dispatch = useDispatch();
   const params = useParams();
   const props = useSelector((state: RootState) => {
-    // todo: also get not approved rounds, because a project could have been rejected during a round?
-    const applications =
-      state.projects.applications[params.id!]?.filter(
-        (app) => app.status === "APPROVED"
-      ) || [];
-
     const details: any[] = [];
+
+    const stats = state.projects?.stats[params.id!]?.roundStats;
+
     const allTimeStats = {
-      fundingReceived: 0,
-      uniqueContributors: 0,
-      roundsLength: 0,
+      fundingReceived: state.projects?.stats[params.id!]?.allTimeReceived || 0,
+      uniqueContributors:
+        state.projects?.stats[params.id!]?.allTimeUniqueContributors || 0,
+      roundsLength: stats?.length || 0,
     };
 
-    applications.forEach((app) => {
-      details.push({
-        application: app,
-        round: state.rounds[app.roundID].round,
-        stats: {
-          fundingReceived: parseFloat(DummyData.fundingReceived),
-          uniqueContributors: DummyData.uniqueContributors,
-          avgContribution: parseFloat(DummyData.avgContribution),
-          totalContributions: DummyData.totalContributions,
-        },
+    if (stats) {
+      stats.forEach((stat) => {
+        details.push({
+          round: state.rounds[stat.roundId].round,
+          stats: {
+            fundingReceived: stat.fundingReceived,
+            uniqueContributors: stat.uniqueContributors,
+            avgContribution: stat.avgContribution,
+            totalContributions: stat.totalContributions,
+          },
+        });
       });
-
-      allTimeStats.fundingReceived += parseFloat(DummyData.fundingReceived);
-      allTimeStats.uniqueContributors += parseFloat(
-        DummyData.uniqueContributors
-      );
-    });
-
-    allTimeStats.roundsLength = details.length;
+    }
 
     return {
       projectID: params.id!,
       details,
       allTimeStats,
+      projectApplications: state.projects.applications[params.id!],
     };
   });
+
+  useEffect(() => {
+    console.log(props);
+    if (props.projectApplications?.length > 0) {
+      const applications =
+        props.projectApplications?.filter((app) => app.status === "APPROVED") ||
+        [];
+
+      const rounds: Array<{ roundId: string; chainId: number }> = [];
+      applications.forEach((app) => {
+        rounds.push({
+          roundId: app.roundID,
+          chainId: app.chainId,
+        });
+      });
+      dispatch(loadProjectStats(params.id!, rounds));
+    }
+  }, [props.projectApplications]);
 
   const section = (description: any, container: any) => (
     <div className="grid grid-cols-7 gap-8 border-b border-gitcoin-grey-100 pt-10 pb-10 justify-between">
@@ -117,6 +125,20 @@ export default function RoundStats() {
       )}
     </>
   );
+
+  if (props.projectApplications?.length > 0 && props.details?.length === 0)
+    return (
+      <div className="flex-1 flex-col">
+        <LoadingSpinner
+          label="Loading Project Stats"
+          size="24"
+          thickness="6px"
+          showText
+        />
+      </div>
+    );
+
+  if (props.details?.length === 0) return <div>nothing to see here</div>;
 
   return <div className="flex-1 flex-col">{renderRoundStats()}</div>;
 }
