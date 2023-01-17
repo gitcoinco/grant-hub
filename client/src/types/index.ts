@@ -62,6 +62,7 @@ export type InputProps = {
   required: boolean;
   encrypted?: boolean;
   containerClass?: string;
+  tooltip?: ReactNode;
   feedback: {
     type: string;
     message: string;
