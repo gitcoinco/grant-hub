@@ -8,6 +8,8 @@ import {
   PROJECT_APPLICATIONS_LOADED,
   PROJECT_APPLICATIONS_LOADING,
   PROJECT_APPLICATION_UPDATED,
+  PROJECT_STATS_LOADED,
+  PROJECT_STATS_LOADING,
 } from "../actions/projects";
 import { ProjectEventsMap } from "../types";
 
@@ -31,6 +33,20 @@ export type Application = {
   chainId: number;
 };
 
+export type ProjectStats = {
+  roundId: string;
+  fundingReceived: number;
+  uniqueContributors: number;
+  avgContribution: number;
+  totalContributions: number;
+};
+
+export type Stats = {
+  allTimeReceived: number;
+  allTimeUniqueContributors: number;
+  roundStats: ProjectStats[];
+};
+
 export interface ProjectsState {
   status: Status;
   error: string | undefined;
@@ -38,6 +54,9 @@ export interface ProjectsState {
   events: ProjectEventsMap;
   applications: {
     [projectID: string]: Application[];
+  };
+  stats: {
+    [projectID: string]: Stats;
   };
 }
 
@@ -47,6 +66,7 @@ const initialState: ProjectsState = {
   ids: [],
   events: {},
   applications: {},
+  stats: {},
 };
 
 export const projectsReducer = (
@@ -149,6 +169,35 @@ export const projectsReducer = (
       return {
         ...state,
         error: action.error,
+      };
+    }
+
+    case PROJECT_STATS_LOADING: {
+      return {
+        ...state,
+        stats: {
+          ...state.stats,
+          [action.projectID]: {
+            allTimeReceived: 0,
+            allTimeUniqueContributors: 0,
+            roundStats: [],
+          },
+        },
+        error: undefined,
+      };
+    }
+
+    case PROJECT_STATS_LOADED: {
+      return {
+        ...state,
+        stats: {
+          ...state.stats,
+          [action.projectID]: {
+            ...state.stats[action.projectID],
+            ...action.stats,
+          },
+        },
+        error: undefined,
       };
     }
 

@@ -7,7 +7,12 @@ import RoundImplementationABI from "../contracts/abis/RoundImplementation.json";
 import { addressesByChainID } from "../contracts/deployments";
 import { global } from "../global";
 import { RootState } from "../reducers";
-import { Application, AppStatus } from "../reducers/projects";
+import {
+  Application,
+  AppStatus,
+  ProjectStats,
+  Stats,
+} from "../reducers/projects";
 import PinataClient from "../services/pinata";
 import { ProjectEvents, ProjectEventsMap } from "../types";
 import { graphqlFetch } from "../utils/graphql";
@@ -65,6 +70,34 @@ interface ProjectApplicationsErrorAction {
   error: string;
 }
 
+export const PROJECT_STATS_LOADING = "PROJECT_STATS_LOADING";
+interface ProjectStatsLoadingAction {
+  type: typeof PROJECT_STATS_LOADING;
+  projectID: string;
+}
+
+export const PROJECT_STATS_LOADED = "PROJECT_STATS_LOADED";
+interface ProjectStatsLoadedAction {
+  type: typeof PROJECT_STATS_LOADED;
+  projectID: string;
+  stats: Stats[];
+}
+
+// export const PROJECT_STATS= "PROJECT_STATS_UPDATED";
+// interface ProjectStatsUpdatedAction {
+//   type: typeof PROJECT_STATS_UPDATED;
+//   projectID: string;
+//   roundID: string;
+//   status: AppStatus;
+// }
+
+// export const PROJECT_STATS_ERROR = "PROJECT_STATS_ERROR";
+// interface ProjectApplicationsErrorAction {
+//   type: typeof PROJECT_APPLICATIONS_ERROR;
+//   projectID: string;
+//   error: string;
+// }
+
 export type ProjectsActions =
   | ProjectsLoadingAction
   | ProjectsLoadedAction
@@ -73,7 +106,9 @@ export type ProjectsActions =
   | ProjectApplicationsLoadingAction
   | ProjectApplicationsLoadedAction
   | ProjectApplicationsErrorAction
-  | ProjectApplicationUpdatedAction;
+  | ProjectApplicationUpdatedAction
+  | ProjectStatsLoadingAction
+  | ProjectStatsLoadedAction;
 
 const projectsLoading = () => ({
   type: PROJECTS_LOADING,
@@ -375,7 +410,7 @@ export const fetchProjectApplications =
         // FIXME: This part can be removed when we are sure that the
         // aplication status returned from the graph is up to date.
         // eslint-disable-next-line
-        const roundAddresses = applications.map(
+          const roundAddresses = applications.map(
           (app: Application) => app.roundID
         );
         dispatch<any>(
@@ -394,6 +429,74 @@ export const fetchProjectApplications =
           error: error.message,
         });
       }
+    });
+  };
+
+export const loadProjectStats =
+  (projectID: string, rounds: Array<{ roundId: string; chainId: number }>) =>
+  async (dispatch: Dispatch) => {
+    dispatch({
+      type: PROJECT_STATS_LOADING,
+      projectID,
+    });
+
+    const data = { query: "force" };
+    const options = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    };
+
+    const roundStats: ProjectStats[] = [];
+    let allTimeReceived: number = 0;
+    let allTimeUniqueContributors = 0;
+
+    const updateStats = (projectRoundData: any, roundId: string) => {
+      const singleStats: ProjectStats = {
+        roundId,
+        fundingReceived: parseFloat(
+          projectRoundData.data.totalContributionsInUSD
+        ),
+        uniqueContributors: projectRoundData.data.uniqueContributors,
+        avgContribution: parseFloat(
+          projectRoundData.data.averageUSDContribution
+        ),
+        totalContributions: projectRoundData.data.contributionCount,
+      };
+      roundStats.push(singleStats);
+
+      allTimeReceived += singleStats.fundingReceived;
+      allTimeUniqueContributors += singleStats.uniqueContributors;
+    };
+
+    for (let i = 0; i < rounds.length; i += 1) {
+      const addresses = addressesByChainID(rounds[i].chainId);
+      const projectApplicationID = generateUniqueRoundApplicationID(
+        rounds[i].chainId,
+        projectID,
+        addresses.projectRegistry
+      );
+      fetch(
+        `${process.env.REACT_APP_GITCOIN_API}update/summary/project/${rounds[i].chainId}/${rounds[i].roundId}/${projectApplicationID}`,
+        options
+      )
+        .then((response) => response.json())
+        .then((projectRoundData) =>
+          updateStats(projectRoundData, rounds[i].roundId)
+        )
+        .catch((error) => console.error(error));
+    }
+
+    dispatch({
+      type: PROJECT_STATS_LOADED,
+      projectID,
+      stats: {
+        allTimeReceived,
+        allTimeUniqueContributors,
+        roundStats,
+      },
     });
   };
 
