@@ -1,6 +1,7 @@
 import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import { RootState } from "../../../reducers";
+import { LinkDisplayType } from "./LinkManager";
 import RoundListItem from "./RoundListItem";
 
 export default function Rounds() {
@@ -59,19 +60,28 @@ export default function Rounds() {
                 <span className="text-gitcoin-grey-500 text-[12px] font-semibold">
                   Active Rounds
                 </span>
-                <RoundListItem applicationData={app} />
+                <RoundListItem
+                  applicationData={app}
+                  displayType={LinkDisplayType.External}
+                />
               </div>
               <div className="flex-1">
                 <span className="text-gitcoin-grey-500 text-[12px] font-semibold">
                   Current Applications
                 </span>
-                <RoundListItem applicationData={app} />
+                <RoundListItem
+                  applicationData={app}
+                  displayType={LinkDisplayType.Internal}
+                />
               </div>
               <div className="flex-1">
                 <span className="text-gitcoin-grey-500 text-[12px] font-semibold">
                   Past Rounds
                 </span>
-                <RoundListItem applicationData={app} />
+                <RoundListItem
+                  applicationData={app}
+                  displayType={LinkDisplayType.Internal}
+                />
               </div>
             </>
           );

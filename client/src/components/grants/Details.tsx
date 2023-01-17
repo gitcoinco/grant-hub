@@ -59,7 +59,7 @@ export default function Details({
         logoImg={logoImg}
       />
       <Tabs className="mt-8" defaultIndex={0}>
-        <TabList>
+        <TabList className="mb-12">
           <Tab _focus={{ boxShadow: "none" }}>About</Tab>
           <Tab _focus={{ boxShadow: "none" }}>Stats</Tab>
           <Tab _focus={{ boxShadow: "none" }}>Rounds</Tab>

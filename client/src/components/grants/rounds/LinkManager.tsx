@@ -6,8 +6,14 @@ export enum LinkDisplayType {
   Internal,
 }
 
+export enum InternalLinkDisplayType {
+  Application,
+  Round,
+}
+
 export type LinkProps = {
   displayType: LinkDisplayType;
+  internalType?: InternalLinkDisplayType;
   link: string;
   text: string;
 };
