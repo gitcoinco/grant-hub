@@ -9,22 +9,6 @@ import ProjectDetailsHeader from "../ProjectDetailsHeader";
 import About from "./About";
 import Rounds from "./rounds/Rounds";
 import Stats from "./stats/Stats";
-import colors from "../../styles/colors";
-import { CredentialProvider, FormInputs, Metadata, Project } from "../../types";
-import Calendar from "../icons/Calendar";
-import LinkIcon from "../icons/LinkIcon";
-import Shield from "../icons/Shield";
-import ApplicationCard from "./ApplicationCard";
-import markdown from "../../utils/markdown";
-
-function Verified() {
-  return (
-    <div className="flex rounded bg-green-text/25 px-2 py-0.5 mt-1">
-      <Shield dimension={16} color={colors["green-text"]} />{" "}
-      <p className="pl-2 text-green-text text-xs font-bold">Verified</p>
-    </div>
-  );
-}
 
 export default function Details({
   project,
