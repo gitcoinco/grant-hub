@@ -67,6 +67,8 @@ export type InputProps = {
   };
 };
 
+export type TextAreaProps = InputProps & { rows?: number };
+
 export type AddressInputProps = {
   label: string;
   name: string;
