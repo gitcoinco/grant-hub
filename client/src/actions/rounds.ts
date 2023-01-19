@@ -55,11 +55,32 @@ interface RoundsLoadingErrorAction {
   error: string;
 }
 
+export const ROUND_STATS_LOADING = "ROUND_STATS_LOADING";
+interface RoundStatsLoadingAction {
+  type: typeof ROUND_STATS_LOADING;
+}
+
+export const ROUND_STATS_LOADED = "ROUND_STATS_LOADED";
+interface RoundStatsLoadedAction {
+  type: typeof ROUND_STATS_LOADED;
+  roundId: string;
+  stats: [];
+}
+
+export const ROUND_STATS_ERROR = "ROUND_STATS_ERROR";
+interface RoundStatsErrorAction {
+  type: typeof ROUND_STATS_ERROR;
+  error: any;
+}
+
 export type RoundsActions =
   | RoundsLoadingRoundAction
   | RoundsRoundLoadedAction
   | RoundsUnloadedAction
-  | RoundsLoadingErrorAction;
+  | RoundsLoadingErrorAction
+  | RoundStatsLoadingAction
+  | RoundStatsLoadedAction
+  | RoundStatsErrorAction;
 
 export const roundLoaded = (address: string, round: Round): RoundsActions => ({
   type: ROUNDS_ROUND_LOADED,
@@ -74,6 +95,17 @@ const roundsUnloaded = (): RoundsActions => ({
 const loadingError = (address: string, error: string): RoundsActions => ({
   type: ROUNDS_LOADING_ERROR,
   address,
+  error,
+});
+
+const roundStatsLoaded = (roundId: string, stats: []): RoundsActions => ({
+  type: ROUND_STATS_LOADED,
+  roundId,
+  stats,
+});
+
+const roundStatsError = (error: any): RoundsActions => ({
+  type: ROUND_STATS_ERROR,
   error,
 });
 
@@ -338,4 +370,35 @@ export const loadRound =
     };
 
     dispatch(roundLoaded(address, round));
+  };
+
+export const loadRoundStats =
+  (roundId: string, roundChainId: number) =>
+  async (dispatch: Dispatch, getState: () => RootState) => {
+    const state = getState();
+    // todo: fetch the stats for the round
+    dispatch({ type: ROUND_STATS_LOADING });
+    console.log("JER loadRoundStats", { roundId, state });
+
+    try {
+      // todo: make the api/graph call
+      const roundStats: [] = [];
+      const options = {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      };
+      await fetch(
+        `https://staging.grants.gitcoin.co/api/v1/data/summary/round/${roundChainId}/${roundId}`,
+        options
+      )
+        .then((response) => response.json())
+        .then((data) => console.log("JER DATA", { data }));
+
+      dispatch(roundStatsLoaded(roundId, roundStats));
+    } catch (error) {
+      console.error(error);
+      dispatch(roundStatsError(error));
+    }
   };
