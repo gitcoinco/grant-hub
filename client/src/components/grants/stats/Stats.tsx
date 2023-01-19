@@ -1,5 +1,5 @@
 import { Spinner } from "@chakra-ui/react";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import { loadProjectStats } from "../../../actions/projects";
@@ -9,29 +9,25 @@ import RoundDetailsCard from "./RoundDetailsCard";
 import StatCard from "./StatCard";
 
 export default function RoundStats() {
-  const [allTime, setAllTime] = useState<any>({
-    allTimeReceived: 0,
-    allTimeContributions: 0,
-    roundsLength: 0,
-  });
   const dispatch = useDispatch();
   const params = useParams();
   const props = useSelector((state: RootState) => {
     const details: any[] = [];
     const stats: ProjectStats[] = state.projects?.stats[params.id!];
 
-    console.log("===============>");
-    console.log(stats);
-    console.log(state.projects);
-
+    let allTime = {
+      allTimeReceived: 0,
+      allTimeContributions: 0,
+      roundsLength: 0,
+    };
     if (stats?.length > 0) {
       stats.forEach((stat) => {
-        setAllTime({
+        allTime = {
           allTimeReceived: allTime.allTimeReceived + stat.fundingReceived,
           allTimeContributions:
             allTime.allTimeContributions + stat.totalContributions,
           roundsLength: stats.length,
-        });
+        };
         details.push({
           round: state.rounds[stat.roundId].round,
           stats: {
@@ -46,14 +42,13 @@ export default function RoundStats() {
 
     return {
       projectID: params.id!,
+      allTime,
       details,
       projectApplications: state.projects.applications[params.id!],
     };
   });
 
   useEffect(() => {
-    console.log(props);
-    console.log("ololololol");
     if (props.projectApplications?.length > 0) {
       const applications =
         props.projectApplications?.filter((app) => app.status === "APPROVED") ||
@@ -85,18 +80,21 @@ export default function RoundStats() {
         <>
           <StatCard
             heading="Est. Funding Received"
-            value={`$${allTime.fundingReceived.toFixed(2)}`}
+            value={`$${props.allTime.allTimeReceived.toFixed(2)}`}
             bg="gitcoin-violet-100"
+            tooltip="The estimated funding received by this project."
           />
           <StatCard
             heading="No. of Contributions"
-            value={allTime.allTimeContributions}
+            value={props.allTime.allTimeContributions}
             bg="gitcoin-violet-100"
+            tooltip="The number of contributions this project has received."
           />
           <StatCard
             heading="Rounds Participated"
-            value={allTime.roundsLength}
+            value={props.allTime.roundsLength}
             bg="gitcoin-violet-100"
+            tooltip="The number of rounds this project has participated in."
           />
         </>
       )}
@@ -104,8 +102,8 @@ export default function RoundStats() {
       {props.details.map((detail) =>
         section(
           <RoundDetailsCard
-            round={detail.round}
             heading={detail.round?.programName}
+            round={detail.round}
           />,
           <>
             <StatCard
@@ -149,7 +147,12 @@ export default function RoundStats() {
       </div>
     );
 
-  if (props.details?.length === 0) return <div>nothing to see here</div>;
+  if (props.details?.length === 0)
+    return (
+      <div className="text-base text-gitcoin-grey-400 flex items-center justify-center p-10">
+        No stats available yet for this project.
+      </div>
+    );
 
-  return <div className="flex-1 flex-col">{renderRoundStats()}</div>;
+  return <div className="flex-1 flex-col pb-20">{renderRoundStats()}</div>;
 }

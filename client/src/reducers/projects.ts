@@ -192,10 +192,7 @@ export const projectsReducer = (
         ...state,
         stats: {
           ...state.stats,
-          [action.projectID]: {
-            ...state.stats[action.projectID],
-            ...action.stats,
-          },
+          [action.projectID]: action.stats,
         },
         error: undefined,
       };

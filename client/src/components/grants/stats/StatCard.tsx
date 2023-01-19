@@ -1,15 +1,18 @@
-import { Box } from "@chakra-ui/react";
+import { Box, Tooltip } from "@chakra-ui/react";
+import { InformationCircleIcon } from "@heroicons/react/20/solid";
 
 export default function StatCard({
   heading,
   value,
   bg,
   border,
+  tooltip,
 }: {
   heading: string;
   value: string | number;
   bg?: string;
   border?: boolean;
+  tooltip?: string;
 }) {
   return (
     <Box
@@ -21,9 +24,19 @@ export default function StatCard({
       height="88px"
     >
       <Box mb={2}>
-        <span className="text-[14px] text-gitcoin-grey-500 font-semibold">
-          {heading}
-        </span>
+        <div className="table-row">
+          <div className="text-[14px] text-gitcoin-grey-500 font-semibold table-cell">
+            {heading}{" "}
+          </div>
+
+          {tooltip && (
+            <div className="table-cell">
+              <Tooltip bg="purple.900" hasArrow label={tooltip}>
+                <InformationCircleIcon className="w-4 h-4 ml-1" color="gray" />
+              </Tooltip>
+            </div>
+          )}
+        </div>
       </Box>
       <Box mb={2}>
         <span className="text-[24px] text-gitcoin-grey-400">{value}</span>

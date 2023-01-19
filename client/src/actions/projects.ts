@@ -532,11 +532,17 @@ export const loadProjectStats =
         fundingReceived: parseFloat(
           projectRoundData.data.totalContributionsInUSD
         ),
-        uniqueContributors: projectRoundData.data.uniqueContributors,
+        uniqueContributors: parseInt(
+          projectRoundData.data.uniqueContributors,
+          10
+        ),
         avgContribution: parseFloat(
           projectRoundData.data.averageUSDContribution
         ),
-        totalContributions: projectRoundData.data.contributionCount,
+        totalContributions: parseInt(
+          projectRoundData.data.contributionCount,
+          10
+        ),
       };
 
       stats.push(singleStats);
@@ -563,9 +569,7 @@ export const loadProjectStats =
     dispatch({
       type: PROJECT_STATS_LOADED,
       projectID,
-      stats: {
-        stats,
-      },
+      stats,
     });
   };
 
