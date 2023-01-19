@@ -7,7 +7,7 @@ import RoundImplementationABI from "../contracts/abis/RoundImplementation.json";
 import { addressesByChainID } from "../contracts/deployments";
 import { global } from "../global";
 import { RootState } from "../reducers";
-import { Application, AppStatus } from "../reducers/projects";
+import { Application, AppStatus, ProjectStats } from "../reducers/projects";
 import PinataClient from "../services/pinata";
 import { ProjectEvents, ProjectEventsMap } from "../types";
 import { graphqlFetch } from "../utils/graphql";
@@ -81,6 +81,19 @@ interface ProjectOwnersLoadedAction {
   };
 }
 
+export const PROJECT_STATS_LOADING = "PROJECT_STATS_LOADING";
+interface ProjectStatsLoadingAction {
+  type: typeof PROJECT_STATS_LOADING;
+  projectID: string;
+}
+
+export const PROJECT_STATS_LOADED = "PROJECT_STATS_LOADED";
+interface ProjectStatsLoadedAction {
+  type: typeof PROJECT_STATS_LOADED;
+  projectID: string;
+  stats: ProjectStats[];
+}
+
 export type ProjectsActions =
   | ProjectsLoadingAction
   | ProjectsLoadedAction
@@ -90,7 +103,9 @@ export type ProjectsActions =
   | ProjectApplicationsLoadedAction
   | ProjectApplicationsErrorAction
   | ProjectApplicationUpdatedAction
-  | ProjectOwnersLoadedAction;
+  | ProjectOwnersLoadedAction
+  | ProjectStatsLoadingAction
+  | ProjectStatsLoadedAction;
 
 export const projectsLoading = (chainID: number): ProjectsLoadingAction => ({
   type: PROJECTS_LOADING,
@@ -448,9 +463,15 @@ export const fetchProjectApplications =
             metaPtr: rp.metaPtr,
           }));
 
-          if (applications.length === 0) {
-            return [];
-          }
+        if (applications.length === 0) {
+          return [];
+        }
+
+        dispatch({
+          type: PROJECT_APPLICATIONS_LOADED,
+          projectID,
+          applications,
+        });
 
           // Update each application with the status from the contract
           // FIXME: This part can be removed when we are sure that the
@@ -483,6 +504,68 @@ export const fetchProjectApplications =
       type: PROJECT_APPLICATIONS_LOADED,
       projectID,
       applications: apps.flat(),
+    });
+  };
+
+export const loadProjectStats =
+  (projectID: string, rounds: Array<{ roundId: string; chainId: number }>) =>
+  async (dispatch: Dispatch) => {
+    dispatch({
+      type: PROJECT_STATS_LOADING,
+      projectID,
+    });
+
+    const data = { query: "force" };
+    const options = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    };
+
+    const stats: ProjectStats[] = [];
+
+    const updateStats = async (projectRoundData: any, roundId: string) => {
+      const singleStats: ProjectStats = {
+        roundId,
+        fundingReceived: parseFloat(
+          projectRoundData.data.totalContributionsInUSD
+        ),
+        uniqueContributors: projectRoundData.data.uniqueContributors,
+        avgContribution: parseFloat(
+          projectRoundData.data.averageUSDContribution
+        ),
+        totalContributions: projectRoundData.data.contributionCount,
+      };
+
+      stats.push(singleStats);
+    };
+
+    for (let i = 0; i < rounds.length; i += 1) {
+      const addresses = addressesByChainID(rounds[i].chainId);
+      const projectApplicationID = generateUniqueRoundApplicationID(
+        rounds[i].chainId,
+        projectID,
+        addresses.projectRegistry
+      );
+      fetch(
+        `${process.env.REACT_APP_GITCOIN_API}update/summary/project/${rounds[i].chainId}/${rounds[i].roundId}/${projectApplicationID}`,
+        options
+      )
+        .then((response) => response.json())
+        .then(async (projectRoundData) => {
+          await updateStats(projectRoundData, rounds[i].roundId);
+        })
+        .catch((error) => console.error(error));
+    }
+
+    dispatch({
+      type: PROJECT_STATS_LOADED,
+      projectID,
+      stats: {
+        stats,
+      },
     });
   };
 
