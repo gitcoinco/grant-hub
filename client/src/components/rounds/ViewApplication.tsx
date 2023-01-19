@@ -108,36 +108,12 @@ function ViewApplication() {
     </div>;
   }
 
-  if (props.publishedApplicationMetadata === null) {
+  if (
+    props.roundState === undefined ||
+    props.round === undefined ||
+    props.publishedApplicationMetadata === null
+  ) {
     return <div>loading...</div>;
-  }
-
-  if (props.roundState === undefined || props.round === undefined) {
-    return (
-      <div>
-        <ErrorModal
-          open
-          primaryBtnText="Close"
-          secondaryBtnText="Refresh Page"
-          onRetry={() => navigate(grantsPath())}
-          onClose={() => navigate(0)}
-        >
-          <>
-            There has been an error loading the grant round data. Please try
-            refreshing the page. If the issue persists, please reach out to us
-            on{" "}
-            <a
-              target="_blank"
-              className="text-gitcoin-violet-400 outline-none"
-              href="https://discord.com/invite/gitcoin"
-              rel="noreferrer"
-            >
-              Discord.
-            </a>
-          </>
-        </ErrorModal>
-      </div>
-    );
   }
 
   return (

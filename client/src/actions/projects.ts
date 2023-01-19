@@ -338,7 +338,6 @@ export const fetchApplicationStatusesFromContract =
           });
         }
       } catch (error: any) {
-        console.log("DASA: getApplicationStatusFromContract error", error);
         datadogRum.addError(error, { roundAddress });
         datadogLogs.logger.error("getApplicationStatusFromContract() error", {
           roundAddress,
@@ -401,13 +400,6 @@ export const fetchProjectApplications =
             projectID: projectApplicationID,
             projectApplicationIDWithChain,
           },
-          reactEnv
-        );
-
-        console.log(
-          "DASA: fetchProjectApplications DATA",
-          chain.id,
-          projectApplicationID,
           reactEnv
         );
 
