@@ -209,7 +209,7 @@ function ProjectForm({
           }
         />
 
-        {process.env.REACT_APP_ENABLE_PROJECTS_MARKDOWN && (
+        {!process.env.REACT_APP_DISABLE_PROJECTS_MARKDOWN && (
           <div className="pt-2 text-sm text-gray-400">
             <span>Formatting with </span>
             <a
