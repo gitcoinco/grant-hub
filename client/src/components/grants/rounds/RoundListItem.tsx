@@ -1,7 +1,6 @@
 import { Badge, Divider, Spinner } from "@chakra-ui/react";
-import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { loadRoundStats } from "../../../actions/rounds";
+import { useState } from "react";
+import { useSelector } from "react-redux";
 import { RootState } from "../../../reducers";
 import { Application } from "../../../reducers/projects";
 import { formatDate } from "../../../utils/components";
@@ -17,7 +16,6 @@ export default function RoundListItem({
   applicationData?: Application;
   displayType: LinkDisplayType;
 }) {
-  const dispatch = useDispatch();
   const [activeBadge] = useState(false);
   const props = useSelector((state: RootState) => {
     const { roundID: roundId, chainId } = applicationData!;
@@ -33,10 +31,6 @@ export default function RoundListItem({
   });
 
   console.log("list item props", props);
-
-  useEffect(() => {
-    dispatch(loadRoundStats(props.roundId, props.chainId));
-  }, [dispatch, props.roundId]);
 
   const renderApplicationDate = () => (
     <>
@@ -111,11 +105,11 @@ export default function RoundListItem({
           {renderApplicationBadge()}
         </div>
         <div className="flex">
-          {displayType === LinkDisplayType.Internal ? (
+          {displayType === LinkDisplayType.Active ? (
             // todo: figure out what we need for the proper link display
             <LinkManager
               linkProps={{
-                displayType: LinkDisplayType.Internal,
+                displayType: LinkDisplayType.Active,
                 internalType: InternalLinkDisplayType.Application,
                 link: "/",
                 text: "View Application",
@@ -124,7 +118,7 @@ export default function RoundListItem({
           ) : (
             <LinkManager
               linkProps={{
-                displayType: LinkDisplayType.External,
+                displayType: LinkDisplayType.Current,
                 link: "https://google.com",
                 text: "View on Explorer",
               }}

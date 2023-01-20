@@ -158,6 +158,14 @@ export type Round = {
   programName: string;
 };
 
+export type RoundStats = {
+  [address: string]: {
+    activeRounds: Round[];
+    currentRounds: Round[];
+    pastRounds: Round[];
+  };
+};
+
 export type ProjectOption = {
   id: string | undefined;
   title?: string;

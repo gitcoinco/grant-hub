@@ -2,8 +2,9 @@ import { Link } from "react-router-dom";
 import { ArrowTopRightOnSquareIcon } from "@heroicons/react/24/solid";
 
 export enum LinkDisplayType {
-  External,
-  Internal,
+  Current,
+  Active,
+  Past,
 }
 
 export enum InternalLinkDisplayType {
