@@ -1,5 +1,5 @@
 import { Spinner } from "@chakra-ui/react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import { loadProjectStats } from "../../../actions/projects";
@@ -9,6 +9,7 @@ import RoundDetailsCard from "./RoundDetailsCard";
 import StatCard from "./StatCard";
 
 export default function RoundStats() {
+  const [noStats, setNoStats] = useState(false);
   const dispatch = useDispatch();
   const params = useParams();
   const props = useSelector((state: RootState) => {
@@ -30,12 +31,7 @@ export default function RoundStats() {
         };
         details.push({
           round: state.rounds[stat.roundId].round,
-          stats: {
-            fundingReceived: stat.fundingReceived,
-            uniqueContributors: stat.uniqueContributors,
-            avgContribution: stat.avgContribution,
-            totalContributions: stat.totalContributions,
-          },
+          stats: { ...stat },
         });
       });
     }
@@ -50,6 +46,7 @@ export default function RoundStats() {
 
   useEffect(() => {
     if (props.projectApplications?.length > 0) {
+      setNoStats(false);
       const applications =
         props.projectApplications?.filter((app) => app.status === "APPROVED") ||
         [];
@@ -62,6 +59,8 @@ export default function RoundStats() {
         });
       });
       dispatch(loadProjectStats(params.id!, rounds));
+    } else {
+      setNoStats(true);
     }
   }, [props.projectApplications]);
 
@@ -132,7 +131,17 @@ export default function RoundStats() {
     </>
   );
 
-  if (props.projectApplications?.length > 0 && props.details?.length === 0)
+  if (noStats)
+    return (
+      <div className="text-base text-gitcoin-grey-400 flex items-center justify-center p-10">
+        No stats available yet for this project.
+      </div>
+    );
+
+  if (
+    props.details?.length === 0 ||
+    props.details?.length !== props.allTime.roundsLength
+  )
     return (
       <div className="flex items-center justify-center">
         <Spinner
@@ -144,13 +153,6 @@ export default function RoundStats() {
           emptyColor="gray.200"
           color="purple.500"
         />
-      </div>
-    );
-
-  if (props.details?.length === 0)
-    return (
-      <div className="text-base text-gitcoin-grey-400 flex items-center justify-center p-10">
-        No stats available yet for this project.
       </div>
     );
 
