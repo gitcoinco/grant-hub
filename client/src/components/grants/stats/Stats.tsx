@@ -64,10 +64,16 @@ export default function RoundStats() {
     }
   }, [props.projectApplications]);
 
-  const section = (description: any, container: any) => (
-    <div className="grid md:grid-cols-7 sm:grid-cols-1 gap-8 border-b border-gitcoin-grey-100 pt-10 pb-10 justify-between">
-      <div className="md:col-span-2 sm:col-span-1">{description}</div>
-      <div className="md:col-span-4 sm:col-span-1 flex">{container}</div>
+  const section = (description: any, container: any, pt: boolean) => (
+    <div
+      className={`grid md:grid-cols-7 sm:grid-cols-1 border-b border-gitcoin-grey-100 pb-10 ${
+        pt && "pt-10"
+      }`}
+    >
+      <div className="md:col-span-2">{description}</div>
+      <div className="md:col-span-4 sm:col-span-1 md:flex space-between">
+        {container}
+      </div>
       <div className="md:col-span-1 sm:col-span-1" />
     </div>
   );
@@ -95,7 +101,8 @@ export default function RoundStats() {
             bg="gitcoin-violet-100"
             tooltip="The number of rounds this project has participated in."
           />
-        </>
+        </>,
+        false
       )}
 
       {props.details.map((detail) =>
@@ -125,7 +132,8 @@ export default function RoundStats() {
               value={detail.stats.totalContributions}
               border
             />
-          </>
+          </>,
+          true
         )
       )}
     </>
@@ -156,5 +164,5 @@ export default function RoundStats() {
       </div>
     );
 
-  return <div className="flex-1 flex-col pb-20">{renderRoundStats()}</div>;
+  return <div>{renderRoundStats()}</div>;
 }

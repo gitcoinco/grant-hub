@@ -32,7 +32,7 @@ export default function RoundDetailsCard({
   };
 
   return (
-    <Box p={2} className="h-full">
+    <div>
       <Box mb={2}>
         <span className="text-[16px] text-gitcoin-gray-500">{heading}</span>
       </Box>
@@ -55,6 +55,6 @@ export default function RoundDetailsCard({
           </Box>
         </>
       )}
-    </Box>
+    </div>
   );
 }
