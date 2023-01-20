@@ -15,8 +15,6 @@ export default function RoundDetailsCard({
   );
 
   const renderRoundBadge = () => {
-    console.log("What time is it?");
-    console.log(round.roundEndTime * 1000, Date.now());
     if (round.roundEndTime * 1000 < Date.now()) {
       return (
         <Badge

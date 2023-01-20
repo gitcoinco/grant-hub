@@ -65,10 +65,10 @@ export default function RoundStats() {
   }, [props.projectApplications]);
 
   const section = (description: any, container: any) => (
-    <div className="grid grid-cols-7 gap-8 border-b border-gitcoin-grey-100 pt-10 pb-10 justify-between">
-      <div className="col-span-2">{description}</div>
-      <div className="col-span-4 flex">{container}</div>
-      <div className="col-span-1" />
+    <div className="grid md:grid-cols-7 sm:grid-cols-1 gap-8 border-b border-gitcoin-grey-100 pt-10 pb-10 justify-between">
+      <div className="md:col-span-2 sm:col-span-1">{description}</div>
+      <div className="md:col-span-4 sm:col-span-1 flex">{container}</div>
+      <div className="md:col-span-1 sm:col-span-1" />
     </div>
   );
 
