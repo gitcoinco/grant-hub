@@ -2,34 +2,32 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../../reducers";
 import { Application } from "../../../reducers/projects";
 import { RoundDisplayType } from "../../../types";
-import { LinkDisplayType } from "./LinkManager";
 import RoundListItem from "./RoundListItem";
 
 export default function RoundStatGroup({
   projectId,
   applicationData,
-  linkDisplayType,
   displayType,
 }: {
   projectId: string;
   applicationData?: Application[];
-  linkDisplayType?: LinkDisplayType;
   displayType: RoundDisplayType;
 }) {
   let roundStatHeader: JSX.Element | undefined;
-
   const props = useSelector((state: RootState) => {
     const roundIds = applicationData?.map((round) => round.roundID);
     const applications = state.projects.applications[projectId] || [];
+    const { rounds } = state;
 
     return {
       state,
+      rounds,
       roundIds,
       applications,
     };
   });
 
-  console.log("JER stat group props", { displayType }, props);
+  console.log("JER stat group props", { props });
 
   const renderRoundStatHeader = () => {
     switch (displayType) {
@@ -66,12 +64,9 @@ export default function RoundStatGroup({
   return (
     <div className="flex-1">
       {roundStatHeader ?? null}
-      {/* todo: loop over the round applications */}
+      {/* loop over the round applications */}
       {props.applications.map((app) => (
-        <RoundListItem
-          applicationData={app}
-          linkDisplayType={linkDisplayType}
-        />
+        <RoundListItem applicationData={app} displayType={displayType} />
       ))}
     </div>
   );

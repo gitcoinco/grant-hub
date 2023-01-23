@@ -5,14 +5,14 @@ import { RootState } from "../../../reducers";
 import { Application } from "../../../reducers/projects";
 import { RoundDisplayType } from "../../../types";
 import { formatDate } from "../../../utils/components";
-import LinkManager, { LinkDisplayType } from "./LinkManager";
+import LinkManager from "./LinkManager";
 
 export default function RoundListItem({
   applicationData,
-  linkDisplayType,
+  displayType,
 }: {
   applicationData?: Application;
-  linkDisplayType?: LinkDisplayType;
+  displayType?: RoundDisplayType;
 }) {
   const [activeBadge] = useState(false);
   const props = useSelector((state: RootState) => {
@@ -103,25 +103,34 @@ export default function RoundListItem({
           {renderApplicationBadge()}
         </div>
         <div className="flex">
-          {linkDisplayType === LinkDisplayType.Application ? (
+          {displayType === RoundDisplayType.Active ? (
             // todo: figure out what we need for the proper link display
             <LinkManager
               linkProps={{
                 displayType: RoundDisplayType.Active,
-                linkDisplayType: LinkDisplayType.Application,
+                link: "/",
+                text: "View on Explorer",
+              }}
+            />
+          ) : null}
+          {displayType === RoundDisplayType.Current ? (
+            <LinkManager
+              linkProps={{
+                displayType: RoundDisplayType.Current,
                 link: "/",
                 text: "View Application",
               }}
             />
-          ) : (
+          ) : null}
+          {displayType === RoundDisplayType.Past ? (
             <LinkManager
               linkProps={{
-                linkDisplayType: LinkDisplayType.Round,
+                displayType: RoundDisplayType.Past,
                 link: "https://google.com",
-                text: "View on Explorer",
+                text: "View Stats",
               }}
             />
-          )}
+          ) : null}
         </div>
       </div>
       <Divider className="mb-8" />
