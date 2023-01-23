@@ -1,40 +1,39 @@
 import { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
-import { useAccount } from "wagmi";
 import { RootState } from "../../../reducers";
-import { Round, RoundStats } from "../../../types";
+import { Round, RoundDisplayType, RoundStats } from "../../../types";
 import RoundStatGroup from "./RoundStatGroup";
-import { LinkDisplayType } from "./LinkManager";
 
 export default function Rounds() {
-  const { address } = useAccount();
+  const params = useParams();
+
   const activeRounds: Round[] = [];
   const currentRounds: Round[] = [];
   const pastRounds: Round[] = [];
+  // Round Stats for specific project id
   const roundStats: RoundStats = {
-    [address ?? ""]: {
+    [params.id!]: {
       activeRounds,
       currentRounds,
       pastRounds,
     },
   };
 
-  const params = useParams();
   const props = useSelector((state: RootState) => {
-    const { chains: projectChainId } = params;
-
-    const allApplications = state.projects.applications[params.id!] || [];
-    const applications = allApplications;
+    const { chain: projectChainId } = params;
+    const projectId = params.id!;
+    const applications = state.projects.applications[params.id!] || [];
 
     return {
       state,
+      projectId,
       projectChainId,
       applications,
     };
   });
 
-  console.log("JER props", { props, roundStats });
+  console.log("JER Rounds props", { props, roundStats });
 
   useEffect(() => {
     if (props.state.rounds) {
@@ -42,36 +41,38 @@ export default function Rounds() {
       props.applications.map((app) => {
         const rnd = props.state.rounds[app.roundID];
         if (rnd?.round) {
+          // Active Round
           if (
             rnd.round.roundStartTime > Date.now() &&
             rnd.round.roundEndTime > Date.now()
           ) {
-            activeRounds.push(rnd.round);
+            roundStats[props.projectId].activeRounds.push(rnd.round);
           } else if (
             rnd.round.roundStartTime < Date.now() &&
             rnd.round.roundEndTime < Date.now()
           ) {
-            pastRounds.push(rnd.round);
+            roundStats[props.projectId].pastRounds.push(rnd.round);
+          } else {
+            roundStats[props.projectId].currentRounds.push(rnd.round);
           }
         }
         console.log("JER rnd", rnd);
       });
     }
-  }, [props.applications, activeRounds, pastRounds, currentRounds]);
+  }, [props.applications]);
 
-  console.log("JER Rounds", { activeRounds, currentRounds, pastRounds });
+  console.log("JER Rounds", { roundStats });
 
   return (
     <div className="w-full mb-4">
       {/* list the application details here for each round */}
       {/* todo: setup logic for list item layouts for each category */}
       <div className="flex-col">
-        {props.applications.map((app) => (
-          <RoundStatGroup
-            applicationData={app}
-            displayType={LinkDisplayType.Past}
-          />
-        ))}
+        <RoundStatGroup
+          projectId={props.projectId ?? ""}
+          applicationData={props.applications}
+          displayType={RoundDisplayType.Past}
+        />
       </div>
     </div>
   );

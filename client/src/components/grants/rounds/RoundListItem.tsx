@@ -3,18 +3,16 @@ import { useState } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../reducers";
 import { Application } from "../../../reducers/projects";
+import { RoundDisplayType } from "../../../types";
 import { formatDate } from "../../../utils/components";
-import LinkManager, {
-  InternalLinkDisplayType,
-  LinkDisplayType,
-} from "./LinkManager";
+import LinkManager, { LinkDisplayType } from "./LinkManager";
 
 export default function RoundListItem({
   applicationData,
-  displayType,
+  linkDisplayType,
 }: {
   applicationData?: Application;
-  displayType: LinkDisplayType;
+  linkDisplayType?: LinkDisplayType;
 }) {
   const [activeBadge] = useState(false);
   const props = useSelector((state: RootState) => {
@@ -105,12 +103,12 @@ export default function RoundListItem({
           {renderApplicationBadge()}
         </div>
         <div className="flex">
-          {displayType === LinkDisplayType.Active ? (
+          {linkDisplayType === LinkDisplayType.Application ? (
             // todo: figure out what we need for the proper link display
             <LinkManager
               linkProps={{
-                displayType: LinkDisplayType.Active,
-                internalType: InternalLinkDisplayType.Application,
+                displayType: RoundDisplayType.Active,
+                linkDisplayType: LinkDisplayType.Application,
                 link: "/",
                 text: "View Application",
               }}
@@ -118,7 +116,7 @@ export default function RoundListItem({
           ) : (
             <LinkManager
               linkProps={{
-                displayType: LinkDisplayType.Current,
+                linkDisplayType: LinkDisplayType.Round,
                 link: "https://google.com",
                 text: "View on Explorer",
               }}

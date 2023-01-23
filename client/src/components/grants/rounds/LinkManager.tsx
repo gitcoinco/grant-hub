@@ -1,20 +1,15 @@
 import { Link } from "react-router-dom";
 import { ArrowTopRightOnSquareIcon } from "@heroicons/react/24/solid";
+import { RoundDisplayType } from "../../../types";
 
 export enum LinkDisplayType {
-  Current,
-  Active,
-  Past,
-}
-
-export enum InternalLinkDisplayType {
   Application,
   Round,
 }
 
 export type LinkProps = {
-  displayType: LinkDisplayType;
-  internalType?: InternalLinkDisplayType;
+  displayType?: RoundDisplayType;
+  linkDisplayType?: LinkDisplayType;
   link: string;
   text: string;
 };

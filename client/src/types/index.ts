@@ -166,6 +166,12 @@ export type RoundStats = {
   };
 };
 
+export enum RoundDisplayType {
+  Current = "current",
+  Active = "active",
+  Past = "past",
+}
+
 export type ProjectOption = {
   id: string | undefined;
   title?: string;
