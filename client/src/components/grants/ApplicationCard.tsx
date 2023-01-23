@@ -83,10 +83,10 @@ export default function ApplicationCard({
         borderRadius="full"
         p={2}
       >
-        {applicationData?.status === "PENDING" ? (
+        {applicationData?.application.status === "PENDING" ? (
           <span>In Review</span>
         ) : (
-          <span>{applicationData?.status}</span>
+          <span>{applicationData?.application.status}</span>
         )}
       </Badge>
     );
