@@ -1,3 +1,4 @@
+import { Spinner } from "@chakra-ui/react";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import { RootState } from "../../../reducers";
@@ -103,6 +104,19 @@ export default function Rounds() {
 
       return null;
     });
+  }
+
+  if (
+    activeRounds.length === 0 &&
+    currentApplications.length === 0 &&
+    pastRounds.length === 0
+  ) {
+    return (
+      <div className="text-base text-gitcoin-grey-400 flex flex-col items-center justify-center p-10">
+        <span>Loading your information, please stand by...</span>
+        <Spinner className="flex mt-4" />
+      </div>
+    );
   }
 
   return (
