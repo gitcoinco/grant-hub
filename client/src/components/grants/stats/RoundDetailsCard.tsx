@@ -1,5 +1,5 @@
 import { Badge, Box, Spinner } from "@chakra-ui/react";
-import { formatDate } from "../../../utils/components";
+import { formatDateFromSecs } from "../../../utils/components";
 
 export default function RoundDetailsCard({
   heading,
@@ -10,7 +10,7 @@ export default function RoundDetailsCard({
 }) {
   const renderApplicationDate = () => (
     <>
-      {formatDate(round?.roundStartTime)} - {formatDate(round?.roundEndTime)}
+      {formatDateFromSecs(round?.roundStartTime)} - {formatDateFromSecs(round?.roundEndTime)}
     </>
   );
 
