@@ -8,16 +8,18 @@ export type LinkProps = {
   text: string;
 };
 
-// todo: figure out what we need for the proper link display
+// todo: disable button link if the application was not approved
 export default function LinkManager({ linkProps }: { linkProps: LinkProps }) {
   return (
-    <div className="bg-gitcoin-violet-100 text-gitcoin-violet-400 p-2 rounded-md">
-      <Link className="flex flex-row justify-between" to="/">
-        <ArrowTopRightOnSquareIcon
-          className="flex mx-2 mt-1"
-          width={11}
-          height={11}
-        />
+    <div className="bg-gitcoin-violet-100 text-gitcoin-violet-400 p-2 rounded-md max-w-fit">
+      <Link className="flex flex-row" to="/">
+        {linkProps.displayType === RoundDisplayType.Active ? (
+          <ArrowTopRightOnSquareIcon
+            className="flex mx-2 mt-1"
+            width={11}
+            height={11}
+          />
+        ) : null}
         <span className="flex text-[12px] mr-1">{linkProps.text}</span>
       </Link>
     </div>

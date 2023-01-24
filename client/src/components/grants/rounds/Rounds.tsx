@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import { RootState } from "../../../reducers";
@@ -6,31 +5,26 @@ import { Round, RoundDisplayType } from "../../../types";
 import RoundStatGroup from "./RoundStatGroup";
 
 export default function Rounds() {
+  const currentApplications: Round[] = [];
+  const activeRounds: Round[] = [];
+  const pastRounds: Round[] = [];
   const params = useParams();
 
   const props = useSelector((state: RootState) => {
     const projectId = params.id!;
     const applications = state.projects.applications[params.id!] || [];
+    const roundIds = applications?.map((round) => round.roundID);
     const { rounds } = state;
 
     return {
       rounds,
+      roundIds,
       projectId,
       applications,
     };
   });
 
-  useEffect(() => {
-    if (props.rounds) {
-      // todo: sort the rounds by timestamp
-      // props.rounds[props.projectId].round;
-      // Active will be > applicationEndTime
-      // Past will be > roundEndTime
-      // Current will be > applicationStartTime & < applicationEndTime
-    }
-  }, [props.rounds]);
-
-  const renderStatGroup = (round: Round, displayType: RoundDisplayType) => {
+  const renderStatGroup = (displayType: RoundDisplayType, rounds: Round[]) => {
     if (displayType === RoundDisplayType.Active) {
       // Active Rounds
       return (
@@ -38,6 +32,7 @@ export default function Rounds() {
           projectId={props.projectId ?? ""}
           applicationData={props.applications}
           displayType={RoundDisplayType.Active}
+          rounds={rounds}
         />
       );
     }
@@ -48,16 +43,18 @@ export default function Rounds() {
           projectId={props.projectId ?? ""}
           applicationData={props.applications}
           displayType={RoundDisplayType.Past}
+          rounds={rounds}
         />
       );
     }
     if (displayType === RoundDisplayType.Current) {
-      // Current Rounds
+      // Current Applications
       return (
         <RoundStatGroup
           projectId={props.projectId ?? ""}
           applicationData={props.applications}
           displayType={RoundDisplayType.Current}
+          rounds={rounds}
         />
       );
     }
@@ -65,23 +62,61 @@ export default function Rounds() {
     return null;
   };
 
-  console.log("JER Rounds props", { props });
+  function secondsSinceEpoch(): number {
+    const date = new Date();
+    return Math.floor(date.getTime() / 1000);
+  }
+
+  if (props.applications) {
+    props.applications.map((app) => {
+      const rnd = props.rounds[app.roundID];
+      if (rnd?.round?.address === app.roundID) {
+        const currentTime = secondsSinceEpoch();
+        // Current Applications
+        if (
+          rnd.round.applicationsStartTime < currentTime &&
+          rnd.round.applicationsEndTime > currentTime &&
+          rnd.round.roundStartTime > currentTime &&
+          rnd.round.roundEndTime > currentTime
+        ) {
+          currentApplications.push(rnd.round);
+        }
+        // Active Rounds
+        if (
+          rnd.round.roundEndTime > currentTime &&
+          rnd.round.roundStartTime < currentTime &&
+          rnd.round.applicationsEndTime < currentTime &&
+          rnd.round.applicationsStartTime < currentTime
+        ) {
+          activeRounds.push(rnd.round);
+        }
+        // Past Rounds
+        if (
+          rnd.round.roundEndTime < currentTime &&
+          rnd.round.roundStartTime < currentTime &&
+          rnd.round.applicationsEndTime < currentTime &&
+          rnd.round.applicationsStartTime < currentTime
+        ) {
+          pastRounds.push(rnd.round);
+        }
+      }
+
+      return null;
+    });
+  }
 
   return (
     <div className="w-full mb-4">
-      {/* list the application details here for each round category */}
       <div className="flex-col">
-        {props.applications.map((app) => {
-          const rnd = props.rounds[app.roundID];
-          if (rnd?.round) {
-            console.log("JER rnd.round", rnd.round);
-            if (rnd.round.roundEndTime < Date.now()) {
-              return renderStatGroup(rnd.round, RoundDisplayType.Past);
-            }
-          }
-
-          return null;
-        })}
+        {activeRounds.length > 0
+          ? renderStatGroup(RoundDisplayType.Active, activeRounds)
+          : null}
+        {currentApplications.length > 0
+          ? renderStatGroup(RoundDisplayType.Current, currentApplications)
+          : null}
+        {pastRounds.length > 0
+          ? renderStatGroup(RoundDisplayType.Past, pastRounds)
+          : null}
       </div>
     </div>
   );

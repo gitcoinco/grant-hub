@@ -1,5 +1,4 @@
-import { Badge, Divider, Spinner } from "@chakra-ui/react";
-import { useState } from "react";
+import { Badge, Box, Divider, Spinner } from "@chakra-ui/react";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../reducers";
 import { Application } from "../../../reducers/projects";
@@ -14,7 +13,8 @@ export default function RoundListItem({
   applicationData?: Application;
   displayType?: RoundDisplayType;
 }) {
-  const [activeBadge] = useState(false);
+  let activeBadge: boolean;
+  let pastBadge: boolean;
   const props = useSelector((state: RootState) => {
     const { roundID: roundId, chainId } = applicationData!;
     const roundState = state.rounds[roundId];
@@ -28,8 +28,6 @@ export default function RoundListItem({
     };
   });
 
-  console.log("list item props", props);
-
   const renderApplicationDate = () => (
     <>
       {formatDate(props.round?.roundStartTime!)} -{" "}
@@ -37,7 +35,7 @@ export default function RoundListItem({
     </>
   );
 
-  const renderApplicationBadge = () => {
+  const renderApplicationBadge = (dt: RoundDisplayType) => {
     let colorScheme: string | undefined;
     switch (applicationData?.status) {
       case "APPROVED":
@@ -54,11 +52,14 @@ export default function RoundListItem({
         break;
     }
 
-    if (!activeBadge) {
+    activeBadge = dt === RoundDisplayType.Active;
+    pastBadge = dt === RoundDisplayType.Past;
+
+    if (!activeBadge && !pastBadge) {
       return (
         <Badge
           colorScheme={colorScheme}
-          className="flex justify-center items-center bg-gitcoin-gray-100"
+          className="bg-gitcoin-gray-100 max-w-fit"
           borderRadius="full"
           p={2}
         >
@@ -71,40 +72,50 @@ export default function RoundListItem({
       );
     }
 
+    if (pastBadge) {
+      return (
+        <div>
+          {applicationData?.status === "PENDING" ||
+          applicationData?.status === "REJECTED" ? (
+            <span>Not Approved</span>
+          ) : null}
+          {applicationData?.status === "APPROVED" ? (
+            <span>Approved</span>
+          ) : null}
+        </div>
+      );
+    }
+
     return <span className="text-green-500">Active</span>;
   };
 
   return (
-    <div>
-      <div className="w-full my-8 flex flex-row justify-between items-center">
-        {/* todo: list the application details here for each round */}
-        <div className="flex justify-center items-center">
+    <Box>
+      <Box className="w-full my-8 flex flex-row basis-0 justify-between items-center">
+        <Box className="flex-1">
           {!props.round?.programName ? (
             <Spinner />
           ) : (
             <span>{props.round?.programName}</span>
           )}
-        </div>
-        <div className="flex justify-center items-center">
+        </Box>
+        <Box className="flex-1">
           {!props.round?.roundMetadata.name ? (
             <Spinner />
           ) : (
             <span>{props.round?.roundMetadata.name}</span>
           )}
-        </div>
-        <div className="flex justify-center items-center">
+        </Box>
+        <Box className="flex-1">
           {!props.round?.roundStartTime ? (
             <Spinner />
           ) : (
             <span>{renderApplicationDate()}</span>
           )}
-        </div>
-        <div className="flex justify-center items-center">
-          {renderApplicationBadge()}
-        </div>
-        <div className="flex">
+        </Box>
+        <Box className="flex-1">{renderApplicationBadge(displayType!)}</Box>
+        <Box className="flex-1">
           {displayType === RoundDisplayType.Active ? (
-            // todo: figure out what we need for the proper link display
             <LinkManager
               linkProps={{
                 displayType: RoundDisplayType.Active,
@@ -131,10 +142,10 @@ export default function RoundListItem({
               }}
             />
           ) : null}
-        </div>
-      </div>
+        </Box>
+      </Box>
       <Divider className="mb-8" />
-    </div>
+    </Box>
   );
 }
 

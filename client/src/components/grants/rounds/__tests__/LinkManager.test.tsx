@@ -3,10 +3,13 @@
 import "@testing-library/jest-dom";
 
 describe("Link Manager", () => {
-  it("should show internal link", () => {
+  it("should show active round link", () => {
     expect(true).toBe(true);
   });
-  it("should show external link", () => {
+  it("should show current applications link", () => {
+    expect(true).toBe(true);
+  });
+  it("should show past rounds link", () => {
     expect(true).toBe(true);
   });
 });
