@@ -159,6 +159,12 @@ export type Round = {
   programName: string;
 };
 
+export enum RoundDisplayType {
+  Current = "current",
+  Active = "active",
+  Past = "past",
+}
+
 export type ProjectOption = {
   id: string | undefined;
   title?: string;

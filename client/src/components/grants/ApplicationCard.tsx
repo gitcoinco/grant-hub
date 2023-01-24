@@ -34,15 +34,6 @@ export default function ApplicationCard({
     };
   });
 
-  // todo: what date do we want to show here?
-  // todo: show round date or application date or both? @michellema1208
-  // const renderRoundDate = () => (
-  //   <>
-  //     {formatDate(roundData?.roundStartTime)} -{" "}
-  //     {formatDate(roundData?.roundEndTime)}
-  //   </>
-  // );
-
   const renderApplicationDate = () => (
     <>
       {formatDateFromSecs(roundData?.applicationsStartTime)} -{" "}
@@ -83,7 +74,11 @@ export default function ApplicationCard({
         borderRadius="full"
         p={2}
       >
-        <span>{applicationData.application.status}</span>
+        {applicationData?.application.status === "PENDING" ? (
+          <span>In Review</span>
+        ) : (
+          <span>{applicationData?.application.status}</span>
+        )}
       </Badge>
     );
   };
