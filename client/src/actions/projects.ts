@@ -548,29 +548,31 @@ export const loadProjectStats =
       stats.push(singleStats);
     };
 
-    for (let i = 0; i < rounds.length; i += 1) {
-      const addresses = addressesByChainID(rounds[i].chainId);
+    for await (const round of rounds) {
+      const addresses = addressesByChainID(round.chainId);
       const projectApplicationID = generateUniqueRoundApplicationID(
-        rounds[i].chainId,
+        round.chainId,
         projectID,
         addresses.projectRegistry
       );
-      fetch(
-        `${process.env.REACT_APP_GITCOIN_API}update/summary/project/${rounds[i].chainId}/${rounds[i].roundId}/${projectApplicationID}`,
+      await fetch(
+        `${process.env.REACT_APP_GITCOIN_API}update/summary/project/${round.chainId}/${round.roundId}/${projectApplicationID}`,
         options
       )
         .then((response) => response.json())
         .then(async (projectRoundData) => {
-          await updateStats(projectRoundData, rounds[i].roundId);
+          if (projectRoundData.data)
+            await updateStats(projectRoundData, round.roundId);
         })
         .catch((error) => console.error(error));
     }
 
-    dispatch({
-      type: PROJECT_STATS_LOADED,
-      projectID,
-      stats,
-    });
+    if (rounds.length > 0)
+      dispatch({
+        type: PROJECT_STATS_LOADED,
+        projectID,
+        stats,
+      });
   };
 
 export const unloadProjects = () => projectsUnload();
