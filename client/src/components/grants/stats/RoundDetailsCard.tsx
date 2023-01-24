@@ -10,7 +10,8 @@ export default function RoundDetailsCard({
 }) {
   const renderApplicationDate = () => (
     <>
-      {formatDateFromSecs(round?.roundStartTime)} - {formatDateFromSecs(round?.roundEndTime)}
+      {formatDateFromSecs(round?.roundStartTime)} -{" "}
+      {formatDateFromSecs(round?.roundEndTime)}
     </>
   );
 
