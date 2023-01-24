@@ -10,37 +10,23 @@ import StatCard from "./StatCard";
 
 export default function RoundStats() {
   const [noStats, setNoStats] = useState(false);
+
   const dispatch = useDispatch();
   const params = useParams();
+  const [details, setDetails] = useState<any>([]);
+  const [allTimeStats, setAllTimeStats] = useState<any>({
+    allTimeReceived: 0,
+    allTimeContributions: 0,
+    roundsLength: 0,
+  });
   const props = useSelector((state: RootState) => {
-    const details: any[] = [];
     const stats: ProjectStats[] = state.projects?.stats[params.id!];
-
-    let allTime = {
-      allTimeReceived: 0,
-      allTimeContributions: 0,
-      roundsLength: 0,
-    };
-    if (stats?.length > 0) {
-      stats.forEach((stat) => {
-        allTime = {
-          allTimeReceived: allTime.allTimeReceived + stat.fundingReceived,
-          allTimeContributions:
-            allTime.allTimeContributions + stat.totalContributions,
-          roundsLength: stats.length,
-        };
-        details.push({
-          round: state.rounds[stat.roundId].round,
-          stats: { ...stat },
-        });
-      });
-    }
 
     return {
       projectID: params.id!,
-      allTime,
-      details,
+      stats,
       projectApplications: state.projects.applications[params.id!],
+      rounds: state.rounds,
     };
   });
 
@@ -64,8 +50,38 @@ export default function RoundStats() {
     }
   }, [props.projectApplications]);
 
+  useEffect(() => {
+    const detailsTmp: any[] = [];
+    let allTime = {
+      allTimeReceived: 0,
+      allTimeContributions: 0,
+      roundsLength: 0,
+    };
+
+    if (props.stats?.length > 0) {
+      props.stats.forEach((stat) => {
+        allTime = {
+          allTimeReceived: allTime.allTimeReceived + stat.fundingReceived,
+          allTimeContributions:
+            allTime.allTimeContributions + stat.totalContributions,
+          roundsLength: props.stats.length,
+        };
+
+        if (props.rounds[stat.roundId]?.round?.programName)
+          detailsTmp.push({
+            round: props.rounds[stat.roundId].round,
+            stats: { ...stat },
+          });
+      });
+    }
+
+    setAllTimeStats(allTime);
+    setDetails(detailsTmp);
+  }, [props.stats, props.rounds]);
+
   const section = (description: any, container: any, pt: boolean) => (
     <div
+      key={Math.random() * 1000 + 1}
       className={`grid md:grid-cols-7 sm:grid-cols-1 border-b border-gitcoin-grey-100 pb-10 ${
         pt && "pt-10"
       }`}
@@ -85,19 +101,19 @@ export default function RoundStats() {
         <>
           <StatCard
             heading="Est. Funding Received"
-            value={`$${props.allTime.allTimeReceived.toFixed(2)}`}
+            value={`$${allTimeStats.allTimeReceived.toFixed(2)}`}
             bg="gitcoin-violet-100"
             tooltip="The estimated funding received by this project."
           />
           <StatCard
             heading="No. of Contributions"
-            value={props.allTime.allTimeContributions}
+            value={allTimeStats.allTimeContributions}
             bg="gitcoin-violet-100"
             tooltip="The number of contributions this project has received."
           />
           <StatCard
             heading="Rounds Participated"
-            value={props.allTime.roundsLength}
+            value={allTimeStats.roundsLength}
             bg="gitcoin-violet-100"
             tooltip="The number of rounds this project has participated in."
           />
@@ -105,7 +121,7 @@ export default function RoundStats() {
         false
       )}
 
-      {props.details.map((detail) =>
+      {details.map((detail: any) =>
         section(
           <RoundDetailsCard
             heading={detail.round?.programName}
@@ -146,22 +162,24 @@ export default function RoundStats() {
       </div>
     );
 
-  if (
-    props.details?.length === 0 ||
-    props.details?.length !== props.allTime.roundsLength
-  )
+  if (details?.length === 0 || details?.length !== allTimeStats.roundsLength)
     return (
-      <div className="flex items-center justify-center">
-        <Spinner
-          label="Loading Project Stats"
-          className="flex items-center justify-center"
-          thickness="6px"
-          boxSize={24}
-          speed="0.80s"
-          emptyColor="gray.200"
-          color="purple.500"
-        />
-      </div>
+      <>
+        <div className="flex items-center justify-center">
+          <Spinner
+            label="Loading Project Stats"
+            className="flex items-center justify-center"
+            thickness="6px"
+            boxSize={24}
+            speed="0.80s"
+            emptyColor="gray.200"
+            color="purple.500"
+          />
+        </div>
+        <div className="flex items-center justify-center text-gitcoin-grey-400 text-[18px]">
+          Loading...
+        </div>
+      </>
     );
 
   return <div>{renderRoundStats()}</div>;
