@@ -6,7 +6,7 @@ import { loadRound } from "../../actions/rounds";
 import { RootState } from "../../reducers";
 import { roundApplicationViewPath } from "../../routes";
 import { RoundSupport } from "../../types";
-import { formatDate } from "../../utils/components";
+import { formatDateFromSecs } from "../../utils/components";
 import { getNetworkIcon, networkPrettyName } from "../../utils/wallet";
 
 export default function ApplicationCard({
@@ -47,8 +47,8 @@ export default function ApplicationCard({
 
   const renderApplicationDate = () => (
     <>
-      {formatDate(roundData?.applicationsStartTime)} -{" "}
-      {formatDate(roundData?.applicationsEndTime)}
+      {formatDateFromSecs(roundData?.applicationsStartTime)} -{" "}
+      {formatDateFromSecs(roundData?.applicationsEndTime)}
     </>
   );
 

@@ -1,5 +1,6 @@
 import { Metadata, Project } from "../types";
 import PinataClient from "../services/pinata";
+import { DefaultProjectBanner, DefaultProjectLogo } from "../assets";
 
 export enum ImgTypes {
   bannerImg = "bannerImg",
@@ -7,8 +8,8 @@ export enum ImgTypes {
 }
 
 const defaultImgs = {
-  bannerImg: "./assets/default-project-banner.png",
-  logoImg: "./assets/default-project-logo.png",
+  bannerImg: DefaultProjectBanner,
+  logoImg: DefaultProjectLogo,
 };
 
 export const getProjectImage = (
@@ -26,11 +27,25 @@ export const getProjectImage = (
   return pinataClient.fileURL(img);
 };
 
-export const formatDate = (ts: number) => {
+export const formatDateFromMs = (ts: number) => {
+  const date = new Date(ts);
+  return date.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+};
+
+export const formatDateFromSecs = (ts: number) => {
   const date = new Date(ts * 1000);
   return date.toLocaleDateString("en-US", {
     year: "numeric",
     month: "short",
     day: "numeric",
   });
+};
+
+export const formatTimeUTC = (ts: number) => {
+  const date = new Date(ts * 1000);
+  return date.toUTCString().replace("GMT", "UTC");
 };
