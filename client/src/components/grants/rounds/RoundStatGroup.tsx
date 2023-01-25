@@ -1,6 +1,4 @@
 import { Box } from "@chakra-ui/react";
-import { useSelector } from "react-redux";
-import { RootState } from "../../../reducers";
 import { Application } from "../../../reducers/projects";
 import { Round, RoundDisplayType } from "../../../types";
 import RoundListItem from "./RoundListItem";
@@ -17,18 +15,6 @@ export default function RoundStatGroup({
   rounds: Round[];
 }) {
   let roundStatHeader: JSX.Element | undefined;
-  const props = useSelector((state: RootState) => {
-    const applications = state.projects.applications[projectId] || [];
-    const { rounds: roundState } = state;
-
-    return {
-      state,
-      roundState,
-      applications,
-    };
-  });
-
-  console.log("JER stat group props", { props, rounds });
 
   const renderRoundStatHeader = () => {
     switch (displayType) {
@@ -66,7 +52,6 @@ export default function RoundStatGroup({
     <Box className="flex-1">
       {roundStatHeader ?? null}
       {rounds.map((round) => {
-        console.log("JER round map", { round });
         const appData = applicationData?.find(
           (app) => app.roundID === round.address
         );

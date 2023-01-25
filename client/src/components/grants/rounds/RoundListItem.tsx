@@ -120,6 +120,9 @@ export default function RoundListItem({
     projectId
   );
 
+  // todo: add check for application status
+  const enableStatusButton = () => false;
+
   return (
     <Box>
       <Box className="w-full my-8 flex flex-row basis-0 justify-between items-center">
@@ -157,6 +160,7 @@ export default function RoundListItem({
               }}
             />
           ) : null}
+          {/* todo: add check for application status */}
           {displayType === RoundDisplayType.Current ? (
             <LinkManager
               linkProps={{
@@ -172,6 +176,7 @@ export default function RoundListItem({
                 displayType: RoundDisplayType.Past,
                 link: `/chains/${props.roundChain}/round/${props.roundAddress}/${props.projectId}`,
                 text: "View Stats",
+                enableStats: enableStatusButton(),
               }}
             />
           ) : null}
