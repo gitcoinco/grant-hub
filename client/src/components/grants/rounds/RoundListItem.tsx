@@ -2,30 +2,55 @@ import { Badge, Box, Divider, Spinner } from "@chakra-ui/react";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../reducers";
 import { Application } from "../../../reducers/projects";
+import { roundApplicationPathForProject } from "../../../routes";
 import { RoundDisplayType } from "../../../types";
 import { formatDateFromMs } from "../../../utils/components";
+import generateUniqueRoundApplicationID from "../../../utils/roundApplication";
+import { getProjectURIComponents } from "../../../utils/utils";
 import LinkManager from "./LinkManager";
 
 export default function RoundListItem({
   applicationData,
   displayType,
+  projectId,
 }: {
   applicationData?: Application;
   displayType?: RoundDisplayType;
+  projectId: string;
 }) {
   let activeBadge: boolean;
   let pastBadge: boolean;
   const props = useSelector((state: RootState) => {
-    const { roundID: roundId, chainId } = applicationData!;
+    const { roundID: roundId, chainId: projectChainId } = applicationData!;
     const roundState = state.rounds[roundId];
     const round = roundState ? roundState.round : undefined;
+    const roundAddress = round?.address;
+    const {
+      chainId: roundChain,
+      registryAddress,
+      id,
+    } = getProjectURIComponents(projectId);
+    const generatedProjectId = generateUniqueRoundApplicationID(
+      projectChainId,
+      id,
+      registryAddress
+    );
 
     return {
       state,
       round,
       roundId,
-      chainId,
+      roundChain,
+      roundAddress,
+      projectChainId,
+      generatedProjectId,
     };
+  });
+
+  console.log("JER round list item props", {
+    props,
+    applicationData,
+    projectId: props.generatedProjectId,
   });
 
   const renderApplicationDate = () => (
@@ -89,6 +114,12 @@ export default function RoundListItem({
     return <span className="text-green-500">Active</span>;
   };
 
+  const applicationLink = roundApplicationPathForProject(
+    "1",
+    props.roundAddress!,
+    projectId
+  );
+
   return (
     <Box>
       <Box className="w-full my-8 flex flex-row basis-0 justify-between items-center">
@@ -119,7 +150,7 @@ export default function RoundListItem({
             <LinkManager
               linkProps={{
                 displayType: RoundDisplayType.Active,
-                link: "/",
+                link: `https://grant-explorer.gitcoin.co/#/round/${props.projectChainId}/${props.roundAddress}/${props.generatedProjectId}`,
                 text: "View on Explorer",
               }}
             />
@@ -128,7 +159,7 @@ export default function RoundListItem({
             <LinkManager
               linkProps={{
                 displayType: RoundDisplayType.Current,
-                link: "/",
+                link: applicationLink,
                 text: "View Application",
               }}
             />

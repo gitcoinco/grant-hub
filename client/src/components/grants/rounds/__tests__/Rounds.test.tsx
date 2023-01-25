@@ -1,7 +1,14 @@
 // import React from "react";
 import "@testing-library/jest-dom";
 import { act, cleanup, screen } from "@testing-library/react";
-// import setupStore from "../../../../store";
+// import { web3ChainIDLoaded } from "../../../../actions/web3";
+import setupStore from "../../../../store";
+// import {
+//   addressFrom,
+//   buildProjectApplication,
+//   buildRound,
+//   renderWrapped,
+// } from "../../../../utils/test_utils";
 import { renderWrapped } from "../../../../utils/test_utils";
 import Rounds from "../Rounds";
 
@@ -13,7 +20,7 @@ describe("<Rounds />", () => {
   describe("When the data is loading", () => {
     test("should show loading", async () => {
       await act(async () => {
-        renderWrapped(<Rounds />);
+        renderWrapped(<Rounds />, setupStore());
       });
 
       expect(
@@ -23,11 +30,45 @@ describe("<Rounds />", () => {
   });
 
   describe("when the data is loaded", () => {
-    // let store: any;
-    // beforeEach(() => {
-    //   store = setupStore();
-    // });
     // test("should show the active rounds", async () => {
+    //   const store = setupStore();
+    //   store.dispatch(web3ChainIDLoaded(5));
+    //   const round1 = buildRound({
+    //     address: addressFrom(1),
+    //   });
+    //   const round2 = buildRound({
+    //     address: addressFrom(2),
+    //   });
+    //   store.dispatch({
+    //     type: "ROUNDS_ROUND_LOADED",
+    //     address: addressFrom(1),
+    //     round: round1,
+    //   });
+    //   store.dispatch({
+    //     type: "ROUNDS_ROUND_LOADED",
+    //     address: addressFrom(2),
+    //     round: round2,
+    //   });
+    //   const applications = [];
+    //   applications.push(buildProjectApplication({ roundID: addressFrom(1) }));
+    //   applications.push(buildProjectApplication({ roundID: addressFrom(2) }));
+    //   store.dispatch({
+    //     type: "PROJECT_APPLICATIONS_LOADED",
+    //     applications,
+    //     projectID: "2",
+    //   });
+    //   store.dispatch({
+    //     type: "PROJECT_APPLICATION_UPDATED",
+    //     projectID: "2",
+    //     roundID: addressFrom(1),
+    //     status: "APPROVED",
+    //   });
+    //   store.dispatch({
+    //     type: "PROJECT_APPLICATION_UPDATED",
+    //     projectID: "2",
+    //     roundID: addressFrom(2),
+    //     status: "REJECTED",
+    //   });
     //   await act(async () => {
     //     renderWrapped(<Rounds />, store);
     //   });

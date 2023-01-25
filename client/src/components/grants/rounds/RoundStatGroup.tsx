@@ -71,7 +71,12 @@ export default function RoundStatGroup({
           (app) => app.roundID === round.address
         );
         return (
-          <RoundListItem applicationData={appData} displayType={displayType} />
+          <RoundListItem
+            key={Math.random() * 1000 + 3}
+            applicationData={appData}
+            displayType={displayType}
+            projectId={projectId}
+          />
         );
       })}
     </Box>

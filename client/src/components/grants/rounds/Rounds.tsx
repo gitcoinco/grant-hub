@@ -13,6 +13,7 @@ export default function Rounds() {
 
   const props = useSelector((state: RootState) => {
     const projectId = params.id!;
+    const fullId = `${params.chainId}:${params.registryAddress}:${params.id}`;
     const applications = state.projects.applications[params.id!] || [];
     const roundIds = applications?.map((round) => round.roundID);
     const { rounds } = state;
@@ -21,6 +22,7 @@ export default function Rounds() {
       rounds,
       roundIds,
       projectId,
+      fullId,
       applications,
     };
   });
@@ -30,7 +32,7 @@ export default function Rounds() {
       // Active Rounds
       return (
         <RoundStatGroup
-          projectId={props.projectId ?? ""}
+          projectId={props.fullId ?? ""}
           applicationData={props.applications}
           displayType={RoundDisplayType.Active}
           rounds={rounds}
@@ -41,7 +43,7 @@ export default function Rounds() {
       // Past Rounds
       return (
         <RoundStatGroup
-          projectId={props.projectId ?? ""}
+          projectId={props.fullId ?? ""}
           applicationData={props.applications}
           displayType={RoundDisplayType.Past}
           rounds={rounds}
@@ -52,7 +54,7 @@ export default function Rounds() {
       // Current Applications
       return (
         <RoundStatGroup
-          projectId={props.projectId ?? ""}
+          projectId={props.fullId ?? ""}
           applicationData={props.applications}
           displayType={RoundDisplayType.Current}
           rounds={rounds}
