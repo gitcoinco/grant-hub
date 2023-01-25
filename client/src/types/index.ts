@@ -20,6 +20,7 @@ export interface Metadata {
   projectGithub?: string;
   credentials?: ProjectCredentials;
   createdAt?: number;
+  updatedAt?: number;
 }
 
 export interface Project {
@@ -50,6 +51,12 @@ export type ChangeHandlers =
   | React.ChangeEvent<HTMLTextAreaElement>
   | React.ChangeEvent<HTMLSelectElement>;
 
+export type AddressType = {
+  resolved: boolean;
+  isContract: boolean;
+  isSafe: boolean;
+};
+
 // Inputs
 export type InputProps = {
   label: string | ReactNode;
@@ -61,11 +68,15 @@ export type InputProps = {
   changeHandler: (event: ChangeHandlers) => void;
   required: boolean;
   encrypted?: boolean;
+  containerClass?: string;
+  tooltip?: ReactNode;
   feedback: {
     type: string;
     message: string;
   };
 };
+
+export type TextAreaProps = InputProps & { rows?: number };
 
 export type AddressInputProps = {
   label: string;
@@ -78,6 +89,8 @@ export type AddressInputProps = {
   changeHandler: (event: ChangeHandlers) => void;
   required: boolean;
   encrypted?: boolean;
+  onAddressType?: (value?: AddressType) => void;
+  warningHighlight?: boolean;
   feedback: {
     type: string;
     message: string;
