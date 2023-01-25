@@ -38,12 +38,11 @@ export default function RoundListItem({
     );
 
     return {
-      state,
       round,
       roundId,
       roundChain,
       roundAddress,
-      projectChainId,
+      projectId: id,
       generatedProjectId,
     };
   });
@@ -171,7 +170,7 @@ export default function RoundListItem({
             <LinkManager
               linkProps={{
                 displayType: RoundDisplayType.Past,
-                link: "https://google.com",
+                link: `/chains/${props.roundChain}/round/${props.roundAddress}/${props.projectId}`,
                 text: "View Stats",
               }}
             />

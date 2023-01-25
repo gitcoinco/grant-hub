@@ -1,3 +1,4 @@
+import { Button } from "@chakra-ui/react";
 import { ArrowTopRightOnSquareIcon } from "@heroicons/react/24/solid";
 import { RoundDisplayType } from "../../../types";
 
@@ -10,8 +11,13 @@ export type LinkProps = {
 
 // todo: disable button link if the application was not approved
 export default function LinkManager({ linkProps }: { linkProps: LinkProps }) {
+  const disabled = linkProps.displayType === RoundDisplayType.Current;
+
   return (
-    <div className="bg-gitcoin-violet-100 text-gitcoin-violet-400 p-2 rounded-md max-w-fit">
+    <Button
+      disabled={disabled}
+      className="bg-gitcoin-violet-100 text-gitcoin-violet-400 p-2 rounded-md max-w-fit cursor-not-allowed"
+    >
       <a
         className="flex flex-row"
         href={linkProps.link}
@@ -25,9 +31,15 @@ export default function LinkManager({ linkProps }: { linkProps: LinkProps }) {
             height={11}
           />
         ) : null}
-        <span className="flex text-[12px] mr-1">{linkProps.text}</span>
+        <span
+          className={`flex text-[12px] mr-1 text-violet-400 ${
+            disabled && "cursor-not-allowed"
+          }`}
+        >
+          {linkProps.text}
+        </span>
       </a>
-    </div>
+    </Button>
   );
 }
 
