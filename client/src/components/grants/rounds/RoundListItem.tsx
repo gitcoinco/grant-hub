@@ -1,3 +1,4 @@
+// eslint-disable max-len
 import { Badge, Box, Divider, Spinner } from "@chakra-ui/react";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../reducers";
@@ -150,7 +151,9 @@ export default function RoundListItem({
             <LinkManager
               linkProps={{
                 displayType: RoundDisplayType.Active,
-                link: `https://grant-explorer.gitcoin.co/#/round/${props.projectChainId}/${props.roundAddress}/${props.generatedProjectId}`,
+                link:
+                  `https://grant-explorer.gitcoin.co/#/round/${props.roundChain}/` +
+                  `${props.roundAddress}/${props.generatedProjectId}-${props.roundAddress}`,
                 text: "View on Explorer",
               }}
             />
