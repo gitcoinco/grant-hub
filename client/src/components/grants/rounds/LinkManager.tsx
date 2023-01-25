@@ -1,6 +1,5 @@
 import { Button } from "@chakra-ui/react";
 import { ArrowTopRightOnSquareIcon } from "@heroicons/react/24/solid";
-import { Link } from "react-router-dom";
 import { RoundDisplayType } from "../../../types";
 
 export type LinkProps = {
@@ -74,9 +73,11 @@ export default function LinkManager({ linkProps }: { linkProps: LinkProps }) {
             !linkProps.enableStats && "cursor-not-allowed"
           }`}
         >
-          <Link
-            to={linkProps.link}
+          <a
+            href={linkProps.link}
             className="flex flex-row text-[12px] text-violet-400"
+            rel="noreferrer"
+            target="_blank"
           >
             <span
               className={`flex text-[12px] mr-1 text-violet-400 ${
@@ -85,7 +86,7 @@ export default function LinkManager({ linkProps }: { linkProps: LinkProps }) {
             >
               {linkProps.text}
             </span>
-          </Link>
+          </a>
         </Button>
       ) : null}
     </>

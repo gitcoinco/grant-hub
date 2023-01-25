@@ -115,13 +115,13 @@ export default function RoundListItem({
   };
 
   const applicationLink = roundApplicationPathForProject(
-    "1",
+    props.roundChain!,
     props.roundAddress!,
     projectId
   );
 
-  // todo: add check for application status
-  const enableStatusButton = () => false;
+  // add check for application status
+  const enableStatusButton = () => applicationData?.status === "APPROVED";
 
   return (
     <Box>
@@ -174,7 +174,7 @@ export default function RoundListItem({
             <LinkManager
               linkProps={{
                 displayType: RoundDisplayType.Past,
-                link: `/chains/${props.roundChain}/round/${props.roundAddress}/${props.projectId}`,
+                link: `https://round-manager.gitcoin.co/#/round/${props.roundAddress}`,
                 text: "View Stats",
                 enableStats: enableStatusButton(),
               }}
