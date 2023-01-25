@@ -12,7 +12,7 @@ const createEncodedVote = (_token: string, _amount: number, _grantAddress: strin
 
 describe("DirectDonationImplementation", function () {
   async function deployFixture() {
-    const [owner, addr1, addr2] = await ethers.getSigners();
+    const [owner, addr1] = await ethers.getSigners();
 
     const tokenFactory = await ethers.getContractFactory("MockERC20");
 
@@ -31,8 +31,7 @@ describe("DirectDonationImplementation", function () {
     await erc20.approve(directDonations.address, 1000);
     await erc20B.approve(directDonations.address, 1000);
 
-    // Fixtures can return anything you consider useful for your tests
-    return { directDonations, erc20, erc20B, owner, addr1, addr2 };
+    return { directDonations, erc20, erc20B, owner, addr1 };
   }
 
   describe("vote:single", function () {
@@ -46,7 +45,7 @@ describe("DirectDonationImplementation", function () {
     });
 
     it("should allow a single vote with eth", async function () {
-      const { directDonations, erc20, erc20B, owner, addr1, addr2 } = await loadFixture(deployFixture);
+      const { directDonations, owner, addr1 } = await loadFixture(deployFixture);
 
       const addr1BalanceBefore = await ethers.provider.getBalance(addr1.address);
 
@@ -66,7 +65,7 @@ describe("DirectDonationImplementation", function () {
   });
   describe("vote:batch", function () {
     it("should allow batch voting with erc20", async function () {
-      const { directDonations, erc20, erc20B, owner, addr1, addr2 } = await loadFixture(deployFixture);
+      const { directDonations, erc20, erc20B, owner, addr1 } = await loadFixture(deployFixture);
 
       const encodedVote = createEncodedVote(erc20.address, 100, addr1.address, "0x0000000000000000000000000000000000000000000000000000000000000001");
       const encodedVote2 = createEncodedVote(erc20B.address, 100, addr1.address, "0x0000000000000000000000000000000000000000000000000000000000000001");
@@ -79,7 +78,7 @@ describe("DirectDonationImplementation", function () {
     });
 
     it("should allow batch voting with eth and erc20", async function () {
-      const { directDonations, erc20, erc20B, owner, addr1, addr2 } = await loadFixture(deployFixture);
+      const { directDonations, erc20B, owner, addr1 } = await loadFixture(deployFixture);
 
       const addr1BalanceBefore = await ethers.provider.getBalance(addr1.address);
 
@@ -94,18 +93,18 @@ describe("DirectDonationImplementation", function () {
     });
 
     it("should emit multiple events", async function () {
-      const { directDonations, erc20, erc20B, owner, addr1, addr2 } = await loadFixture(deployFixture);
+      const { directDonations, erc20B, owner, addr1 } = await loadFixture(deployFixture);
 
       const encodedVote = createEncodedVote(ethers.constants.AddressZero, 100, addr1.address, "0x0000000000000000000000000000000000000000000000000000000000000001");
       const encodedVote2 = createEncodedVote(erc20B.address, 100, addr1.address, "0x0000000000000000000000000000000000000000000000000000000000000001");
       const encodedVotes = [encodedVote, encodedVote2];
 
-      await expect(directDonations['vote(bytes[],address)'](encodedVotes, owner.address, { value: 100 })).to.emit(directDonations, "Voted").withArgs(erc20.address, 100, owner.address, addr1.address, "0x0000000000000000000000000000000000000000000000000000000000000001", owner.address)
+      await expect(directDonations['vote(bytes[],address)'](encodedVotes, owner.address, { value: 100 })).to.emit(directDonations, "Voted").withArgs(ethers.constants.AddressZero, 100, owner.address, addr1.address, "0x0000000000000000000000000000000000000000000000000000000000000001", owner.address)
         .and.to.emit(directDonations, "Voted").withArgs(erc20B.address, 100, owner.address, addr1.address, "0x0000000000000000000000000000000000000000000000000000000000000001", owner.address);
     });
 
     it("should fail when batch voting with eth and erc20 and not enough eth", async function () {
-      const { directDonations, erc20, erc20B, owner, addr1, addr2 } = await loadFixture(deployFixture);
+      const { directDonations, erc20B, owner, addr1, addr2 } = await loadFixture(deployFixture);
 
       const encodedVote = createEncodedVote(ethers.constants.AddressZero, 100, addr1.address, "0x0000000000000000000000000000000000000000000000000000000000000001");
       const encodedVote2 = createEncodedVote(erc20B.address, 100, addr1.address, "0x0000000000000000000000000000000000000000000000000000000000000001");
