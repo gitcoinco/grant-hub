@@ -59,7 +59,7 @@ export default function Details({
         logoImg={logoImg}
       />
       <Tabs _fullScreen={{ width: "200px" }} className="mt-8" defaultIndex={0}>
-        <TabList className="mb-12">
+        <TabList className="mb-12" width="200px">
           <Tab _focus={{ boxShadow: "none" }} _selected={{ color: "#6F3FF5" }}>
             <span>About</span>
           </Tab>

@@ -1,4 +1,4 @@
-import { Spinner } from "@chakra-ui/react";
+import { Divider, Spinner } from "@chakra-ui/react";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import { RootState } from "../../../reducers";
@@ -87,7 +87,10 @@ export default function Rounds() {
     <div className="w-full mb-4">
       <div className="flex-col">
         {activeRounds.length > 0 ? (
-          renderStatGroup(RoundDisplayType.Active, activeRounds)
+          <div>
+            {renderStatGroup(RoundDisplayType.Active, activeRounds)}
+            <Divider className="mb-8" borderColor="#E2E0E7" />
+          </div>
         ) : (
           <div>
             <span className="text-gitcoin-grey-500 text-[12px] font-semibold">
@@ -103,10 +106,14 @@ export default function Rounds() {
                 <span>No Data</span>
               </div>
             )}
+            <Divider className="mb-8" borderColor="#E2E0E7" />
           </div>
         )}
         {currentApplications.length > 0 ? (
-          renderStatGroup(RoundDisplayType.Current, currentApplications)
+          <div>
+            {renderStatGroup(RoundDisplayType.Current, currentApplications)}
+            <Divider className="mb-8" borderColor="#E2E0E7" />
+          </div>
         ) : (
           <div>
             <span className="text-gitcoin-grey-500 text-[12px] font-semibold">
@@ -122,10 +129,14 @@ export default function Rounds() {
                 <span>No Data</span>
               </div>
             )}
+            <Divider className="mb-8" borderColor="#E2E0E7" />
           </div>
         )}
         {pastRounds.length > 0 ? (
-          renderStatGroup(RoundDisplayType.Past, pastRounds)
+          <div>
+            {renderStatGroup(RoundDisplayType.Past, pastRounds)}
+            <Divider className="mb-8" borderColor="#E2E0E7" />
+          </div>
         ) : (
           <div>
             <span className="text-gitcoin-grey-500 text-[12px] font-semibold">
@@ -141,6 +152,7 @@ export default function Rounds() {
                 <span>No Data</span>
               </div>
             )}
+            <Divider className="mb-8" borderColor="#E2E0E7" />
           </div>
         )}
       </div>

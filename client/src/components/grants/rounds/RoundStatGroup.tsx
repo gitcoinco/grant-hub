@@ -49,21 +49,23 @@ export default function RoundStatGroup({
   }
 
   return (
-    <Box className="flex-1">
-      {roundStatHeader ?? null}
-      {rounds.map((round) => {
-        const appData = applicationData?.find(
-          (app) => app.roundID === round.address
-        );
-        return (
-          <RoundListItem
-            key={Math.random() * 1000 + 3}
-            applicationData={appData}
-            displayType={displayType}
-            projectId={projectId}
-          />
-        );
-      })}
+    <Box>
+      <Box className="flex-1">
+        {roundStatHeader ?? null}
+        {rounds.map((round) => {
+          const appData = applicationData?.find(
+            (app) => app.roundID === round.address
+          );
+          return (
+            <RoundListItem
+              key={Math.random() * 1000 + 3}
+              applicationData={appData}
+              displayType={displayType}
+              projectId={projectId}
+            />
+          );
+        })}
+      </Box>
     </Box>
   );
 }

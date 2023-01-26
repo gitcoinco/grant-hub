@@ -5,7 +5,7 @@ import { RootState } from "../../../reducers";
 import { Application } from "../../../reducers/projects";
 import { roundApplicationPathForProject } from "../../../routes";
 import { RoundDisplayType } from "../../../types";
-import { formatDateFromMs } from "../../../utils/components";
+import { formatDateFromSecs } from "../../../utils/components";
 import generateUniqueRoundApplicationID from "../../../utils/roundApplication";
 import { getProjectURIComponents } from "../../../utils/utils";
 import LinkManager from "./LinkManager";
@@ -47,10 +47,12 @@ export default function RoundListItem({
     };
   });
 
+  console.log("JER props", props);
+
   const renderApplicationDate = () => (
     <>
-      {formatDateFromMs(props.round?.roundStartTime!)} -{" "}
-      {formatDateFromMs(props.round?.roundEndTime!)}
+      {formatDateFromSecs(props.round?.roundStartTime!)} -{" "}
+      {formatDateFromSecs(props.round?.roundEndTime!)}
     </>
   );
 
@@ -188,7 +190,7 @@ export default function RoundListItem({
           ) : null}
         </Box>
       </Box>
-      <Divider className="mb-8" />
+      <Divider className="mb-8 last-of-type:hidden" borderColor="#F3F3F5" />
     </Box>
   );
 }
