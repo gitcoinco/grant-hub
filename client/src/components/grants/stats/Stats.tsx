@@ -9,6 +9,8 @@ import RoundDetailsCard from "./RoundDetailsCard";
 import StatCard from "./StatCard";
 
 export default function RoundStats() {
+  const NA = -1;
+  const NAText = "N/A";
   const [noStats, setNoStats] = useState(false);
 
   const dispatch = useDispatch();
@@ -67,10 +69,16 @@ export default function RoundStats() {
           roundsLength: props.stats.length,
         };
 
+        const newStat = { ...stat };
+        if (newStat.uniqueContributors > 0 || newStat.totalContributions > 0) {
+          if (newStat.fundingReceived === 0) newStat.fundingReceived = NA;
+          if (newStat.avgContribution === 0) newStat.avgContribution = NA;
+        }
+
         if (props.rounds[stat.roundId]?.round?.programName)
           detailsTmp.push({
             round: props.rounds[stat.roundId].round,
-            stats: { ...stat },
+            stats: { ...newStat },
           });
       });
     }
@@ -130,7 +138,11 @@ export default function RoundStats() {
           <>
             <StatCard
               heading="Est. Funding Received"
-              value={`$${detail.stats.fundingReceived.toFixed(2)}`}
+              value={
+                detail.stats.fundingReceived === NA
+                  ? NAText
+                  : `$${detail.stats.fundingReceived.toFixed(2)}`
+              }
               border
             />
             <StatCard
@@ -140,7 +152,11 @@ export default function RoundStats() {
             />
             <StatCard
               heading="Avg. Contribution"
-              value={`$${detail.stats.avgContribution.toFixed(2)}`}
+              value={
+                detail.stats.avgContribution === NA
+                  ? NAText
+                  : `$${detail.stats.avgContribution.toFixed(2)}`
+              }
               border
             />
             <StatCard
