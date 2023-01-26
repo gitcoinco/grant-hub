@@ -1,6 +1,8 @@
+import { Spinner } from "@chakra-ui/react";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import { RootState } from "../../../reducers";
+import { Status } from "../../../reducers/rounds";
 import { Round, RoundDisplayType } from "../../../types";
 import RoundStatGroup from "./RoundStatGroup";
 
@@ -40,10 +42,14 @@ export default function Rounds() {
     return Math.floor(date.getTime() / 1000);
   }
 
+  // Sort the applications into the correct categories
   if (props.applications) {
     props.applications.map((app) => {
       const rnd = props.rounds[app.roundID];
-      if (rnd?.round?.address === app.roundID) {
+      if (
+        rnd?.status === Status.Loaded &&
+        rnd?.round?.address === app.roundID
+      ) {
         const currentTime = secondsSinceEpoch();
         // Current Applications
         if (
@@ -73,23 +79,9 @@ export default function Rounds() {
           pastRounds.push(rnd.round);
         }
       }
-
       return null;
     });
   }
-
-  // if (
-  //     activeRounds.length === 0 &&
-  //     currentApplications.length === 0 &&
-  //     pastRounds.length === 0
-  //   ) {
-  //     return (
-  //       <div className="text-base text-gitcoin-grey-400 flex flex-col items-center justify-center p-10">
-  //         <span>Loading your information, please stand by...</span>
-  //         <Spinner className="flex mt-4" />
-  //       </div>
-  //     );
-  //   }
 
   return (
     <div className="w-full mb-4">
@@ -101,10 +93,16 @@ export default function Rounds() {
             <span className="text-gitcoin-grey-500 text-[12px] font-semibold">
               Active Rounds
             </span>
-            <div className="text-base text-gitcoin-grey-400 flex flex-col items-center justify-center p-10">
-              {/* todo: add loading state */}
-              <span>No Data</span>
-            </div>
+            {props.rounds[props.projectId]?.status !== Status.Loaded ? (
+              <div className="text-base text-gitcoin-grey-400 flex flex-col items-center justify-center p-10">
+                <span>Loading your information, please stand by...</span>
+                <Spinner className="flex mt-4" />
+              </div>
+            ) : (
+              <div className="text-base text-gitcoin-grey-400 flex flex-col items-center justify-center p-10">
+                <span>No Data</span>
+              </div>
+            )}
           </div>
         )}
         {currentApplications.length > 0 ? (
@@ -114,9 +112,16 @@ export default function Rounds() {
             <span className="text-gitcoin-grey-500 text-[12px] font-semibold">
               Current Applications
             </span>
-            <div className="text-base text-gitcoin-grey-400 flex flex-col items-center justify-center p-10">
-              <span>No Data</span>
-            </div>
+            {props.rounds[props.projectId]?.status !== Status.Loaded ? (
+              <div className="text-base text-gitcoin-grey-400 flex flex-col items-center justify-center p-10">
+                <span>Loading your information, please stand by...</span>
+                <Spinner className="flex mt-4" />
+              </div>
+            ) : (
+              <div className="text-base text-gitcoin-grey-400 flex flex-col items-center justify-center p-10">
+                <span>No Data</span>
+              </div>
+            )}
           </div>
         )}
         {pastRounds.length > 0 ? (
@@ -126,9 +131,16 @@ export default function Rounds() {
             <span className="text-gitcoin-grey-500 text-[12px] font-semibold">
               Past Rounds
             </span>
-            <div className="text-base text-gitcoin-grey-400 flex flex-col items-center justify-center p-10">
-              <span>No Data</span>
-            </div>
+            {props.rounds[props.projectId]?.status !== Status.Loaded ? (
+              <div className="text-base text-gitcoin-grey-400 flex flex-col items-center justify-center p-10">
+                <span>Loading your information, please stand by...</span>
+                <Spinner className="flex mt-4" />
+              </div>
+            ) : (
+              <div className="text-base text-gitcoin-grey-400 flex flex-col items-center justify-center p-10">
+                <span>No Data</span>
+              </div>
+            )}
           </div>
         )}
       </div>

@@ -27,25 +27,35 @@ export default function LinkManager({ linkProps }: { linkProps: LinkProps }) {
           }`}
           width={isMobile ? "100%" : "auto"}
         >
-          <a
-            className="flex flex-row"
-            href={linkProps.link}
-            rel="noreferrer"
-            target="_blank"
-          >
-            <ArrowTopRightOnSquareIcon
-              className="flex mx-2 mt-[1px] text-gitcoin-violet-400"
-              width={11}
-              height={11}
-            />
+          {disabled ? (
+            <a
+              className="flex flex-row"
+              href={linkProps.link}
+              rel="noreferrer"
+              target="_blank"
+            >
+              <ArrowTopRightOnSquareIcon
+                className="flex mx-2 mt-[1px] text-gitcoin-violet-400"
+                width={11}
+                height={11}
+              />
+              <span
+                className={`flex text-[12px] mr-1 text-violet-400 ${
+                  !disableExternalLink && "cursor-not-allowed"
+                }`}
+              >
+                {linkProps.text}
+              </span>
+            </a>
+          ) : (
             <span
               className={`flex text-[12px] mr-1 text-violet-400 ${
-                !disableExternalLink && "cursor-not-allowed"
+                disabled && "cursor-not-allowed"
               }`}
             >
               {linkProps.text}
             </span>
-          </a>
+          )}
         </Button>
       ) : null}
       {/* Applications link is todo: Andrea PR */}
