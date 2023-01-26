@@ -1,5 +1,6 @@
 import { Button } from "@chakra-ui/react";
 import { ArrowTopRightOnSquareIcon } from "@heroicons/react/24/solid";
+import { AppStatus } from "../../../reducers/projects";
 import { RoundDisplayType } from "../../../types";
 
 export type LinkProps = {
@@ -7,17 +8,20 @@ export type LinkProps = {
   link: string;
   text: string;
   enableStats?: boolean;
+  applicationStatus: AppStatus;
 };
 
 // todo: disable button link if the application was not approved
 export default function LinkManager({ linkProps }: { linkProps: LinkProps }) {
   const disabled = linkProps.displayType === RoundDisplayType.Current;
+  const disableExternalLink = linkProps.applicationStatus === "APPROVED";
 
   return (
     <>
       {linkProps.displayType === RoundDisplayType.Active ? (
+        // if active round and application is still pending, disable button
         <Button
-          disabled={disabled}
+          disabled={!disableExternalLink}
           className={`bg-gitcoin-violet-100 flex p-2 rounded-md max-w-fit ${
             disabled && "cursor-not-allowed"
           }`}
@@ -35,7 +39,7 @@ export default function LinkManager({ linkProps }: { linkProps: LinkProps }) {
             />
             <span
               className={`flex text-[12px] mr-1 text-violet-400 ${
-                disabled && "cursor-not-allowed"
+                !disableExternalLink && "cursor-not-allowed"
               }`}
             >
               {linkProps.text}
@@ -81,7 +85,7 @@ export default function LinkManager({ linkProps }: { linkProps: LinkProps }) {
           >
             <span
               className={`flex text-[12px] mr-1 text-violet-400 ${
-                disabled && "cursor-not-allowed"
+                !linkProps.enableStats && "cursor-not-allowed"
               }`}
             >
               {linkProps.text}

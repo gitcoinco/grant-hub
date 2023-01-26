@@ -47,12 +47,6 @@ export default function RoundListItem({
     };
   });
 
-  console.log("JER round list item props", {
-    props,
-    applicationData,
-    projectId: props.generatedProjectId,
-  });
-
   const renderApplicationDate = () => (
     <>
       {formatDateFromMs(props.round?.roundStartTime!)} -{" "}
@@ -111,6 +105,14 @@ export default function RoundListItem({
       );
     }
 
+    if (applicationData?.status === "PENDING") {
+      return <span className="text-gray-500">In Review</span>;
+    }
+
+    if (applicationData?.status === "REJECTED") {
+      return <span className="text-red-500">Rejected</span>;
+    }
+
     return <span className="text-green-500">Active</span>;
   };
 
@@ -157,6 +159,7 @@ export default function RoundListItem({
                   `https://grant-explorer.gitcoin.co/#/round/${props.roundChain}/` +
                   `${props.roundAddress}/${props.generatedProjectId}-${props.roundAddress}`,
                 text: "View on Explorer",
+                applicationStatus: applicationData?.status!,
               }}
             />
           ) : null}
@@ -167,6 +170,7 @@ export default function RoundListItem({
                 displayType: RoundDisplayType.Current,
                 link: applicationLink,
                 text: "View Application",
+                applicationStatus: applicationData?.status!,
               }}
             />
           ) : null}
@@ -177,6 +181,7 @@ export default function RoundListItem({
                 link: `https://round-manager.gitcoin.co/#/round/${props.roundAddress}`,
                 text: "View Stats",
                 enableStats: enableStatusButton(),
+                applicationStatus: applicationData?.status!,
               }}
             />
           ) : null}
