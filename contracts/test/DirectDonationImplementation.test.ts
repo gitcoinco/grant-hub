@@ -36,49 +36,49 @@ describe("DirectDonationImplementation", function () {
 
   describe("vote:single", function () {
     it("should allow a single vote with erc20", async function () {
-      const { directDonations, erc20, erc20B, owner, addr1, addr2 } = await loadFixture(deployFixture);
+      const { directDonations, erc20, addr1 } = await loadFixture(deployFixture);
 
       const encodedVote = createEncodedVote(erc20.address, 100, addr1.address, "0x0000000000000000000000000000000000000000000000000000000000000001");
-      await directDonations['vote(bytes,address)'](encodedVote, owner.address);
+      await directDonations['vote(bytes)'](encodedVote);
 
       expect(await erc20.balanceOf(addr1.address)).to.equal(100);
     });
 
     it("should allow a single vote with eth", async function () {
-      const { directDonations, owner, addr1 } = await loadFixture(deployFixture);
+      const { directDonations, addr1 } = await loadFixture(deployFixture);
 
       const addr1BalanceBefore = await ethers.provider.getBalance(addr1.address);
 
       const encodedVote = createEncodedVote(ethers.constants.AddressZero, 100, addr1.address, "0x0000000000000000000000000000000000000000000000000000000000000001");
-      await directDonations['vote(bytes,address)'](encodedVote, owner.address, { value: 100 });
+      await directDonations['vote(bytes)'](encodedVote, { value: 100 });
 
       expect(await ethers.provider.getBalance(addr1.address)).to.equal(addr1BalanceBefore.add(100));
     });
 
     it("should emit an event", async function () {
-      const { directDonations, erc20, erc20B, owner, addr1, addr2 } = await loadFixture(deployFixture);
+      const { directDonations, erc20, owner, addr1 } = await loadFixture(deployFixture);
 
       const encodedVote = createEncodedVote(erc20.address, 100, addr1.address, "0x0000000000000000000000000000000000000000000000000000000000000001");
 
-      await expect(directDonations['vote(bytes,address)'](encodedVote, owner.address)).to.emit(directDonations, "Voted").withArgs(erc20.address, 100, owner.address, addr1.address, "0x0000000000000000000000000000000000000000000000000000000000000001", owner.address);
+      await expect(directDonations['vote(bytes)'](encodedVote)).to.emit(directDonations, "Voted").withArgs(erc20.address, 100, owner.address, addr1.address, "0x0000000000000000000000000000000000000000000000000000000000000001");
     });
   });
   describe("vote:batch", function () {
     it("should allow batch voting with erc20", async function () {
-      const { directDonations, erc20, erc20B, owner, addr1 } = await loadFixture(deployFixture);
+      const { directDonations, erc20, erc20B, addr1 } = await loadFixture(deployFixture);
 
       const encodedVote = createEncodedVote(erc20.address, 100, addr1.address, "0x0000000000000000000000000000000000000000000000000000000000000001");
       const encodedVote2 = createEncodedVote(erc20B.address, 100, addr1.address, "0x0000000000000000000000000000000000000000000000000000000000000001");
       const encodedVotes = [encodedVote, encodedVote2];
 
-      await directDonations['vote(bytes[],address)'](encodedVotes, owner.address);
+      await directDonations['vote(bytes[])'](encodedVotes);
 
       expect(await erc20.balanceOf(addr1.address)).to.equal(100);
       expect(await erc20B.balanceOf(addr1.address)).to.equal(100);
     });
 
     it("should allow batch voting with eth and erc20", async function () {
-      const { directDonations, erc20B, owner, addr1 } = await loadFixture(deployFixture);
+      const { directDonations, erc20B, addr1 } = await loadFixture(deployFixture);
 
       const addr1BalanceBefore = await ethers.provider.getBalance(addr1.address);
 
@@ -86,7 +86,7 @@ describe("DirectDonationImplementation", function () {
       const encodedVote2 = createEncodedVote(erc20B.address, 100, addr1.address, "0x0000000000000000000000000000000000000000000000000000000000000001");
       const encodedVotes = [encodedVote, encodedVote2];
 
-      await directDonations['vote(bytes[],address)'](encodedVotes, owner.address, { value: 100 });
+      await directDonations['vote(bytes[])'](encodedVotes, { value: 100 });
 
       expect(await erc20B.balanceOf(addr1.address)).to.equal(100);
       expect(await ethers.provider.getBalance(addr1.address)).to.equal(addr1BalanceBefore.add(100));
@@ -99,18 +99,18 @@ describe("DirectDonationImplementation", function () {
       const encodedVote2 = createEncodedVote(erc20B.address, 100, addr1.address, "0x0000000000000000000000000000000000000000000000000000000000000001");
       const encodedVotes = [encodedVote, encodedVote2];
 
-      await expect(directDonations['vote(bytes[],address)'](encodedVotes, owner.address, { value: 100 })).to.emit(directDonations, "Voted").withArgs(ethers.constants.AddressZero, 100, owner.address, addr1.address, "0x0000000000000000000000000000000000000000000000000000000000000001", owner.address)
-        .and.to.emit(directDonations, "Voted").withArgs(erc20B.address, 100, owner.address, addr1.address, "0x0000000000000000000000000000000000000000000000000000000000000001", owner.address);
+      await expect(directDonations['vote(bytes[])'](encodedVotes, { value: 100 })).to.emit(directDonations, "Voted").withArgs(ethers.constants.AddressZero, 100, owner.address, addr1.address, "0x0000000000000000000000000000000000000000000000000000000000000001")
+        .and.to.emit(directDonations, "Voted").withArgs(erc20B.address, 100, owner.address, addr1.address, "0x0000000000000000000000000000000000000000000000000000000000000001");
     });
 
     it("should fail when batch voting with eth and erc20 and not enough eth", async function () {
-      const { directDonations, erc20B, owner, addr1, addr2 } = await loadFixture(deployFixture);
+      const { directDonations, erc20B, addr1 } = await loadFixture(deployFixture);
 
       const encodedVote = createEncodedVote(ethers.constants.AddressZero, 100, addr1.address, "0x0000000000000000000000000000000000000000000000000000000000000001");
       const encodedVote2 = createEncodedVote(erc20B.address, 100, addr1.address, "0x0000000000000000000000000000000000000000000000000000000000000001");
       const encodedVotes = [encodedVote, encodedVote2];
 
-      await expect(directDonations['vote(bytes[],address)'](encodedVotes, owner.address, { value: 1 })).to.revertedWith('Address: insufficient balance');
+      await expect(directDonations['vote(bytes[])'](encodedVotes, { value: 1 })).to.revertedWith('Address: insufficient balance');
     });
   });
 

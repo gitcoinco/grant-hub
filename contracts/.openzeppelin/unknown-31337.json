@@ -1,0 +1,153 @@
+{
+  "manifestVersion": "3.2",
+  "admin": {
+    "address": "0x5C8D5D0BfA77e7d1481Fa51C5cD22a6f8D9C08A4",
+    "txHash": "0xa54fb89ad0d8a48a9b715784a3e4696294930ce7fd990bfc65ecfbc98a7c3ca8"
+  },
+  "proxies": [
+    {
+      "address": "0x80C6e16eb08290824cb2850e549A7319c5b590C6",
+      "txHash": "0x97400554e4df9db252d4d4aea109f985a77603ad9f51cf35f216d10f69a41e33",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x81dcf22C4Ee4bD8EB3BDcb042fEb2Cc824379E0C",
+      "txHash": "0xe1fd9a8c94044d01f8aa1924e77cef79db9594e13b0333171b3acd131d44a7df",
+      "kind": "transparent"
+    }
+  ],
+  "impls": {
+    "a3ddd9c5989f14a00781f62853f7ddc689abac78013a72c1284673817f770590": {
+      "address": "0x7b2f9A9F55035caDB75331EbA31c403F00Ad7701",
+      "txHash": "0xc35da5f19c248f94b23f646a6600970dda1d851e76e83af41a8c990797ea75e2",
+      "layout": {
+        "solcVersion": "0.8.17",
+        "storage": [
+          {
+            "label": "roundAddress",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_address",
+            "contract": "IVotingStrategy",
+            "src": "contracts/directdonations/IVotingStrategy.sol:16"
+          },
+          {
+            "label": "_initialized",
+            "offset": 20,
+            "slot": "0",
+            "type": "t_uint8",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:62",
+            "retypedFrom": "bool"
+          },
+          {
+            "label": "_initializing",
+            "offset": 21,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:67"
+          },
+          {
+            "label": "_status",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_uint256",
+            "contract": "ReentrancyGuardUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:38"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "ReentrancyGuardUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:74"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]",
+            "numberOfBytes": "1568"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        }
+      }
+    },
+    "ed55582ca9cef878e1bf1da049e0c933095525dbf0011bc4db9513df86e37065": {
+      "address": "0x06049D835BAC69e7751CaD2C9Ab1aA88808fc1B3",
+      "txHash": "0x54820824a62c1b3a918ab8c5a819e1a9b4593442f804be678ed19dd585ea96ca",
+      "layout": {
+        "solcVersion": "0.8.17",
+        "storage": [
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint8",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:62",
+            "retypedFrom": "bool"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:67"
+          },
+          {
+            "label": "_status",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_uint256",
+            "contract": "ReentrancyGuardUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:38"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "ReentrancyGuardUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:74"
+          }
+        ],
+        "types": {
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]",
+            "numberOfBytes": "1568"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        }
+      }
+    }
+  }
+}

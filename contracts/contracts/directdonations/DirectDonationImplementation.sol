@@ -5,8 +5,6 @@ import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.
 import "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 
-import "./IVotingStrategy.sol";
-
 /**
  * Allows voters to cast multiple weighted votes to grants with one transaction
  * This is inspired from BulkCheckout documented over at:
@@ -14,13 +12,10 @@ import "./IVotingStrategy.sol";
  *
  * Emits event upon every transfer.
  */
-contract DirectDonationImplementation is
-    IVotingStrategy,
-    ReentrancyGuardUpgradeable
-{
+contract DirectDonationImplementation is ReentrancyGuardUpgradeable {
     using SafeERC20Upgradeable for IERC20Upgradeable;
 
-    string public constant VERSION = "0.2.0";
+    string public constant VERSION = "0.1.0";
 
     // --- Event ---
 
@@ -30,8 +25,7 @@ contract DirectDonationImplementation is
         uint256 amount, // voting amount
         address indexed voter, // voter address
         address grantAddress, // grant address
-        bytes32 indexed projectId, // project id
-        address indexed roundAddress // round address
+        bytes32 indexed projectId // project id
     );
 
     /**
@@ -40,9 +34,8 @@ contract DirectDonationImplementation is
      * - supports ERC20 and Native token transfer
      *
      * @param encodedVote encoded vote
-     * @param voterAddress voter address
      */
-    function _vote(bytes calldata encodedVote, address voterAddress) internal {
+    function _vote(bytes calldata encodedVote) internal {
         /// @dev decode encoded vote
         (
             address _token,
@@ -60,38 +53,29 @@ contract DirectDonationImplementation is
             // slither-disable-next-line arbitrary-send-erc20,reentrancy-events,
             SafeERC20Upgradeable.safeTransferFrom(
                 IERC20Upgradeable(_token),
-                voterAddress,
+                msg.sender,
                 _grantAddress,
                 _amount
             );
         }
 
         /// @dev emit event for transfer
-        emit Voted(
-            _token,
-            _amount,
-            voterAddress,
-            _grantAddress,
-            _projectId,
-            msg.sender
-        );
+        emit Voted(_token, _amount, msg.sender, _grantAddress, _projectId);
     }
 
-  // todo: tbd: remove voterAddress from vote function, because it's always msg.sender
+    // todo: tbd: remove voterAddress from vote function, because it's always msg.sender
     function vote(
-        bytes[] calldata encodedVotes,
-        address voterAddress
-    ) external payable override nonReentrant {
+        bytes[] calldata encodedVotes
+    ) external payable nonReentrant {
         /// @dev iterate over multiple donations and transfer funds
         for (uint256 i = 0; i < encodedVotes.length; i++) {
-            _vote(encodedVotes[i], voterAddress);
+            _vote(encodedVotes[i]);
         }
     }
 
     function vote(
-        bytes calldata encodedVote,
-        address voterAddress
+        bytes calldata encodedVote
     ) external payable nonReentrant {
-        _vote(encodedVote, voterAddress);
+        _vote(encodedVote);
     }
 }
