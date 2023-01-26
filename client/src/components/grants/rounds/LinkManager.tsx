@@ -58,12 +58,18 @@ export default function LinkManager({ linkProps }: { linkProps: LinkProps }) {
           }`}
           width={isMobile ? "100%" : "auto"}
         >
-          <a
-            href={linkProps.link}
-            className="flex flex-row text-[12px] text-violet-400"
-            rel="noreferrer"
-            target="_blank"
-          >
+          {linkProps.enableStats ? (
+            <a
+              href={linkProps.link}
+              className="flex flex-row text-[12px] text-violet-400"
+              rel="noreferrer"
+              target="_blank"
+            >
+              <span className="flex text-[12px] mr-1 text-violet-400">
+                {linkProps.text}
+              </span>
+            </a>
+          ) : (
             <span
               className={`flex text-[12px] mr-1 text-violet-400 ${
                 !linkProps.enableStats && "cursor-not-allowed"
@@ -71,7 +77,7 @@ export default function LinkManager({ linkProps }: { linkProps: LinkProps }) {
             >
               {linkProps.text}
             </span>
-          </a>
+          )}
         </Button>
       ) : null}
     </div>
