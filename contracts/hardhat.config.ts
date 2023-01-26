@@ -8,6 +8,7 @@ import "hardhat-gas-reporter";
 import "solidity-coverage";
 import "@openzeppelin/hardhat-upgrades";
 import "@primitivefi/hardhat-dodoc";
+import "hardhat-gas-reporter"
 
 dotenv.config();
 

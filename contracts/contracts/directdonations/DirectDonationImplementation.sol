@@ -63,19 +63,14 @@ contract DirectDonationImplementation is ReentrancyGuardUpgradeable {
         emit Voted(_token, _amount, msg.sender, _grantAddress, _projectId);
     }
 
-    // todo: tbd: remove voterAddress from vote function, because it's always msg.sender
-    function vote(
-        bytes[] calldata encodedVotes
-    ) external payable nonReentrant {
+    function vote(bytes[] calldata encodedVotes) external payable nonReentrant {
         /// @dev iterate over multiple donations and transfer funds
         for (uint256 i = 0; i < encodedVotes.length; i++) {
             _vote(encodedVotes[i]);
         }
     }
 
-    function vote(
-        bytes calldata encodedVote
-    ) external payable nonReentrant {
+    function vote(bytes calldata encodedVote) external payable nonReentrant {
         _vote(encodedVote);
     }
 }
