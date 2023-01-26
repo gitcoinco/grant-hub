@@ -15,7 +15,7 @@ const optionalSpan = (
   <span className="text-gray-400 inset-y-0 right-0 text-sm">Optional</span>
 );
 const requiredSpan = (
-  <span className="text-purple-700 inset-y-0 right-0">*Required</span>
+  <span className="text-purple-700 inset-y-0 right-0 text-sm">*Required</span>
 );
 
 const encryptionTooltipLabel =
