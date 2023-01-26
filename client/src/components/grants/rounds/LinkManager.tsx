@@ -17,12 +17,12 @@ export default function LinkManager({ linkProps }: { linkProps: LinkProps }) {
   const disableExternalLink = linkProps.applicationStatus === "APPROVED";
 
   return (
-    <>
+    <div className="w-full">
       {linkProps.displayType === RoundDisplayType.Active ? (
         // if active round and application is still pending, disable button
         <Button
           disabled={!disableExternalLink}
-          className={`bg-gitcoin-violet-100 flex p-2 rounded-md max-w-fit ${
+          className={`bg-gitcoin-violet-100 flex p-2 my-4 rounded-md max-w-fit ${
             disabled && "cursor-not-allowed"
           }`}
         >
@@ -93,7 +93,7 @@ export default function LinkManager({ linkProps }: { linkProps: LinkProps }) {
           </a>
         </Button>
       ) : null}
-    </>
+    </div>
   );
 }
 

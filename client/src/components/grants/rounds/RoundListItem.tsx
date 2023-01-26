@@ -113,7 +113,7 @@ export default function RoundListItem({
       return <span className="text-red-500">Rejected</span>;
     }
 
-    return <span className="text-green-500">Active</span>;
+    return <span className="text-green-500 ml-4 lg:ml-2">Active</span>;
   };
 
   const applicationLink = roundApplicationPathForProject(
@@ -127,30 +127,32 @@ export default function RoundListItem({
 
   return (
     <Box>
-      <Box className="w-full my-8 flex flex-row basis-0 justify-between items-center">
-        <Box className="flex-1">
+      <Box className="w-full my-8 lg:flex md:flex basis-0 justify-between items-center">
+        <Box className="flex-1 my-2">
           {!props.round?.programName ? (
             <Spinner />
           ) : (
             <span>{props.round?.programName}</span>
           )}
         </Box>
-        <Box className="flex-1">
+        <Box className="flex-1 my-2">
           {!props.round?.roundMetadata.name ? (
             <Spinner />
           ) : (
             <span>{props.round?.roundMetadata.name}</span>
           )}
         </Box>
-        <Box className="flex-1">
+        <Box className="flex-1 my-2">
           {!props.round?.roundStartTime ? (
             <Spinner />
           ) : (
             <span>{renderApplicationDate()}</span>
           )}
         </Box>
-        <Box className="flex-1">{renderApplicationBadge(displayType!)}</Box>
-        <Box className="flex-1">
+        <Box className="flex-1 my-2">
+          {renderApplicationBadge(displayType!)}
+        </Box>
+        <Box className="flex-1 my-2">
           {displayType === RoundDisplayType.Active ? (
             <LinkManager
               linkProps={{
