@@ -58,11 +58,17 @@ export default function Details({
         bannerImg={bannerImg}
         logoImg={logoImg}
       />
-      <Tabs className="mt-8" defaultIndex={0}>
+      <Tabs _fullScreen={{ width: "200px" }} className="mt-8" defaultIndex={0}>
         <TabList className="mb-12">
-          <Tab _focus={{ boxShadow: "none" }}>About</Tab>
-          <Tab _focus={{ boxShadow: "none" }}>Stats</Tab>
-          <Tab _focus={{ boxShadow: "none" }}>Rounds</Tab>
+          <Tab _focus={{ boxShadow: "none" }} _selected={{ color: "#6F3FF5" }}>
+            <span>About</span>
+          </Tab>
+          <Tab _focus={{ boxShadow: "none" }} _selected={{ color: "#6F3FF5" }}>
+            Stats
+          </Tab>
+          <Tab _focus={{ boxShadow: "none" }} _selected={{ color: "#6F3FF5" }}>
+            Rounds
+          </Tab>
         </TabList>
         <TabPanels>
           <TabPanel>

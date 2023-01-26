@@ -58,13 +58,13 @@ export default function RoundListItem({
     let colorScheme: string | undefined;
     switch (applicationData?.status) {
       case "APPROVED":
-        colorScheme = "green";
+        colorScheme = "bg-[#E6FFF9]";
         break;
       case "REJECTED":
-        colorScheme = "red";
+        colorScheme = "bg-[#FAADBFd]";
         break;
       case "PENDING":
-        colorScheme = undefined;
+        colorScheme = "bg-[#E2E0E7]";
         break;
       default:
         colorScheme = undefined;
@@ -77,8 +77,7 @@ export default function RoundListItem({
     if (!activeBadge && !pastBadge) {
       return (
         <Badge
-          colorScheme={colorScheme}
-          className="bg-gitcoin-gray-100 max-w-fit"
+          className={`bg-gitcoin-gray-100 max-w-fit ${colorScheme}`}
           borderRadius="full"
           p={2}
         >
