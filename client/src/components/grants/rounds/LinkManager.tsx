@@ -11,20 +11,21 @@ export type LinkProps = {
   applicationStatus: AppStatus;
 };
 
-// todo: disable button link if the application was not approved
 export default function LinkManager({ linkProps }: { linkProps: LinkProps }) {
   const disabled = linkProps.displayType === RoundDisplayType.Current;
   const disableExternalLink = linkProps.applicationStatus === "APPROVED";
 
+  const isMobile = window.innerWidth < 768;
+
   return (
     <div className="w-full">
       {linkProps.displayType === RoundDisplayType.Active ? (
-        // if active round and application is still pending, disable button
         <Button
           disabled={!disableExternalLink}
-          className={`bg-gitcoin-violet-100 flex p-2 my-4 rounded-md max-w-fit ${
+          className={`bg-gitcoin-violet-100 flex p-2 my-4 rounded-md ${
             disabled && "cursor-not-allowed"
           }`}
+          width={isMobile ? "100%" : "auto"}
         >
           <a
             className="flex flex-row"
@@ -47,35 +48,15 @@ export default function LinkManager({ linkProps }: { linkProps: LinkProps }) {
           </a>
         </Button>
       ) : null}
-      {linkProps.displayType === RoundDisplayType.Current ? (
-        <Button
-          disabled={disabled}
-          className={`bg-gitcoin-violet-100 flex p-2 rounded-md max-w-fit ${
-            disabled && "cursor-not-allowed"
-          }`}
-        >
-          <a
-            className="flex flex-row"
-            href={linkProps.link}
-            rel="noreferrer"
-            target="_blank"
-          >
-            <span
-              className={`flex text-[12px] mr-1 text-violet-400 ${
-                disabled && "cursor-not-allowed"
-              }`}
-            >
-              {linkProps.text}
-            </span>
-          </a>
-        </Button>
-      ) : null}
+      {/* Applications link is todo: Andrea PR */}
+      {linkProps.displayType === RoundDisplayType.Current ?? null}
       {linkProps.displayType === RoundDisplayType.Past ? (
         <Button
           disabled={!linkProps.enableStats}
-          className={`bg-gitcoin-violet-100 flex p-2 rounded-md max-w-fit ${
+          className={`bg-gitcoin-violet-100 flex p-2 rounded-md ${
             !linkProps.enableStats && "cursor-not-allowed"
           }`}
+          width={isMobile ? "100%" : "auto"}
         >
           <a
             href={linkProps.link}
