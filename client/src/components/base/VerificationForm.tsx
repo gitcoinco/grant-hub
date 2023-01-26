@@ -73,7 +73,7 @@ export default function VerificationForm({
         <div className="lg:col-span-11">
           <div className="row-span-2 flex items-center">
             <TextInput
-              label="Your Github Username"
+              label="Your GitHub Username"
               name="userGithub"
               placeholder="GitHub username you use to contribute to the project"
               value={props.formMetaData.userGithub}
@@ -84,7 +84,7 @@ export default function VerificationForm({
           </div>
           <div className="row-span-2 flex items-center">
             <TextInput
-              label="Github Organization"
+              label="GitHub Organization"
               name="projectGithub"
               placeholder="GitHub org name your project is part of"
               value={props.formMetaData.projectGithub}
