@@ -105,14 +105,14 @@ export default function RoundListItem({
     }
 
     if (applicationData?.status === "PENDING") {
-      return <span className="text-gray-500">In Review</span>;
+      return <span className="text-gitcoin-grey-400">In Review</span>;
     }
 
     if (applicationData?.status === "REJECTED") {
-      return <span className="text-red-500">Rejected</span>;
+      return <span className="text-gitcoin-pink-400">Rejected</span>;
     }
 
-    return <span className="text-green-500 ml-4 lg:ml-2">Active</span>;
+    return <span className="text-gitcoin-teal-500 ml-4 lg:ml-2">Active</span>;
   };
 
   const applicationLink = roundApplicationPathForProject(
