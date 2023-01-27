@@ -57,15 +57,14 @@ export default function RoundStatGroup({
             (app) => app.roundID === round.address
           );
           return (
-            <>
+            <div key={Math.random() / 1000 + 3}>
               <RoundListItem
-                key={Math.random() * 1000 + 3}
                 applicationData={appData}
                 displayType={displayType}
                 projectId={projectId}
               />
               <Divider className="last-of-type:hidden" borderColor="#F3F3F5" />
-            </>
+            </div>
           );
         })}
       </Box>

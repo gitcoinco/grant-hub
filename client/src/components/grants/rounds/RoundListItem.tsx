@@ -47,8 +47,6 @@ export default function RoundListItem({
     };
   });
 
-  console.log("JER props", props);
-
   const renderApplicationDate = () => (
     <>
       {formatDateFromSecs(props.round?.roundStartTime!)} -{" "}

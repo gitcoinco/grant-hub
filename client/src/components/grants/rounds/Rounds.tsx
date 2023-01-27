@@ -18,7 +18,6 @@ export default function Rounds() {
     const applications = state.projects.applications[params.id!] || [];
     const roundIds = applications?.map((round) => round.roundID);
     const { rounds } = state;
-    console.log(state);
     return {
       rounds,
       roundIds,
@@ -30,6 +29,7 @@ export default function Rounds() {
 
   const renderStatGroup = (displayType: RoundDisplayType, rounds: Round[]) => (
     <RoundStatGroup
+      key={props.fullId ?? Math.random().toString(36)}
       projectId={props.fullId ?? ""}
       applicationData={props.applications}
       displayType={displayType}
