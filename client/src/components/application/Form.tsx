@@ -49,21 +49,21 @@ export default function Form({
   round,
   onSubmit,
   showErrorModal,
-  readonly,
+  readOnly,
   publishedApplication,
 }: {
   roundApplication: RoundApplicationMetadata;
   round: Round;
   onSubmit: () => void;
   showErrorModal: boolean;
-  readonly?: boolean;
+  readOnly?: boolean;
   publishedApplication?: any;
 }) {
   const dispatch = useDispatch();
   const { chains } = useNetwork();
 
   const [formInputs, setFormInputs] = useState<DynamicFormInputs>({});
-  const [preview, setPreview] = useState(readonly || false);
+  const [preview, setPreview] = useState(readOnly || false);
   const [formValidation, setFormValidation] = useState(validation);
   const [projectOptions, setProjectOptions] = useState<ProjectOption[]>();
   const [showProjectDetails] = useState(true);
@@ -226,7 +226,7 @@ export default function Form({
         {schema.map((input) => {
           switch (input.type) {
             case "PROJECT":
-              return readonly ? (
+              return readOnly ? (
                 <TextInput
                   key={input.id}
                   label={input.question}
@@ -304,7 +304,7 @@ export default function Form({
               /* Radio for safe or multi-sig */
               return (
                 <Fragment key={input.id}>
-                  {!readonly && (
+                  {!readOnly && (
                     <div className="relative mt-2" data-testid="wallet-type">
                       <Stack>
                         <Radio
@@ -479,7 +479,7 @@ export default function Form({
             </ul>
           </div>
         )}
-        {!readonly && (
+        {!readOnly && (
           <div className="flex justify-end">
             {!preview ? (
               <Button
