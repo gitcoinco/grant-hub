@@ -1,5 +1,5 @@
 // eslint-disable max-len
-import { Badge, Box, Divider, Spinner } from "@chakra-ui/react";
+import { Badge, Box, Spinner } from "@chakra-ui/react";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../reducers";
 import { Application } from "../../../reducers/projects";
@@ -190,7 +190,6 @@ export default function RoundListItem({
           ) : null}
         </Box>
       </Box>
-      <Divider className="mb-8 last-of-type:hidden" borderColor="#F3F3F5" />
     </Box>
   );
 }

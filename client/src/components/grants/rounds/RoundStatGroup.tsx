@@ -1,4 +1,4 @@
-import { Box } from "@chakra-ui/react";
+import { Box, Divider } from "@chakra-ui/react";
 import { Application } from "../../../reducers/projects";
 import { Round, RoundDisplayType } from "../../../types";
 import RoundListItem from "./RoundListItem";
@@ -57,12 +57,15 @@ export default function RoundStatGroup({
             (app) => app.roundID === round.address
           );
           return (
-            <RoundListItem
-              key={Math.random() * 1000 + 3}
-              applicationData={appData}
-              displayType={displayType}
-              projectId={projectId}
-            />
+            <>
+              <RoundListItem
+                key={Math.random() * 1000 + 3}
+                applicationData={appData}
+                displayType={displayType}
+                projectId={projectId}
+              />
+              <Divider className="last-of-type:hidden" borderColor="#F3F3F5" />
+            </>
           );
         })}
       </Box>
