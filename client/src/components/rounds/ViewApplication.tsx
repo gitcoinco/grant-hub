@@ -161,7 +161,7 @@ function ViewApplication() {
               showErrorModal={props.showErrorModal || false}
               round={props.round}
               onSubmit={() => {}}
-              readonly
+              readOnly
             />
           )}
         </div>
