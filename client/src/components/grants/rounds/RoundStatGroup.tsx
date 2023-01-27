@@ -5,14 +5,12 @@ import RoundListItem from "./RoundListItem";
 
 export default function RoundStatGroup({
   projectId,
-  applicationData,
   displayType,
   rounds,
 }: {
   projectId: string;
-  applicationData?: Application[];
   displayType: RoundDisplayType;
-  rounds: Round[];
+  rounds: {round: Round, application: Application}[];
 }) {
   let roundStatHeader: JSX.Element | undefined;
 
@@ -53,13 +51,10 @@ export default function RoundStatGroup({
       <Box className="flex-1">
         {roundStatHeader ?? null}
         {rounds.map((round) => {
-          const appData = applicationData?.find(
-            (app) => app.roundID === round.address
-          );
           return (
             <div key={Math.random() / 1000 + 3}>
               <RoundListItem
-                applicationData={appData}
+                applicationData={round.application}
                 displayType={displayType}
                 projectId={projectId}
               />

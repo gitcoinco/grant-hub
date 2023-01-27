@@ -362,27 +362,32 @@ export const fetchProjectApplications =
 
     const { web3Provider } = global;
 
-    await web3Provider?.chains?.forEach(async (chain) => {
-      const addresses = addressesByChainID(projectChainId);
-      const projectApplicationID = generateUniqueRoundApplicationID(
-        projectChainId,
-        projectID,
-        addresses.projectRegistry
-      );
+    if (!web3Provider?.chains) {
+      return;
+    }
 
-      // During the first alpha round, we created applications with the wrong chain id (using the
-      // round chain instead of the project chain). This is a fix to display the applications with
-      // the wrong application id. NOTE: there is a possibility of clash, because the contracts
-      // have the same address on multiple chains.
-      const projectApplicationIDWithChain = generateUniqueRoundApplicationID(
-        chain.id,
-        projectID,
-        addresses.projectRegistry
-      );
+    await Promise.all(
+      web3Provider.chains.map(async (chain) => {
+        const addresses = addressesByChainID(projectChainId);
+        const projectApplicationID = generateUniqueRoundApplicationID(
+          projectChainId,
+          projectID,
+          addresses.projectRegistry
+        );
 
-      try {
-        const response: any = await graphqlFetch(
-          `query roundProjects($projectID: String, $projectApplicationIDWithChain: String) {
+        // During the first alpha round, we created applications with the wrong chain id (using the
+        // round chain instead of the project chain). This is a fix to display the applications with
+        // the wrong application id. NOTE: there is a possibility of clash, because the contracts
+        // have the same address on multiple chains.
+        const projectApplicationIDWithChain = generateUniqueRoundApplicationID(
+          chain.id,
+          projectID,
+          addresses.projectRegistry
+        );
+
+        try {
+          const response: any = await graphqlFetch(
+            `query roundProjects($projectID: String, $projectApplicationIDWithChain: String) {
             roundProjects(where: { project_in: [$projectID, $projectApplicationIDWithChain] }) {
               status
               round {
@@ -391,55 +396,60 @@ export const fetchProjectApplications =
             }
           }
           `,
-          chain.id,
-          {
-            projectID: projectApplicationID,
-            projectApplicationIDWithChain,
-          },
-          reactEnv
-        );
+            chain.id,
+            {
+              projectID: projectApplicationID,
+              projectApplicationIDWithChain,
+            },
+            reactEnv
+          );
 
-        const applications = response.data.roundProjects.map((rp: any) => ({
-          status: rp.status,
-          roundID: rp.round.id,
-          chainId: chain.id,
-        }));
+          if (response.errors) {
+            throw response.errors;
+          }
 
-        if (applications.length === 0) {
-          return;
-        }
+          const applications = response.data.roundProjects.map((rp: any) => ({
+            status: rp.status,
+            roundID: rp.round.id,
+            chainId: chain.id,
+          }));
 
-        dispatch({
-          type: PROJECT_APPLICATIONS_LOADED,
-          projectID,
-          applications,
-        });
+          if (applications.length === 0) {
+            return;
+          }
 
-        // Update each application with the status from the contract
-        // FIXME: This part can be removed when we are sure that the
-        // aplication status returned from the graph is up to date.
-        // eslint-disable-next-line
-        const roundAddresses = applications.map(
-          (app: Application) => app.roundID
-        );
-        dispatch<any>(
-          fetchApplicationStatusesFromContract(
-            roundAddresses,
+          dispatch({
+            type: PROJECT_APPLICATIONS_LOADED,
             projectID,
-            projectApplicationID,
-            chain.id
-          )
-        );
-      } catch (error: any) {
-        datadogRum.addError(error, { projectID });
-        console.error(error);
-        dispatch({
-          type: PROJECT_APPLICATIONS_ERROR,
-          projectID,
-          error: error.message,
-        });
-      }
-    });
+            applications,
+          });
+
+          // Update each application with the status from the contract
+          // FIXME: This part can be removed when we are sure that the
+          // aplication status returned from the graph is up to date.
+          // eslint-disable-next-line
+          const roundAddresses = applications.map(
+            (app: Application) => app.roundID
+          );
+          dispatch<any>(
+            fetchApplicationStatusesFromContract(
+              roundAddresses,
+              projectID,
+              projectApplicationID,
+              chain.id
+            )
+          );
+        } catch (error: any) {
+          datadogRum.addError(error, { projectID });
+          console.error(error);
+          dispatch({
+            type: PROJECT_APPLICATIONS_ERROR,
+            projectID,
+            error: error.message,
+          });
+        }
+      })
+    );
   };
 
 export const unloadProjects = () => projectsUnload();
