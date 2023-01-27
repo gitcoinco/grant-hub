@@ -99,6 +99,10 @@ export default function Form({
   const schema = roundApplication.applicationSchema;
 
   useEffect(() => {
+    if (publishedApplication === undefined) {
+      return;
+    }
+
     const inputValues: DynamicFormInputs = {};
     publishedApplication.application.answers.forEach((answer: any) => {
       inputValues[answer.questionId] = answer.answer ?? "***";
@@ -300,21 +304,23 @@ export default function Form({
               /* Radio for safe or multi-sig */
               return (
                 <Fragment key={input.id}>
-                  {!readonly && (<div className="relative mt-2" data-testid="wallet-type">
-                    <Stack>
-                      <Radio
-                        label="Is your payout wallet a Gnosis Safe or multi-sig?"
-                        choices={["Yes", "No"]}
-                        changeHandler={handleInput}
-                        name="isSafe"
-                        value={formInputs.isSafe}
-                        info=""
-                        required={input.required ?? true}
-                        disabled={preview}
-                        feedback={
-                          feedback.find((fb) => fb.title === "isSafe") ?? {
-                            type: "none",
-                            message: "",
+                  {!readonly && (
+                    <div className="relative mt-2" data-testid="wallet-type">
+                      <Stack>
+                        <Radio
+                          label="Is your payout wallet a Gnosis Safe or multi-sig?"
+                          choices={["Yes", "No"]}
+                          changeHandler={handleInput}
+                          name="isSafe"
+                          value={formInputs.isSafe}
+                          info=""
+                          required={input.required ?? true}
+                          disabled={preview}
+                          feedback={
+                            feedback.find((fb) => fb.title === "isSafe") ?? {
+                              type: "none",
+                              message: "",
+                            }
                           }
                         />
                       </Stack>

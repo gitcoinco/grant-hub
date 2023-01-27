@@ -56,6 +56,7 @@ const roundApplicationInitialState = {
   status: Status.Undefined,
   error: undefined,
   projectsIDs: [],
+  metadataFromIpfs: {},
 };
 
 export const roundApplicationReducer = (
@@ -164,7 +165,8 @@ export const roundApplicationReducer = (
     }
 
     case APPLICATION_DATA_LOADED: {
-      const application = state[action.roundAddress];
+      const application =
+        state[action.roundAddress] || roundApplicationInitialState;
       return {
         ...state,
         [action.roundAddress]: {

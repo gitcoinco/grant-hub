@@ -152,7 +152,7 @@ function ViewApplication() {
           {!props.applicationMetadata === undefined && (
             <div>loading form...</div>
           )}
-          {props.applicationMetadata !== undefined && (
+          {props.applicationMetadata && props.publishedApplicationMetadata && (
             <Form
               roundApplication={props.applicationMetadata}
               publishedApplication={
