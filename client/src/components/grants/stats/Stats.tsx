@@ -111,7 +111,7 @@ export default function RoundStats() {
             heading="Est. Funding Received"
             value={`$${allTimeStats.allTimeReceived.toFixed(2)}`}
             bg="gitcoin-violet-100"
-            tooltip="The estimated funding received by this project."
+            tooltip="The estimated funding received by this project. This number is not final and may change based on updated data."
           />
           <StatCard
             heading="No. of Contributions"
