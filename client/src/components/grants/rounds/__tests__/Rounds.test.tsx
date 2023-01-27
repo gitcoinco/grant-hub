@@ -20,6 +20,66 @@ jest.mock("react-router-dom", () => ({
   }),
 }));
 
+const buildActiveRound = (roundData: any) => {
+  const now = Date.now() / 1000;
+
+  const applicationsStartTime = now - 20000;
+  const applicationsEndTime = now - 10000;
+
+  const roundStartTime = applicationsEndTime;
+  const roundEndTime = now + 20000;
+
+  const round = buildRound({
+    address: addressFrom(1),
+    applicationsStartTime,
+    applicationsEndTime,
+    roundStartTime,
+    roundEndTime,
+    ...roundData,
+  });
+  return round;
+};
+
+const buildPastRound = (roundData: any) => {
+  const now = Date.now() / 1000;
+
+  const applicationsStartTime = now - 2000;
+  const applicationsEndTime = now - 1000;
+
+  const roundStartTime = applicationsEndTime;
+  const roundEndTime = now - 900;
+
+  const round = buildRound({
+    address: addressFrom(1),
+    applicationsStartTime,
+    applicationsEndTime,
+    roundStartTime,
+    roundEndTime,
+    ...roundData,
+  });
+  return round;
+};
+
+const buildCurrentApplication = (roundData: any) => {
+  const now = Date.now() / 1000;
+
+  const applicationsStartTime = now - 2000;
+  const applicationsEndTime = now + 2000;
+
+  const roundStartTime = applicationsEndTime;
+  const roundEndTime = now + 3000;
+
+  const round = buildRound({
+    address: addressFrom(1),
+    applicationsStartTime,
+    applicationsEndTime,
+    roundStartTime,
+    roundEndTime,
+    ...roundData,
+  });
+  return round;
+};
+
 describe("<Rounds />", () => {
   afterEach(() => {
     cleanup();
@@ -32,24 +92,22 @@ describe("<Rounds />", () => {
       });
 
       expect(
-        screen.getByText("Loading your information, please stand by...")
-      ).toBeInTheDocument();
+        screen.queryAllByText("Loading your information, please stand by...")
+          .length
+      ).toBeGreaterThan(0);
     });
   });
 
   describe("when the data is loaded", () => {
-    const store = setupStore();
-    store.dispatch(web3ChainIDLoaded(5));
+    test("should show the active rounds, badges and buttons", async () => {
+      const store = setupStore();
+      store.dispatch(web3ChainIDLoaded(5));
 
-    test.only("should show the active rounds", async () => {
-      const round1 = buildRound({
-        address: addressFrom(1),
-        applicationsEndTime: 1663751954,
-        // you need to set the correct application and round times which fits into your if statements
-      });
-      const round2 = buildRound({
+      const round1 = buildActiveRound({});
+      const round2 = buildActiveRound({
         address: addressFrom(2),
       });
+
       store.dispatch({
         type: "ROUNDS_ROUND_LOADED",
         address: addressFrom(1),
@@ -77,20 +135,96 @@ describe("<Rounds />", () => {
       await act(async () => {
         renderWrapped(<Rounds />, store);
       });
+
       expect(screen.getByText("Active Rounds")).toBeInTheDocument();
+      expect(screen.getByText("Active")).toBeInTheDocument();
+      expect(screen.getByText("Rejected")).toBeInTheDocument();
+      expect(screen.queryAllByText("View on Explorer")).toHaveLength(2);
     });
 
-    test("should show the current applications", async () => {
+    test("should show the current applications and badges", async () => {
+      const store = setupStore();
+      store.dispatch(web3ChainIDLoaded(5));
+
+      const round1 = buildCurrentApplication({});
+      const round2 = buildCurrentApplication({
+        address: addressFrom(2),
+      });
+
+      store.dispatch({
+        type: "ROUNDS_ROUND_LOADED",
+        address: addressFrom(1),
+        round: round1,
+      });
+      store.dispatch({
+        type: "ROUNDS_ROUND_LOADED",
+        address: addressFrom(2),
+        round: round2,
+      });
+      const applications = [];
+      applications.push(
+        buildProjectApplication({ roundID: addressFrom(1), status: "APPROVED" })
+        // set the status directly here, saves some pain
+      );
+      applications.push(
+        buildProjectApplication({ roundID: addressFrom(2), status: "REJECTED" })
+      );
+      store.dispatch({
+        type: "PROJECT_APPLICATIONS_LOADED",
+        applications,
+        projectID: "2",
+      });
+
       await act(async () => {
         renderWrapped(<Rounds />, store);
       });
+
       expect(screen.getByText("Current Applications")).toBeInTheDocument();
+      expect(screen.getByText("APPROVED")).toBeInTheDocument();
+      expect(screen.getByText("REJECTED")).toBeInTheDocument();
     });
-    test("should show the past rounds", async () => {
+
+    test("should show the past rounds, badges and buttons", async () => {
+      const store = setupStore();
+      store.dispatch(web3ChainIDLoaded(5));
+
+      const round1 = buildPastRound({});
+      const round2 = buildPastRound({
+        address: addressFrom(2),
+      });
+
+      store.dispatch({
+        type: "ROUNDS_ROUND_LOADED",
+        address: addressFrom(1),
+        round: round1,
+      });
+      store.dispatch({
+        type: "ROUNDS_ROUND_LOADED",
+        address: addressFrom(2),
+        round: round2,
+      });
+      const applications = [];
+      applications.push(
+        buildProjectApplication({ roundID: addressFrom(1), status: "APPROVED" })
+        // set the status directly here, saves some pain
+      );
+      applications.push(
+        buildProjectApplication({ roundID: addressFrom(2), status: "REJECTED" })
+      );
+      store.dispatch({
+        type: "PROJECT_APPLICATIONS_LOADED",
+        applications,
+        projectID: "2",
+      });
+
       await act(async () => {
         renderWrapped(<Rounds />, store);
       });
+
       expect(screen.getByText("Past Rounds")).toBeInTheDocument();
+      expect(screen.getByText("Approved")).toBeInTheDocument();
+      expect(screen.getByText("Not Approved")).toBeInTheDocument();
+      expect(screen.queryAllByText("View Stats")).toHaveLength(2);
     });
   });
 });
