@@ -366,26 +366,27 @@ export const fetchProjectApplications =
       return;
     }
 
-    await Promise.all(
+    const apps = await Promise.all(
       web3Provider.chains.map(async (chain) => {
-        const addresses = addressesByChainID(projectChainId);
-        const projectApplicationID = generateUniqueRoundApplicationID(
-          projectChainId,
-          projectID,
-          addresses.projectRegistry
-        );
-
-        // During the first alpha round, we created applications with the wrong chain id (using the
-        // round chain instead of the project chain). This is a fix to display the applications with
-        // the wrong application id. NOTE: there is a possibility of clash, because the contracts
-        // have the same address on multiple chains.
-        const projectApplicationIDWithChain = generateUniqueRoundApplicationID(
-          chain.id,
-          projectID,
-          addresses.projectRegistry
-        );
-
         try {
+          const addresses = addressesByChainID(projectChainId);
+          const projectApplicationID = generateUniqueRoundApplicationID(
+            projectChainId,
+            projectID,
+            addresses.projectRegistry
+          );
+
+          // During the first alpha round, we created applications with the wrong chain id (using the
+          // round chain instead of the project chain). This is a fix to display the applications with
+          // the wrong application id. NOTE: there is a possibility of clash, because the contracts
+          // have the same address on multiple chains.
+          const projectApplicationIDWithChain =
+            generateUniqueRoundApplicationID(
+              chain.id,
+              projectID,
+              addresses.projectRegistry
+            );
+
           const response: any = await graphqlFetch(
             `query roundProjects($projectID: String, $projectApplicationIDWithChain: String) {
             roundProjects(where: { project_in: [$projectID, $projectApplicationIDWithChain] }) {
@@ -415,14 +416,8 @@ export const fetchProjectApplications =
           }));
 
           if (applications.length === 0) {
-            return;
+            return [];
           }
-
-          dispatch({
-            type: PROJECT_APPLICATIONS_LOADED,
-            projectID,
-            applications,
-          });
 
           // Update each application with the status from the contract
           // FIXME: This part can be removed when we are sure that the
@@ -431,6 +426,7 @@ export const fetchProjectApplications =
           const roundAddresses = applications.map(
             (app: Application) => app.roundID
           );
+
           dispatch<any>(
             fetchApplicationStatusesFromContract(
               roundAddresses,
@@ -439,17 +435,22 @@ export const fetchProjectApplications =
               chain.id
             )
           );
+
+          return applications;
         } catch (error: any) {
           datadogRum.addError(error, { projectID });
           console.error(error);
-          dispatch({
-            type: PROJECT_APPLICATIONS_ERROR,
-            projectID,
-            error: error.message,
-          });
+
+          return [];
         }
       })
     );
+
+    dispatch({
+      type: PROJECT_APPLICATIONS_LOADED,
+      projectID,
+      applications: apps.flat(),
+    });
   };
 
 export const unloadProjects = () => projectsUnload();

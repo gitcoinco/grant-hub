@@ -5,7 +5,6 @@ import { RootState } from "../../../reducers";
 import { Application } from "../../../reducers/projects";
 import { Status } from "../../../reducers/rounds";
 import { RoundDisplayType } from "../../../types";
-import Round from "../../rounds/Show";
 import RoundListItem from "./RoundListItem";
 
 const displayHeaders = {
@@ -13,6 +12,11 @@ const displayHeaders = {
   [RoundDisplayType.Current]: "Current Applications",
   [RoundDisplayType.Past]: "Past Rounds",
 };
+
+function secondsSinceEpoch(): number {
+  const date = new Date();
+  return Math.floor(date.getTime() / 1000);
+}
 
 export default function Rounds() {
   const params = useParams();
@@ -22,59 +26,53 @@ export default function Rounds() {
     const fullId = `${params.chainId}:${params.registryAddress}:${params.id}`;
     const { rounds } = state;
 
-    const applications =
-      state.projects.applications[params.id!]?.reduce(
-        (acc: { [key in RoundDisplayType]?: Application[] }, app) => {
-          const roundState = state.rounds[app.roundID];
-          let category = null;
+    const applications = state.projects.applications[params.id!]?.map((app) => {
+      const roundState = state.rounds[app.roundID];
 
-          if (!roundState) return acc;
+      if (!roundState) {
+        return { app, category: null, isLoading: true };
+      }
 
-          const status = roundState.status ?? Status.Undefined;
-          const round = roundState.round;
+      const status = roundState.status ?? Status.Undefined;
+      const { round } = roundState;
 
-          if (status === Status.Loaded && round) {
-            const currentTime = secondsSinceEpoch();
-            // Current Applications
-            if (
-              round.applicationsStartTime < currentTime &&
-              round.applicationsEndTime > currentTime &&
-              round.roundStartTime > currentTime &&
-              round.roundEndTime > currentTime
-            ) {
-              category = RoundDisplayType.Current;
-            }
-            // Active Rounds
-            if (
-              round.roundEndTime > currentTime &&
-              round.roundStartTime < currentTime &&
-              round.applicationsEndTime < currentTime &&
-              round.applicationsStartTime < currentTime
-            ) {
-              category = RoundDisplayType.Active;
-            }
-            // Past Rounds
-            if (
-              round.roundEndTime < currentTime &&
-              round.roundStartTime < currentTime &&
-              round.applicationsEndTime < currentTime &&
-              round.applicationsStartTime < currentTime
-            ) {
-              category = RoundDisplayType.Past;
-            }
-          }
+      if (status === Status.Loaded && round) {
+        let category = null;
+        const currentTime = secondsSinceEpoch();
+        // Current Applications
+        if (
+          round.applicationsStartTime < currentTime &&
+          round.applicationsEndTime > currentTime &&
+          round.roundStartTime > currentTime &&
+          round.roundEndTime > currentTime
+        ) {
+          category = RoundDisplayType.Current;
+        }
+        // Active Rounds
+        if (
+          round.roundEndTime > currentTime &&
+          round.roundStartTime < currentTime &&
+          round.applicationsEndTime < currentTime &&
+          round.applicationsStartTime < currentTime
+        ) {
+          category = RoundDisplayType.Active;
+        }
+        // Past Rounds
+        if (
+          round.roundEndTime < currentTime &&
+          round.roundStartTime < currentTime &&
+          round.applicationsEndTime < currentTime &&
+          round.applicationsStartTime < currentTime
+        ) {
+          category = RoundDisplayType.Past;
+        }
 
-          if (!category) {
-            return acc;
-          }
+        return { app, category, isLoading: false };
+      }
 
-          acc[category] = acc[category] ?? [];
-          acc[category]!.push(app);
-
-          return acc;
-        },
-        {}
-      ) ?? {};
+      // the round is not yet loaded
+      return { app, category: null, isLoading: true };
+    });
 
     return {
       rounds,
@@ -86,32 +84,31 @@ export default function Rounds() {
 
   const renderStatGroup = (
     displayType: RoundDisplayType,
-    applications?: Application[]
+    isLoading: boolean,
+    applications: Application[]
   ) => (
     <div>
       <span className="text-gitcoin-grey-500 text-[12px] font-semibold">
         {displayHeaders[displayType]}
       </span>
-      {applications &&
+      {!isLoading &&
         applications.length > 0 &&
-        applications.map((app, i) => {
-          return (
-            <div key={i}>
-              <RoundListItem
-                applicationData={app}
-                displayType={displayType as RoundDisplayType}
-                projectId={props.fullId}
-              />
-              <Divider className="last-of-type:hidden" borderColor="#F3F3F5" />
-            </div>
-          );
-        })}
-      {applications && applications.length == 0 && (
+        applications.map((app) => (
+          <div key={app.roundID}>
+            <RoundListItem
+              applicationData={app}
+              displayType={displayType as RoundDisplayType}
+              projectId={props.fullId}
+            />
+            <Divider className="last-of-type:hidden" borderColor="#F3F3F5" />
+          </div>
+        ))}
+      {!isLoading && applications.length === 0 && (
         <div className="text-base text-gitcoin-grey-400 flex flex-col items-center justify-center p-10">
           <span>No Data</span>
         </div>
       )}
-      {applications === undefined && (
+      {isLoading && (
         <div className="text-base text-gitcoin-grey-400 flex flex-col items-center justify-center p-10">
           <span>Loading your information, please stand by...</span>
           <Spinner className="flex mt-4" />
@@ -121,13 +118,6 @@ export default function Rounds() {
     </div>
   );
 
-  function secondsSinceEpoch(): number {
-    const date = new Date();
-    return Math.floor(date.getTime() / 1000);
-  }
-
-  // Sort the applications into the correct categories
-
   return (
     <div className="w-full mb-4">
       <div className="flex-col">
@@ -135,7 +125,11 @@ export default function Rounds() {
           <div key={displayType}>
             {renderStatGroup(
               displayType as RoundDisplayType,
-              props.applications[displayType as RoundDisplayType]
+              // when props.applications is undefined, we are still loading, when it's not undefined, we check if any of the rounds are still loading
+              props.applications?.some((a) => a.isLoading) ?? true,
+              props.applications?.flatMap(({ app, category }) =>
+                category === displayType ? [app] : []
+              ) ?? []
             )}
           </div>
         ))}
