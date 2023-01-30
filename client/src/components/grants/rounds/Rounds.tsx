@@ -88,7 +88,7 @@ export default function Rounds() {
     applications: Application[]
   ) => (
     <div>
-      <span className="text-gitcoin-grey-500 text-[12px] font-semibold">
+      <span className="text-gitcoin-grey-500 text-[12px] font-normal">
         {displayHeaders[displayType]}
       </span>
       {!isLoading &&
@@ -100,7 +100,7 @@ export default function Rounds() {
               displayType={displayType as RoundDisplayType}
               projectId={props.fullId}
             />
-            <Divider className="last-of-type:hidden" borderColor="#F3F3F5" />
+            <Divider className="" borderColor="#F3F3F5" />
           </div>
         ))}
       {!isLoading && applications.length === 0 && (

@@ -1,5 +1,5 @@
 // eslint-disable max-len
-import { Badge, Box, Spinner } from "@chakra-ui/react";
+import { Badge, Box, Divider, Spinner } from "@chakra-ui/react";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../reducers";
 import { Application } from "../../../reducers/projects";
@@ -126,7 +126,7 @@ export default function RoundListItem({
 
   return (
     <Box>
-      <Box className="w-full my-8 lg:flex md:flex basis-0 justify-between items-center">
+      <Box className="w-full my-8 lg:flex md:flex basis-0 justify-between items-center text-[14px] text-gitcoin-grey-400">
         <Box className="flex-1 my-2">
           {!props.round?.programName ? (
             <Spinner />
@@ -187,6 +187,7 @@ export default function RoundListItem({
             />
           ) : null}
         </Box>
+        <Divider className="last-of-type:hidden" borderColor="#F3F3F5" />
       </Box>
     </Box>
   );

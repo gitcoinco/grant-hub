@@ -13,6 +13,9 @@ export type LinkProps = {
 
 export default function LinkManager({ linkProps }: { linkProps: LinkProps }) {
   const disabled = linkProps.displayType === RoundDisplayType.Current;
+  const isActive =
+    linkProps.displayType === RoundDisplayType.Active &&
+    linkProps.applicationStatus === "APPROVED";
   const disableExternalLink = linkProps.applicationStatus === "APPROVED";
 
   const isMobile = window.innerWidth < 768;
@@ -23,11 +26,11 @@ export default function LinkManager({ linkProps }: { linkProps: LinkProps }) {
         <Button
           disabled={!disableExternalLink}
           className={`bg-gitcoin-violet-100 flex p-2 my-4 rounded-md ${
-            disabled && "cursor-not-allowed"
+            isActive && "cursor-not-allowed"
           }`}
           width={isMobile ? "100%" : "auto"}
         >
-          {!disabled ? (
+          {isActive ? (
             <a
               className="flex flex-row"
               href={linkProps.link}
@@ -48,13 +51,20 @@ export default function LinkManager({ linkProps }: { linkProps: LinkProps }) {
               </span>
             </a>
           ) : (
-            <span
-              className={`flex text-[12px] mr-1 text-violet-400 ${
-                disabled && "cursor-not-allowed"
-              }`}
-            >
-              {linkProps.text}
-            </span>
+            <>
+              <ArrowTopRightOnSquareIcon
+                className="flex mx-2 mt-[1px] text-gitcoin-violet-400"
+                width={11}
+                height={11}
+              />
+              <span
+                className={`flex text-[12px] mr-1 text-violet-400 ${
+                  disabled && "cursor-not-allowed"
+                }`}
+              >
+                {linkProps.text}
+              </span>
+            </>
           )}
         </Button>
       ) : null}
