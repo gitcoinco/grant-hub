@@ -9,6 +9,7 @@ import { Status as RoundStatus } from "../../reducers/rounds";
 import { grantsPath } from "../../routes";
 import Form from "../application/Form";
 import ErrorModal from "../base/ErrorModal";
+import LoadingSpinner from "../base/LoadingSpinner";
 
 const formatDate = (unixTS: number) =>
   new Date(unixTS).toLocaleDateString(undefined);
@@ -107,7 +108,14 @@ function ViewApplication() {
     props.round === undefined ||
     props.publishedApplicationMetadata === null
   ) {
-    return <div>loading...</div>;
+    return (
+      <LoadingSpinner
+        label="Loading Application"
+        size="24"
+        thickness="6px"
+        showText
+      />
+    );
   }
 
   return (
@@ -144,7 +152,12 @@ function ViewApplication() {
         </div>
         <div className="w-full md:w-2/3">
           {!props.applicationMetadata === undefined && (
-            <div>loading form...</div>
+            <LoadingSpinner
+              label="Loading Application Form"
+              size="24"
+              thickness="6px"
+              showText
+            />
           )}
           {props.applicationMetadata && props.publishedApplicationMetadata && (
             <Form
