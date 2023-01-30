@@ -168,8 +168,8 @@ export type Round = {
 };
 
 export enum RoundDisplayType {
-  Current = "current",
   Active = "active",
+  Current = "current",
   Past = "past",
 }
 

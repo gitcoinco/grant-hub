@@ -27,7 +27,7 @@ export default function LinkManager({ linkProps }: { linkProps: LinkProps }) {
           }`}
           width={isMobile ? "100%" : "auto"}
         >
-          {disabled ? (
+          {!disabled ? (
             <a
               className="flex flex-row"
               href={linkProps.link}
