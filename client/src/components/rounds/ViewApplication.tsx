@@ -62,20 +62,14 @@ function ViewApplication() {
     };
   }, shallowEqual);
 
-  const isOnRoundChain = props.web3ChainId === props.roundChainId;
-
   useEffect(() => {
-    if (!isOnRoundChain) return;
-
     if (roundId !== undefined) {
       dispatch(unloadRounds());
-      dispatch(loadRound(roundId));
+      dispatch(loadRound(roundId, props.roundChainId));
     }
   }, [dispatch, roundId]);
 
   useEffect(() => {
-    if (!isOnRoundChain) return;
-
     if (!props.round) return;
 
     if (params.ipfsHash !== undefined) {
