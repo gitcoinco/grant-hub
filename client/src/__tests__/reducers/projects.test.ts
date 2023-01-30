@@ -54,8 +54,7 @@ describe("projects reducer", () => {
           status: "PENDING",
           chainId: 1,
         },
-      ],
-      "2": [],
+      ]
     });
   });
 
