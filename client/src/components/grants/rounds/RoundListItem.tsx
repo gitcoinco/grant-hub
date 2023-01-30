@@ -53,17 +53,30 @@ export default function RoundListItem({
   );
 
   const renderApplicationBadge = (dt: RoundDisplayType) => {
-    console.log("applicationData?.status", applicationData?.status, dt);
-    let colorScheme: string | undefined;
+    let colorScheme:
+      | {
+          bg: string;
+          text: string;
+        }
+      | undefined;
     switch (applicationData?.status) {
       case "APPROVED":
-        colorScheme = "gitcoin-teal-100";
+        colorScheme = {
+          bg: "gitcoin-teal-100",
+          text: "gitcoin-teal-500",
+        };
         break;
       case "REJECTED":
-        colorScheme = "gitcoin-pink-100";
+        colorScheme = {
+          bg: "gitcoin-pink-100",
+          text: "gitcoin-pink-500",
+        };
         break;
       case "PENDING":
-        colorScheme = "gitcoin-grey-100";
+        colorScheme = {
+          text: "gitcoin-grey-100",
+          bg: "gitcoin-grey-500",
+        };
         break;
       default:
         colorScheme = undefined;
@@ -73,7 +86,7 @@ export default function RoundListItem({
     if (RoundDisplayType.Current === dt) {
       return (
         <Badge
-          className={`max-w-fit bg-${colorScheme}`}
+          className={`max-w-fit bg-${colorScheme?.bg}`}
           borderRadius="full"
           p={2}
           textTransform="inherit"
@@ -107,14 +120,16 @@ export default function RoundListItem({
 
     if (RoundDisplayType.Active === dt) {
       if (applicationData?.status === "PENDING") {
-        return <span className="text-gitcoin-grey-500">In Review</span>;
+        return <span className={`text-${colorScheme?.text}`}>In Review</span>;
       }
 
       if (applicationData?.status === "REJECTED") {
-        return <span className="text-gitcoin-pink-500">Rejected</span>;
+        return <span className={`text-${colorScheme?.text}`}>Rejected</span>;
       }
 
-      return <span className="text-gitcoin-teal-500 ml-4 lg:ml-2">Active</span>;
+      return (
+        <span className={`text-${colorScheme?.text} ml-4 lg:ml-2`}>Active</span>
+      );
     }
 
     return null;
@@ -127,7 +142,9 @@ export default function RoundListItem({
   );
 
   // add check for application status
-  const enableStatusButton = () => applicationData?.status === "APPROVED";
+  const enableStatusButton = () =>
+    applicationData?.status === "APPROVED" &&
+    displayType === RoundDisplayType.Past;
 
   return (
     <Box>
