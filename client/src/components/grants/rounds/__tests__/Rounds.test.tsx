@@ -180,8 +180,8 @@ describe("<Rounds />", () => {
       });
 
       expect(screen.getByText("Current Applications")).toBeInTheDocument();
-      expect(screen.getByText("APPROVED")).toBeInTheDocument();
-      expect(screen.getByText("REJECTED")).toBeInTheDocument();
+      expect(screen.getByText("Approved")).toBeInTheDocument();
+      expect(screen.getByText("Rejected")).toBeInTheDocument();
     });
 
     test("should show the past rounds, badges and buttons", async () => {

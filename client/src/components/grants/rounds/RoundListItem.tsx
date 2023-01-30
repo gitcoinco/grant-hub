@@ -1,5 +1,5 @@
 // eslint-disable max-len
-import { Badge, Box, Divider, Spinner } from "@chakra-ui/react";
+import { Badge, Box, Spinner } from "@chakra-ui/react";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../reducers";
 import { Application } from "../../../reducers/projects";
@@ -19,8 +19,6 @@ export default function RoundListItem({
   displayType?: RoundDisplayType;
   projectId: string;
 }) {
-  let activeBadge: boolean;
-  let pastBadge: boolean;
   const props = useSelector((state: RootState) => {
     const { roundID: roundId, chainId: projectChainId } = applicationData!;
     const roundState = state.rounds[roundId];
@@ -55,42 +53,45 @@ export default function RoundListItem({
   );
 
   const renderApplicationBadge = (dt: RoundDisplayType) => {
+    console.log("applicationData?.status", applicationData?.status, dt);
     let colorScheme: string | undefined;
     switch (applicationData?.status) {
       case "APPROVED":
-        colorScheme = "bg-[#E6FFF9]";
+        colorScheme = "gitcoin-teal-100";
         break;
       case "REJECTED":
-        colorScheme = "bg-[#FAADBFd]";
+        colorScheme = "gitcoin-pink-100";
         break;
       case "PENDING":
-        colorScheme = "bg-[#E2E0E7]";
+        colorScheme = "gitcoin-grey-100";
         break;
       default:
         colorScheme = undefined;
         break;
     }
 
-    activeBadge = dt === RoundDisplayType.Active;
-    pastBadge = dt === RoundDisplayType.Past;
-
-    if (!activeBadge && !pastBadge) {
+    if (RoundDisplayType.Current === dt) {
       return (
         <Badge
-          className={`bg-gitcoin-gray-100 max-w-fit ${colorScheme}`}
+          className={`max-w-fit bg-${colorScheme}`}
           borderRadius="full"
           p={2}
+          textTransform="inherit"
         >
+          {applicationData?.status === "REJECTED" ? (
+            <span className="text-[14px]">Rejected</span>
+          ) : null}
           {applicationData?.status === "PENDING" ? (
-            <span>In Review</span>
-          ) : (
-            <span>{applicationData?.status}</span>
-          )}
+            <span className="text-[14px]">In Review</span>
+          ) : null}
+          {applicationData?.status === "APPROVED" ? (
+            <span className="text-[14px]">Approved</span>
+          ) : null}
         </Badge>
       );
     }
 
-    if (pastBadge) {
+    if (RoundDisplayType.Past === dt) {
       return (
         <div>
           {applicationData?.status === "PENDING" ||
@@ -104,15 +105,19 @@ export default function RoundListItem({
       );
     }
 
-    if (applicationData?.status === "PENDING") {
-      return <span className="text-gitcoin-grey-400">In Review</span>;
+    if (RoundDisplayType.Active === dt) {
+      if (applicationData?.status === "PENDING") {
+        return <span className="text-gitcoin-grey-500">In Review</span>;
+      }
+
+      if (applicationData?.status === "REJECTED") {
+        return <span className="text-gitcoin-pink-500">Rejected</span>;
+      }
+
+      return <span className="text-gitcoin-teal-500 ml-4 lg:ml-2">Active</span>;
     }
 
-    if (applicationData?.status === "REJECTED") {
-      return <span className="text-gitcoin-pink-400">Rejected</span>;
-    }
-
-    return <span className="text-gitcoin-teal-500 ml-4 lg:ml-2">Active</span>;
+    return null;
   };
 
   const applicationLink = roundApplicationPathForProject(
@@ -187,7 +192,6 @@ export default function RoundListItem({
             />
           ) : null}
         </Box>
-        <Divider className="last-of-type:hidden" borderColor="#F3F3F5" />
       </Box>
     </Box>
   );
