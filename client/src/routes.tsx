@@ -1,4 +1,5 @@
 import { datadogLogs } from "@datadog/browser-logs";
+import { getProjectURIComponents } from "./utils/utils";
 
 export const slugs = {
   root: `/`,
@@ -8,6 +9,7 @@ export const slugs = {
   newGrant: `/projects/new`,
   round: `/chains/:chainId/rounds/:roundId`,
   roundApplication: `/chains/:chainId/rounds/:roundId/apply`,
+  roundApplicationView: `/chains/:chainId/rounds/:roundId/view/:ipfsHash`,
 };
 
 export const rootPath = () => {
@@ -77,4 +79,30 @@ export const roundApplicationPathForProject = (
   datadogLogs.logger.info(`====> URL: ${window.location.href}`);
 
   return `/round/${chainId}/${roundId}/${projectId}`;
+
+export const roundApplicationViewPath = (
+  chainId: string,
+  roundId: string,
+  ipfsHash: string
+) => {
+  datadogLogs.logger.info(
+    `====> Route: /chains/${chainId}/rounds/${roundId}/view/${ipfsHash}`
+  );
+  datadogLogs.logger.info(`====> URL: ${window.location.href}`);
+  return `/chains/${chainId}/rounds/${roundId}/view/${ipfsHash}`;
+};
+
+export const projectPathByID = (projectID: string) => {
+  let path: string | undefined;
+
+  try {
+    const { chainId, registryAddress, id } = getProjectURIComponents(projectID);
+    path = projectPath(chainId, registryAddress, id);
+  } catch (e) {
+    // in case projectID has a bad format, getProjectURIComponents
+    // will throw an exception and log the errors.
+    console.error(e);
+  }
+
+  return path;
 };

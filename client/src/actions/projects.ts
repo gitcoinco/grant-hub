@@ -422,62 +422,61 @@ export const fetchProjectApplications =
               round {
                 id
               }
+              metaPtr {
+                pointer
+                protocol
+              }
             }
           }
           `,
-            chain.id,
-            {
-              projectID: projectApplicationID,
-              projectApplicationIDWithChain,
-            },
-            reactEnv
-          );
+          chain.id,
+          {
+            projectID: projectApplicationID,
+            projectApplicationIDWithChain,
+          },
+          reactEnv
+        );
 
-          if (response.errors) {
-            throw response.errors;
-          }
+        const applications = response.data.roundProjects.map((rp: any) => ({
+          status: rp.status,
+          roundID: rp.round.id,
+          chainId: chain.id,
+          metaPtr: rp.metaPtr,
+        }));
 
-          const applications = response.data.roundProjects.map((rp: any) => ({
-            status: rp.status,
-            roundID: rp.round.id,
-            chainId: chain.id,
-          }));
-
-          if (applications.length === 0) {
-            return [];
-          }
-
-          // Update each application with the status from the contract
-          // FIXME: This part can be removed when we are sure that the
-          // aplication status returned from the graph is up to date.
-          // eslint-disable-next-line
-          const roundAddresses = applications.map(
-            (app: Application) => app.roundID
-          );
-
-          dispatch<any>(
-            fetchApplicationStatusesFromContract(
-              roundAddresses,
-              projectID,
-              projectApplicationID,
-              chain.id
-            )
-          );
-
-          return applications;
-        } catch (error: any) {
-          datadogRum.addError(error, { projectID });
-          console.error(error);
-
-          return [];
+        if (applications.length === 0) {
+          return;
         }
-      })
-    );
 
-    dispatch({
-      type: PROJECT_APPLICATIONS_LOADED,
-      projectID,
-      applications: apps.flat(),
+        // Update each application with the status from the contract
+        // FIXME: This part can be removed when we are sure that the
+        // aplication status returned from the graph is up to date.
+        // eslint-disable-next-line
+        const roundAddresses = applications.map(
+          (app: Application) => app.roundID
+        );
+        dispatch<any>(
+          fetchApplicationStatusesFromContract(
+            roundAddresses,
+            projectID,
+            projectApplicationID,
+            chain.id
+          )
+        );
+      } catch (error: any) {
+        console.error(error);
+        datadogRum.addError(error, { projectID });
+        datadogLogs.logger.error("fetchProjectApplications() error", {
+          chain,
+          projectID,
+          error,
+        });
+        dispatch({
+          type: PROJECT_APPLICATIONS_ERROR,
+          projectID,
+          error: error.message,
+        });
+      }
     });
   };
 
