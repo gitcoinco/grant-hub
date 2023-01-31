@@ -17,7 +17,9 @@ function Verified() {
   return (
     <div className="flex rounded bg-green-text/25 px-2 py-0.5 mt-1">
       <Shield dimension={16} color={colors["green-text"]} />{" "}
-      <p className="pl-2 text-green-text text-xs font-bold">Verified</p>
+      <p className="pl-2 text-green-text text-xs font-normal mt-0.5">
+        Verified
+      </p>
     </div>
   );
 }
@@ -108,7 +110,7 @@ export default function About({
                   alt="Twitter Logo"
                 />
                 <a
-                  className="mr-2 text-primary-background"
+                  className="mr-2 mt-1 text-primary-background"
                   target="_blank"
                   href={`https://twitter.com/${project?.projectTwitter}`}
                   rel="noreferrer"
