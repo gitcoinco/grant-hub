@@ -221,7 +221,7 @@ export default function Form({
   }, [props.allProjectMetadata]);
 
   return (
-    <div className="border-0 sm:border sm:border-solid border-tertiary-text rounded text-primary-text p-0 sm:p-4">
+    <div className="border-0 sm:border sm:border-solid border-gitcoin-grey-100 rounded text-primary-text p-0 sm:p-4">
       <form onSubmit={(e) => e.preventDefault()}>
         {schema.map((input) => {
           switch (input.type) {
