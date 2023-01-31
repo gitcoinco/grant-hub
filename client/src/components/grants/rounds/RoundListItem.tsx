@@ -63,13 +63,13 @@ export default function RoundListItem({
       case "APPROVED":
         colorScheme = {
           bg: "gitcoin-teal-100",
-          text: "gitcoin-teal-500",
+          text: "gitcoin-grey-500",
         };
         break;
       case "REJECTED":
         colorScheme = {
           bg: "gitcoin-pink-100",
-          text: "gitcoin-pink-500",
+          text: "gitcoin-grey-500",
         };
         break;
       case "PENDING":
@@ -92,13 +92,19 @@ export default function RoundListItem({
           textTransform="inherit"
         >
           {applicationData?.status === "REJECTED" ? (
-            <span className="text-[14px]">Rejected</span>
+            <span className={`text-${colorScheme?.text} text-sm`}>
+              Rejected
+            </span>
           ) : null}
           {applicationData?.status === "PENDING" ? (
-            <span className="text-[14px]">In Review</span>
+            <span className={`text-${colorScheme?.text} text-sm`}>
+              In Review
+            </span>
           ) : null}
           {applicationData?.status === "APPROVED" ? (
-            <span className="text-[14px]">Approved</span>
+            <span className={`text-${colorScheme?.text} text-sm`}>
+              Approved
+            </span>
           ) : null}
         </Badge>
       );
@@ -109,10 +115,14 @@ export default function RoundListItem({
         <div>
           {applicationData?.status === "PENDING" ||
           applicationData?.status === "REJECTED" ? (
-            <span>Not Approved</span>
+            <span className={`text-${colorScheme?.text} text-[14px]`}>
+              Not Approved
+            </span>
           ) : null}
           {applicationData?.status === "APPROVED" ? (
-            <span>Approved</span>
+            <span className={`text-${colorScheme?.text} text-[14px]`}>
+              Approved
+            </span>
           ) : null}
         </div>
       );
@@ -127,9 +137,7 @@ export default function RoundListItem({
         return <span className={`text-${colorScheme?.text}`}>Rejected</span>;
       }
 
-      return (
-        <span className={`text-${colorScheme?.text} ml-4 lg:ml-2`}>Active</span>
-      );
+      return <span className="text-gitcoin-teal-500 ml-4 lg:ml-2">Active</span>;
     }
 
     return null;
