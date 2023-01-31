@@ -68,6 +68,7 @@ export type ProjectStats = {
   uniqueContributors: number;
   avgContribution: number;
   totalContributions: number;
+  success: boolean;
 };
 
 export const projectsReducer = (

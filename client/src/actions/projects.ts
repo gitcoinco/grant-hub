@@ -477,7 +477,7 @@ export const fetchProjectApplications =
           // FIXME: This part can be removed when we are sure that the
           // aplication status returned from the graph is up to date.
           // eslint-disable-next-line
-          const roundAddresses = applications.map(
+            const roundAddresses = applications.map(
             (app: Application) => app.roundID
           );
 
@@ -529,23 +529,23 @@ export const loadProjectStats =
     const updateStats = async (projectRoundData: any, roundId: string) => {
       const singleStats: ProjectStats = {
         roundId,
-        fundingReceived: parseFloat(
-          projectRoundData.data.totalContributionsInUSD
-        ),
-        uniqueContributors: parseInt(
-          projectRoundData.data.uniqueContributors,
-          10
-        ),
-        avgContribution: parseFloat(
-          projectRoundData.data.averageUSDContribution
-        ),
-        totalContributions: parseInt(
-          projectRoundData.data.contributionCount,
-          10
-        ),
+        ...projectRoundData,
       };
 
       stats.push(singleStats);
+    };
+
+    const loadingErrorUpdate = async (roundId: string) => {
+      await updateStats(
+        {
+          fundingReceived: -1,
+          uniqueContributors: -1,
+          avgContribution: -1,
+          totalContributions: -1,
+          success: false,
+        },
+        roundId
+      );
     };
 
     for await (const round of rounds) {
@@ -561,10 +561,35 @@ export const loadProjectStats =
       )
         .then((response) => response.json())
         .then(async (projectRoundData) => {
-          if (projectRoundData.data)
-            await updateStats(projectRoundData, round.roundId);
+          if (Object.keys(projectRoundData.data).length !== 0) {
+            await updateStats(
+              {
+                fundingReceived: parseFloat(
+                  projectRoundData.data.totalContributionsInUSD
+                ),
+                uniqueContributors: parseInt(
+                  projectRoundData.data.uniqueContributors,
+                  10
+                ),
+                avgContribution: parseFloat(
+                  projectRoundData.data.averageUSDContribution
+                ),
+                totalContributions: parseInt(
+                  projectRoundData.data.contributionCount,
+                  10
+                ),
+                success: true,
+              },
+              round.roundId
+            );
+          } else {
+            await loadingErrorUpdate(round.roundId);
+          }
         })
-        .catch((error) => console.error(error));
+        .catch(async (error) => {
+          await loadingErrorUpdate(round.roundId);
+          console.error(error);
+        });
     }
 
     if (rounds.length > 0)

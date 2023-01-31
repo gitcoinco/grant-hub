@@ -63,9 +63,11 @@ export default function RoundStats() {
     if (props.stats?.length > 0) {
       props.stats.forEach((stat) => {
         allTime = {
-          allTimeReceived: allTime.allTimeReceived + stat.fundingReceived,
+          allTimeReceived:
+            allTime.allTimeReceived + (stat.success ? stat.fundingReceived : 0),
           allTimeContributions:
-            allTime.allTimeContributions + stat.totalContributions,
+            allTime.allTimeContributions +
+            (stat.success ? stat.totalContributions : 0),
           roundsLength: props.stats.length,
         };
 
@@ -147,7 +149,11 @@ export default function RoundStats() {
             />
             <StatCard
               heading="Unique Contributors"
-              value={detail.stats.uniqueContributors}
+              value={
+                detail.stats.uniqueContributors === NA
+                  ? NAText
+                  : detail.stats.uniqueContributors
+              }
               border
             />
             <StatCard
@@ -161,7 +167,11 @@ export default function RoundStats() {
             />
             <StatCard
               heading="No. of Contributions"
-              value={detail.stats.totalContributions}
+              value={
+                detail.stats.totalContributions === NA
+                  ? NAText
+                  : detail.stats.totalContributions
+              }
               border
             />
           </>,
