@@ -64,20 +64,20 @@ export default function ApplicationCard({
     switch (applicationData?.application.status as AppStatus) {
       case "APPROVED":
         colorScheme = {
-          bg: "gitcoin-teal-100",
-          text: "gitcoin-teal-500",
+          bg: "#E6FFF9",
+          text: "gitcoin-grey-500",
         };
         break;
       case "REJECTED":
         colorScheme = {
-          bg: "gitcoin-pink-100",
-          text: "gitcoin-pink-500",
+          bg: "#FDDEE4",
+          text: "gitcoin-grey-500",
         };
         break;
       case "PENDING":
         colorScheme = {
-          text: "gitcoin-grey-100",
-          bg: "gitcoin-grey-500",
+          text: "gitcoin-grey-500",
+          bg: "#E2E0E7",
         };
         break;
       default:
@@ -87,7 +87,8 @@ export default function ApplicationCard({
 
     return (
       <Badge
-        className={`max-w-fit bg-${colorScheme?.bg}`}
+        backgroundColor={colorScheme?.bg}
+        className="max-w-fit"
         borderRadius="full"
         p={2}
         textTransform="inherit"
