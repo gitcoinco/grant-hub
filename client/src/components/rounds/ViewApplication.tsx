@@ -157,7 +157,7 @@ function ViewApplication() {
             {formatDate(props.round.applicationsStartTime * 1000)} -{" "}
             {formatDate(props.round.applicationsEndTime * 1000)}
           </p>
-          <p className="font-semibold mt-4">Rounds Date:</p>
+          <p className="font-semibold mt-4">Round Dates:</p>
           <p>
             {formatDate(props.round.roundStartTime * 1000)} -{" "}
             {formatDate(props.round.roundEndTime * 1000)}
