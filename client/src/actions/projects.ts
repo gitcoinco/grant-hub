@@ -390,33 +390,27 @@ export const fetchProjectApplications =
 
     const { web3Provider } = global;
 
-    if (!web3Provider?.chains) {
-      return;
-    }
+    await web3Provider?.chains?.forEach(async (chain) => {
+      const addresses = addressesByChainID(projectChainId);
+      const projectApplicationID = generateUniqueRoundApplicationID(
+        projectChainId,
+        projectID,
+        addresses.projectRegistry
+      );
 
-    const apps = await Promise.all(
-      web3Provider.chains.map(async (chain) => {
-        try {
-          const addresses = addressesByChainID(projectChainId);
-          const projectApplicationID = generateUniqueRoundApplicationID(
-            projectChainId,
-            projectID,
-            addresses.projectRegistry
-          );
+      // During the first alpha round, we created applications with the wrong chain id (using the
+      // round chain instead of the project chain). This is a fix to display the applications with
+      // the wrong application id. NOTE: there is a possibility of clash, because the contracts
+      // have the same address on multiple chains.
+      const projectApplicationIDWithChain = generateUniqueRoundApplicationID(
+        chain.id,
+        projectID,
+        addresses.projectRegistry
+      );
 
-          // During the first alpha round, we created applications with the wrong chain id (using the
-          // round chain instead of the project chain). This is a fix to display the applications with
-          // the wrong application id. NOTE: there is a possibility of clash, because the contracts
-          // have the same address on multiple chains.
-          const projectApplicationIDWithChain =
-            generateUniqueRoundApplicationID(
-              chain.id,
-              projectID,
-              addresses.projectRegistry
-            );
-
-          const response: any = await graphqlFetch(
-            `query roundProjects($projectID: String, $projectApplicationIDWithChain: String) {
+      try {
+        const response: any = await graphqlFetch(
+          `query roundProjects($projectID: String, $projectApplicationIDWithChain: String) {
             roundProjects(where: { project_in: [$projectID, $projectApplicationIDWithChain] }) {
               status
               round {
@@ -447,6 +441,12 @@ export const fetchProjectApplications =
         if (applications.length === 0) {
           return;
         }
+
+        dispatch({
+          type: PROJECT_APPLICATIONS_LOADED,
+          projectID,
+          applications,
+        });
 
         // Update each application with the status from the contract
         // FIXME: This part can be removed when we are sure that the
