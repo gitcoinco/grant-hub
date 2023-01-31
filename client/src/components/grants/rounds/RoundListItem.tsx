@@ -116,12 +116,12 @@ export default function RoundListItem({
         <div>
           {applicationData?.status === "PENDING" ||
           applicationData?.status === "REJECTED" ? (
-            <span className="text-gitcoin-grey-400 text-[14px]">
+            <span className="text-gitcoin-grey-500 text-[14px]">
               Not Approved
             </span>
           ) : null}
           {applicationData?.status === "APPROVED" ? (
-            <span className="text-gitcoin-grey-400 text-[14px]">Approved</span>
+            <span className="text-gitcoin-grey-500 text-[14px]">Approved</span>
           ) : null}
         </div>
       );
