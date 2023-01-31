@@ -13,6 +13,7 @@ import { objectToDeterministicJSON } from "../utils/deterministicJSON";
 import generateUniqueRoundApplicationID from "../utils/roundApplication";
 import RoundApplicationBuilder from "../utils/RoundApplicationBuilder";
 import { getProjectURIComponents, metadataToProject } from "../utils/utils";
+import { fetchProjectApplicationsForChain } from "../utils/projects";
 import { fetchProjectApplications } from "./projects";
 
 // FIXME: rename to ROUND_APPLICATION_APPLYING
@@ -279,6 +280,29 @@ export const submitApplication =
       const tx = await contract.applyToRound(projectUniqueID, metaPtr);
       // FIXME: check return value of tx.wait() ??
       await tx.wait();
+
+      await new Promise((resolve) => {
+        const checkIsReady = async (attempt: number) => {
+          const apps = await fetchProjectApplicationsForChain(
+            projectNumber,
+            Number(projectChainId),
+            chainID,
+            process.env
+          );
+          if (
+            apps.find((app: any) => app.metaPtr.pointer === metaPtr.pointer)
+          ) {
+            resolve(apps);
+          } else if (attempt < 10) {
+            setTimeout(() => checkIsReady(attempt + 1), 500);
+          } else {
+            resolve(apps);
+          }
+        };
+
+        checkIsReady(0);
+      });
+
       dispatch({
         type: ROUND_APPLICATION_LOADED,
         roundAddress,

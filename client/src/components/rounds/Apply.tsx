@@ -128,7 +128,7 @@ function Apply() {
           props.applicationState.projectsIDs[0].toString()
         );
         navigate(projectPath(projectChainId, registryAddress, id));
-      }, 1500);
+      }, 0);
     }
 
     return () => {

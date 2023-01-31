@@ -10,13 +10,15 @@ import { RootState } from "../reducers";
 import { Application, AppStatus } from "../reducers/projects";
 import PinataClient from "../services/pinata";
 import { ProjectEvents, ProjectEventsMap } from "../types";
-import { graphqlFetch } from "../utils/graphql";
 import generateUniqueRoundApplicationID from "../utils/roundApplication";
 import { getProviderByChainId, getProjectURIComponents } from "../utils/utils";
+import {
+  fetchProjectApplicationsForChain,
+  fetchProjectOwners,
+} from "../utils/projects";
 import { fetchGrantData } from "./grantsMetadata";
 import { addAlert } from "./ui";
 import { chains } from "../utils/wagmi";
-import { fetchProjectOwners } from "../utils/projects";
 
 export const PROJECTS_LOADING = "PROJECTS_LOADING";
 interface ProjectsLoadingAction {
@@ -381,93 +383,67 @@ export const fetchApplicationStatusesFromContract =
   };
 
 export const fetchProjectApplications =
-  (projectID: string, projectChainId: number, reactEnv: any /* ProcessEnv */) =>
+  (projectID: string, projectChainID: number, reactEnv: any /* ProcessEnv */) =>
   async (dispatch: Dispatch) => {
     dispatch({
       type: PROJECT_APPLICATIONS_LOADING,
       projectID,
     });
 
-    const { web3Provider } = global;
-
-    await web3Provider?.chains?.forEach(async (chain) => {
-      const addresses = addressesByChainID(projectChainId);
-      const projectApplicationID = generateUniqueRoundApplicationID(
-        projectChainId,
-        projectID,
-        addresses.projectRegistry
-      );
-
-      // During the first alpha round, we created applications with the wrong chain id (using the
-      // round chain instead of the project chain). This is a fix to display the applications with
-      // the wrong application id. NOTE: there is a possibility of clash, because the contracts
-      // have the same address on multiple chains.
-      const projectApplicationIDWithChain = generateUniqueRoundApplicationID(
-        chain.id,
-        projectID,
-        addresses.projectRegistry
-      );
-
-      try {
-        const response: any = await graphqlFetch(
-          `query roundProjects($projectID: String, $projectApplicationIDWithChain: String) {
-            roundProjects(where: { project_in: [$projectID, $projectApplicationIDWithChain] }) {
-              status
-              round {
-                id
-              }
-            }
-          }
-          `,
-          chain.id,
-          {
-            projectID: projectApplicationID,
-            projectApplicationIDWithChain,
-          },
-          reactEnv
-        );
-
-        const applications = response.data.roundProjects.map((rp: any) => ({
-          status: rp.status,
-          roundID: rp.round.id,
-          chainId: chain.id,
-        }));
-
-        if (applications.length === 0) {
-          return;
-        }
-
-        dispatch({
-          type: PROJECT_APPLICATIONS_LOADED,
-          projectID,
-          applications,
-        });
-
-        // Update each application with the status from the contract
-        // FIXME: This part can be removed when we are sure that the
-        // aplication status returned from the graph is up to date.
-        // eslint-disable-next-line
-        const roundAddresses = applications.map(
-          (app: Application) => app.roundID
-        );
-        dispatch<any>(
-          fetchApplicationStatusesFromContract(
-            roundAddresses,
+    if (chains) {
+      await Promise.all(
+        chains.map(async (chain) => {
+          const projectApplicationID = generateUniqueRoundApplicationID(
+            projectChainID,
             projectID,
-            projectApplicationID,
-            chain.id
-          )
-        );
-      } catch (error: any) {
-        datadogRum.addError(error, { projectID });
-        console.error(error);
-        dispatch({
-          type: PROJECT_APPLICATIONS_ERROR,
-          projectID,
-          error: error.message,
-        });
-      }
-    });
+            addressesByChainID(chain.id).projectRegistry
+          );
+
+          const applications = await fetchProjectApplicationsForChain(
+            projectID,
+            projectChainID,
+            chain.id,
+            reactEnv
+          );
+
+          try {
+            if (applications.length === 0) {
+              return;
+            }
+
+            dispatch({
+              type: PROJECT_APPLICATIONS_LOADED,
+              projectID,
+              applications,
+            });
+
+            // Update each application with the status from the contract
+            // FIXME: This part can be removed when we are sure that the
+            // aplication status returned from the graph is up to date.
+            // eslint-disable-next-line
+            const roundAddresses = applications.map(
+              (app: Application) => app.roundID
+            );
+            dispatch<any>(
+              fetchApplicationStatusesFromContract(
+                roundAddresses,
+                projectID,
+                projectApplicationID,
+                chain.id
+              )
+            );
+          } catch (error: any) {
+            datadogRum.addError(error, { projectID });
+            console.error(error);
+            dispatch({
+              type: PROJECT_APPLICATIONS_ERROR,
+              projectID,
+              error: error.message,
+            });
+          }
+        })
+      );
+    }
   };
 
 export const unloadProjects = () => projectsUnload();
