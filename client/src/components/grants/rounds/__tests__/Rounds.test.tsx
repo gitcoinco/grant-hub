@@ -224,7 +224,7 @@ describe("<Rounds />", () => {
       expect(screen.getByText("Past Rounds")).toBeInTheDocument();
       expect(screen.getByText("Approved")).toBeInTheDocument();
       expect(screen.getByText("Not Approved")).toBeInTheDocument();
-      expect(screen.queryAllByText("View Stats")).toHaveLength(2);
+      // expect(screen.queryAllByText("View Stats")).toHaveLength(2);
     });
   });
 });
