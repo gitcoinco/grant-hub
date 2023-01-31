@@ -1,3 +1,4 @@
+import { Button } from "@chakra-ui/react";
 import { useEffect } from "react";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
@@ -7,9 +8,12 @@ import { RootState } from "../../reducers";
 import { Status as ApplicationStatus } from "../../reducers/roundApplication";
 import { Status as RoundStatus } from "../../reducers/rounds";
 import { grantsPath } from "../../routes";
+import colors from "../../styles/colors";
+// import { getProjectURIComponents } from "../../utils/utils";
 import Form from "../application/Form";
 import ErrorModal from "../base/ErrorModal";
 import LoadingSpinner from "../base/LoadingSpinner";
+import Cross from "../icons/Cross";
 
 const formatDate = (unixTS: number) =>
   new Date(unixTS).toLocaleDateString(undefined);
@@ -46,6 +50,14 @@ function ViewApplication() {
 
     const web3ChainId = state.web3.chainID;
     const roundChainId = Number(chainId);
+    console.log("applicationState?.projectsIDs", applicationState);
+    // const projectId = applicationState?.projectsIDs[0].toString();
+
+    // const {
+    //   chainId: projectChainId,
+    //   registryAddress,
+    //   id,
+    // } = getProjectURIComponents(projectId);
 
     return {
       roundState,
@@ -60,6 +72,9 @@ function ViewApplication() {
       showErrorModal,
       web3ChainId,
       roundChainId,
+      // registryAddress,
+      // projectId: id,
+      // projectChainId,
     };
   }, shallowEqual);
 
@@ -118,10 +133,35 @@ function ViewApplication() {
     );
   }
 
+  // const projectLink = () => {
+  //   if (props.projectChainId && props.registryAddress && props.projectId) {
+  //     return projectPath(
+  //       props.projectChainId,
+  //       props.registryAddress,
+  //       props.projectId
+  //     );
+  //   }
+
+  //   return null;
+  // };
+
   return (
     <div className="mx-4">
-      <div className="flex flex-col sm:flex-row justify-between">
+      <div className="flex flex-col sm:flex-row justify-between my-5">
         <h3 className="mb-2">Grant Round Application</h3>
+        <Button
+          onClick={() => {
+            navigate("");
+          }}
+          className="w-full sm:w-auto pb-1 mx-w-full ml-0 bg-white border-gitcoin-grey-100 border rounded-md"
+        >
+          <i className="icon mt-1.5">
+            <Cross color={colors["grey-text"]} />
+          </i>{" "}
+          <span className="pl-2 mt-2 text-[14px] text-gitcoin-grey-500">
+            Exit
+          </span>
+        </Button>
       </div>
       <div className="w-full flex">
         <div className="w-full md:w-1/3 mb-2 hidden sm:inline-block">
