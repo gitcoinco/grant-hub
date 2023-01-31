@@ -149,9 +149,9 @@ export default function RoundListItem({
   );
 
   // add check for application status
-  const enableStatusButton = () =>
-    applicationData?.status === "APPROVED" &&
-    displayType === RoundDisplayType.Past;
+  // const enableStatusButton = () =>
+  //   applicationData?.status === "APPROVED" &&
+  //   displayType === RoundDisplayType.Past;
 
   return (
     <Box>
@@ -204,7 +204,7 @@ export default function RoundListItem({
               }}
             />
           ) : null}
-          {displayType === RoundDisplayType.Past ? (
+          {/* {displayType === RoundDisplayType.Past ? (
             <LinkManager
               linkProps={{
                 displayType: RoundDisplayType.Past,
@@ -214,7 +214,7 @@ export default function RoundListItem({
                 applicationStatus: applicationData?.status!,
               }}
             />
-          ) : null}
+          ) : null} */}
         </Box>
       </Box>
     </Box>
