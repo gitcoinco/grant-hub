@@ -463,15 +463,15 @@ export const fetchProjectApplications =
             metaPtr: rp.metaPtr,
           }));
 
-        if (applications.length === 0) {
-          return [];
-        }
+          if (applications.length === 0) {
+            return [];
+          }
 
-        dispatch({
-          type: PROJECT_APPLICATIONS_LOADED,
-          projectID,
-          applications,
-        });
+          dispatch({
+            type: PROJECT_APPLICATIONS_LOADED,
+            projectID,
+            applications,
+          });
 
           // Update each application with the status from the contract
           // FIXME: This part can be removed when we are sure that the
