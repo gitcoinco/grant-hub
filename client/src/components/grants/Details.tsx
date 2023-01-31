@@ -85,8 +85,6 @@ export default function Details({
     }
   }, [dispatch, props.projectID, props.chainId]);
 
-  console.warn(props.applications);
-
   const renderApplications = () => (
     <>
       <Box p={1}>

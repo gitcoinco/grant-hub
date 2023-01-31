@@ -10,13 +10,15 @@ import { RootState } from "../reducers";
 import { Application, AppStatus } from "../reducers/projects";
 import PinataClient from "../services/pinata";
 import { ProjectEvents, ProjectEventsMap } from "../types";
-import { graphqlFetch } from "../utils/graphql";
 import generateUniqueRoundApplicationID from "../utils/roundApplication";
 import { getProviderByChainId, getProjectURIComponents } from "../utils/utils";
+import {
+  fetchProjectApplicationsForChain,
+  fetchProjectOwners,
+} from "../utils/projects";
 import { fetchGrantData } from "./grantsMetadata";
 import { addAlert } from "./ui";
 import { chains } from "../utils/wagmi";
-import { fetchProjectOwners } from "../utils/projects";
 
 export const PROJECTS_LOADING = "PROJECTS_LOADING";
 interface ProjectsLoadingAction {
@@ -380,55 +382,8 @@ export const fetchApplicationStatusesFromContract =
     });
   };
 
-export const fetchProjectApplicationsForChain = async (
-  projectID: string,
-  projectChainID: number,
-  chainID: number
-) => {
-  const addresses = addressesByChainID(projectChainID);
-  const projectApplicationID = generateUniqueRoundApplicationID(
-    projectChainID,
-    projectID,
-    addresses.projectRegistry
-  );
-
-  // During the first alpha round, we created applications with the wrong chain id (using the
-  // round chain instead of the project chain). This is a fix to display the applications with
-  // the wrong application id. NOTE: there is a possibility of clash, because the contracts
-  // have the same address on multiple chains.
-  const projectApplicationIDWithChain = generateUniqueRoundApplicationID(
-    chainID,
-    projectID,
-    addresses.projectRegistry
-  );
-
-  const response: any = await graphqlFetch(
-    `query roundProjects($projectID: String, $projectApplicationIDWithChain: String) {
-            roundProjects(where: { project_in: [$projectID, $projectApplicationIDWithChain] }) {
-              status
-              round {
-                id
-              }
-            }
-          }
-          `,
-    chainID,
-    {
-      projectID: projectApplicationID,
-      projectApplicationIDWithChain,
-    },
-    process.env
-  );
-
-  return response.data.roundProjects.map((rp: any) => ({
-    status: rp.status,
-    roundID: rp.round.id,
-    chainId: chainID,
-  }));
-};
-
 export const fetchProjectApplications =
-  (projectID: string, projectChainId: number, reactEnv: any /* ProcessEnv */) =>
+  (projectID: string, projectChainID: number, reactEnv: any /* ProcessEnv */) =>
   async (dispatch: Dispatch) => {
     dispatch({
       type: PROJECT_APPLICATIONS_LOADING,
@@ -438,10 +393,17 @@ export const fetchProjectApplications =
     if (chains) {
       await Promise.all(
         chains.map(async (chain) => {
+          const projectApplicationID = generateUniqueRoundApplicationID(
+            projectChainID,
+            projectID,
+            addressesByChainID(chain.id).projectRegistry
+          );
+
           const applications = await fetchProjectApplicationsForChain(
             projectID,
-            projectChainId,
-            chain.id
+            projectChainID,
+            chain.id,
+            reactEnv
           );
 
           try {
