@@ -1,4 +1,3 @@
-import { datadogLogs } from "@datadog/browser-logs";
 import { getProjectURIComponents } from "./utils/utils";
 
 export const slugs = {
@@ -34,38 +33,20 @@ export const editPath = (
 export const roundPath = (chainId: string, roundId: string) =>
   `/chains/${chainId}/rounds/${roundId}`;
 
-export const roundApplicationPath = (chainId: string, roundId: string) => {
-  datadogLogs.logger.info(
-    `====> Route: /chains/${chainId}/rounds/${roundId}/apply`
-  );
-  datadogLogs.logger.info(`====> URL: ${window.location.href}`);
-  return `/chains/${chainId}/rounds/${roundId}/apply`;
-};
+export const roundApplicationPath = (chainId: string, roundId: string) =>
+  `/chains/${chainId}/rounds/${roundId}/apply`;
 
 export const roundApplicationPathForProject = (
   chainId: string,
   roundId: string,
   projectId: string
-) => {
-  datadogLogs.logger.info(
-    `====> Route: /round/${chainId}/${roundId}/${projectId}`
-  );
-  datadogLogs.logger.info(`====> URL: ${window.location.href}`);
-
-  return `/round/${chainId}/${roundId}/${projectId}`;
-};
+) => `/round/${chainId}/${roundId}/${projectId}`;
 
 export const roundApplicationViewPath = (
   chainId: string,
   roundId: string,
   ipfsHash: string
-) => {
-  datadogLogs.logger.info(
-    `====> Route: /chains/${chainId}/rounds/${roundId}/view/${ipfsHash}`
-  );
-  datadogLogs.logger.info(`====> URL: ${window.location.href}`);
-  return `/chains/${chainId}/rounds/${roundId}/view/${ipfsHash}`;
-};
+) => `/chains/${chainId}/rounds/${roundId}/view/${ipfsHash}`;
 
 export const projectPathByID = (projectID: string) => {
   let path: string | undefined;
