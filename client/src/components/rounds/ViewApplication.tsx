@@ -1,15 +1,14 @@
-import { Button } from "@chakra-ui/react";
 import { useEffect } from "react";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import { fetchApplicationData } from "../../actions/roundApplication";
 import { loadRound, unloadRounds } from "../../actions/rounds";
 import { RootState } from "../../reducers";
+import Button, { ButtonVariants } from "../base/Button";
 import { Status as ApplicationStatus } from "../../reducers/roundApplication";
 import { Status as RoundStatus } from "../../reducers/rounds";
-import { grantsPath } from "../../routes";
+import { grantsPath, projectPathByID } from "../../routes";
 import colors from "../../styles/colors";
-// import { getProjectURIComponents } from "../../utils/utils";
 import Form from "../application/Form";
 import ErrorModal from "../base/ErrorModal";
 import LoadingSpinner from "../base/LoadingSpinner";
@@ -17,8 +16,6 @@ import Cross from "../icons/Cross";
 
 const formatDate = (unixTS: number) =>
   new Date(unixTS).toLocaleDateString(undefined);
-
-// TODO: dispatch load round in case user gets here directly
 
 function ViewApplication() {
   const params = useParams();
@@ -50,14 +47,9 @@ function ViewApplication() {
 
     const web3ChainId = state.web3.chainID;
     const roundChainId = Number(chainId);
-    console.log("applicationState?.projectsIDs", applicationState);
-    // const projectId = applicationState?.projectsIDs[0].toString();
-
-    // const {
-    //   chainId: projectChainId,
-    //   registryAddress,
-    //   id,
-    // } = getProjectURIComponents(projectId);
+    const projectID =
+      publishedApplicationMetadata?.publishedApplicationData?.application
+        ?.project?.id;
 
     return {
       roundState,
@@ -72,9 +64,7 @@ function ViewApplication() {
       showErrorModal,
       web3ChainId,
       roundChainId,
-      // registryAddress,
-      // projectId: id,
-      // projectChainId,
+      projectID,
     };
   }, shallowEqual);
 
@@ -133,34 +123,28 @@ function ViewApplication() {
     );
   }
 
-  // const projectLink = () => {
-  //   if (props.projectChainId && props.registryAddress && props.projectId) {
-  //     return projectPath(
-  //       props.projectChainId,
-  //       props.registryAddress,
-  //       props.projectId
-  //     );
-  //   }
-
-  //   return null;
-  // };
-
   return (
     <div className="mx-4">
       <div className="flex flex-col sm:flex-row justify-between my-5">
         <h3 className="mb-2">Grant Round Application</h3>
         <Button
+          variant={ButtonVariants.outlineDanger}
           onClick={() => {
-            navigate("");
+            const path = projectPathByID(props.projectID);
+            if (path !== undefined) {
+              navigate(path);
+            } else {
+              console.error(
+                `cannot build project path from id: ${props.projectID}`
+              );
+            }
           }}
-          className="w-full sm:w-auto pb-1 mx-w-full ml-0 bg-white border-gitcoin-grey-100 border rounded-md"
+          styles={["w-full sm:w-auto mx-w-full ml-0"]}
         >
           <i className="icon mt-1.5">
             <Cross color={colors["grey-text"]} />
-          </i>{" "}
-          <span className="pl-2 mt-2 text-[14px] text-gitcoin-grey-500">
-            Exit
-          </span>
+          </i>
+          <span className="pl-2 text-gitcoin-grey-500">Exit</span>
         </Button>
       </div>
       <div className="w-full flex">

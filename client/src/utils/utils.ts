@@ -48,7 +48,6 @@ export const metadataToProject = (
 };
 
 export const getProjectURIComponents = (id: string) => {
-  console.log("getProjectURIComponents", id);
   const split = id.split(":");
   if (split.length < 3) {
     datadogRum.addError("Invalid project id", { id });
