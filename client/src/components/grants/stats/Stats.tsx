@@ -34,10 +34,11 @@ export default function RoundStats() {
 
   useEffect(() => {
     if (props.projectApplications?.length > 0) {
-      setNoStats(false);
       const applications =
         props.projectApplications?.filter((app) => app.status === "APPROVED") ||
         [];
+
+      if (applications.length > 0) setNoStats(false);
 
       const rounds: Array<{ roundId: string; chainId: number }> = [];
       applications.forEach((app) => {

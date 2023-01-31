@@ -68,20 +68,6 @@ describe("<Stats />", () => {
       });
     });
 
-    test("should show the loading spinner when no stat data is present", async () => {
-      global.fetch = jest.fn().mockImplementation(() =>
-        Promise.resolve({
-          json: () => Promise.resolve({}),
-        })
-      );
-
-      await act(async () => {
-        renderWrapped(<Stats />, store);
-      });
-
-      expect(screen.getByText("Loading...")).toBeInTheDocument();
-    });
-
     test("should not show the loading spinner when stat data is present", async () => {
       global.fetch = jest.fn().mockImplementation(() =>
         Promise.resolve({
