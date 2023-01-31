@@ -1,8 +1,11 @@
-import { Badge, Box, Image, Spinner } from "@chakra-ui/react";
+import { Badge, Box, Button, Image, Spinner } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { Link } from "react-router-dom";
 import { loadRound } from "../../actions/rounds";
 import { RootState } from "../../reducers";
+import { AppStatus } from "../../reducers/projects";
+import { roundApplicationViewPath } from "../../routes";
 import { RoundSupport } from "../../types";
 import { formatDateFromSecs } from "../../utils/components";
 import { getNetworkIcon, networkPrettyName } from "../../utils/wallet";
@@ -34,15 +37,6 @@ export default function ApplicationCard({
     };
   });
 
-  // todo: what date do we want to show here?
-  // todo: show round date or application date or both? @michellema1208
-  // const renderRoundDate = () => (
-  //   <>
-  //     {formatDate(roundData?.roundStartTime)} -{" "}
-  //     {formatDate(roundData?.roundEndTime)}
-  //   </>
-  // );
-
   const renderApplicationDate = () => (
     <>
       {formatDateFromSecs(roundData?.applicationsStartTime)} -{" "}
@@ -63,13 +57,30 @@ export default function ApplicationCard({
   }, [props.round]);
 
   const renderApplicationBadge = () => {
-    let colorScheme: string | undefined;
-    switch (applicationData.application.status) {
+    let colorScheme:
+      | {
+          bg: string;
+          text: string;
+        }
+      | undefined;
+    switch (applicationData?.application.status as AppStatus) {
       case "APPROVED":
-        colorScheme = "green";
+        colorScheme = {
+          bg: "#E6FFF9",
+          text: "gitcoin-grey-500",
+        };
         break;
       case "REJECTED":
-        colorScheme = "red";
+        colorScheme = {
+          bg: "#FDDEE4",
+          text: "gitcoin-grey-500",
+        };
+        break;
+      case "PENDING":
+        colorScheme = {
+          text: "gitcoin-grey-500",
+          bg: "#E2E0E7",
+        };
         break;
       default:
         colorScheme = undefined;
@@ -78,12 +89,21 @@ export default function ApplicationCard({
 
     return (
       <Badge
-        colorScheme={colorScheme}
-        className="bg-gitcoin-gray-100"
+        backgroundColor={colorScheme?.bg}
+        className="max-w-fit"
         borderRadius="full"
         p={2}
+        textTransform="inherit"
       >
-        <span>{applicationData.application.status}</span>
+        {applicationData?.application.status === "REJECTED" ? (
+          <span className={`text-${colorScheme?.text} text-sm`}>Rejected</span>
+        ) : null}
+        {applicationData?.application.status === "PENDING" ? (
+          <span className={`text-${colorScheme?.text} text-sm`}>In Review</span>
+        ) : null}
+        {applicationData?.application.status === "APPROVED" ? (
+          <span className={`text-${colorScheme?.text} text-sm`}>Approved</span>
+        ) : null}
       </Badge>
     );
   };
@@ -96,7 +116,7 @@ export default function ApplicationCard({
       borderRadius="md"
     >
       <Box p={2} mb={1}>
-        <span className="text-[16px] text-gitcoin-gray-400">
+        <span className="text-sm text-gitcoin-gray-400">
           {props.round?.programName}
         </span>
       </Box>
@@ -106,16 +126,14 @@ export default function ApplicationCard({
           alt="chain icon"
           className="flex flex-row h-4 w-4 ml-2 mr-1 mt-1 rounded-full"
         />
-        <span className="align-middle">{props.applicationChainName}</span>
+        <span className="align-middle mb-1">{props.applicationChainName}</span>
       </div>
       <div className="flex flex-1 flex-col md:flex-row justify-between">
         <Box className="pl-2 text-gitcoin-gray-400">
-          <div className="mb-1">{props.round?.roundMetadata.name}</div>
+          <div className="mb-1 text-sm">{props.round?.roundMetadata.name}</div>
           {roundData ? <span>{renderApplicationDate()}</span> : <Spinner />}
         </Box>
-        <Box className="pl-2 mt-2 md:mt-0 text-gitcoin-gray-400">
-          {renderApplicationBadge()}
-        </Box>
+        <Box className="pl-2 mt-2 md:mt-0">{renderApplicationBadge()}</Box>
       </div>
       {props.support && (
         <Box p={2} className="mt-4 text-sm">
@@ -132,6 +150,22 @@ export default function ApplicationCard({
               Contact the {props.round?.programName} support team.
             </a>
           </p>
+          <Link
+            to={roundApplicationViewPath(
+              applicationData.chainId,
+              applicationData.roundID,
+              applicationData.application.metaPtr.pointer
+            )}
+          >
+            <Button
+              backgroundColor="purple.100"
+              color="purple.600"
+              className="mt-4 mr-2 mb-2 w-full"
+              fontWeight="normal"
+            >
+              View Application
+            </Button>
+          </Link>
         </Box>
       )}
     </Box>
