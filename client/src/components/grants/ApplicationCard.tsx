@@ -154,7 +154,7 @@ export default function ApplicationCard({
             to={roundApplicationViewPath(
               applicationData.chainId,
               applicationData.roundID,
-              applicationData.application.metaPtr.pointer
+              applicationData.application.metaPtr?.pointer
             )}
           >
             <Button
