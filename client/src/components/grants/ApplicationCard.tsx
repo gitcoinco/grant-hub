@@ -65,13 +65,13 @@ export default function ApplicationCard({
       case "APPROVED":
         colorScheme = {
           bg: "gitcoin-teal-100",
-          text: "gitcoin-grey-500",
+          text: "gitcoin-teal-500",
         };
         break;
       case "REJECTED":
         colorScheme = {
           bg: "gitcoin-pink-100",
-          text: "gitcoin-grey-500",
+          text: "gitcoin-pink-500",
         };
         break;
       case "PENDING":

@@ -63,13 +63,13 @@ export default function RoundListItem({
       case "APPROVED":
         colorScheme = {
           bg: "gitcoin-teal-100",
-          text: "gitcoin-grey-500",
+          text: "gitcoin-teal-500",
         };
         break;
       case "REJECTED":
         colorScheme = {
           bg: "gitcoin-pink-100",
-          text: "gitcoin-grey-500",
+          text: "gitcoin-pink-500",
         };
         break;
       case "PENDING":
@@ -115,14 +115,12 @@ export default function RoundListItem({
         <div>
           {applicationData?.status === "PENDING" ||
           applicationData?.status === "REJECTED" ? (
-            <span className={`text-${colorScheme?.text} text-[14px]`}>
+            <span className="text-gitcoin-grey-400 text-[14px]">
               Not Approved
             </span>
           ) : null}
           {applicationData?.status === "APPROVED" ? (
-            <span className={`text-${colorScheme?.text} text-[14px]`}>
-              Approved
-            </span>
+            <span className="text-gitcoin-grey-400 text-[14px]">Approved</span>
           ) : null}
         </div>
       );
