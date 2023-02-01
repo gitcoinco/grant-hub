@@ -7,15 +7,16 @@ import RoundImplementationABI from "../contracts/abis/RoundImplementation.json";
 import { addressesByChainID } from "../contracts/deployments";
 import { global } from "../global";
 import { RootState } from "../reducers";
-import { Application, AppStatus } from "../reducers/projects";
+import { Application, AppStatus, ProjectStats } from "../reducers/projects";
 import PinataClient from "../services/pinata";
 import { ProjectEvents, ProjectEventsMap } from "../types";
 import { graphqlFetch } from "../utils/graphql";
 import generateUniqueRoundApplicationID from "../utils/roundApplication";
-import { getProviderByChainId } from "../utils/utils";
+import { getProviderByChainId, getProjectURIComponents } from "../utils/utils";
 import { fetchGrantData } from "./grantsMetadata";
 import { addAlert } from "./ui";
 import { chains } from "../utils/wagmi";
+import { fetchProjectOwners } from "../utils/projects";
 
 export const PROJECTS_LOADING = "PROJECTS_LOADING";
 interface ProjectsLoadingAction {
@@ -71,6 +72,28 @@ interface ProjectApplicationsErrorAction {
   error: string;
 }
 
+export const PROJECT_OWNERS_LOADED = "PROJECT_OWNERS_LOADED";
+interface ProjectOwnersLoadedAction {
+  type: typeof PROJECT_OWNERS_LOADED;
+  payload: {
+    projectID: string;
+    owners: string[];
+  };
+}
+
+export const PROJECT_STATS_LOADING = "PROJECT_STATS_LOADING";
+interface ProjectStatsLoadingAction {
+  type: typeof PROJECT_STATS_LOADING;
+  projectID: string;
+}
+
+export const PROJECT_STATS_LOADED = "PROJECT_STATS_LOADED";
+interface ProjectStatsLoadedAction {
+  type: typeof PROJECT_STATS_LOADED;
+  projectID: string;
+  stats: ProjectStats[];
+}
+
 export type ProjectsActions =
   | ProjectsLoadingAction
   | ProjectsLoadedAction
@@ -79,7 +102,10 @@ export type ProjectsActions =
   | ProjectApplicationsLoadingAction
   | ProjectApplicationsLoadedAction
   | ProjectApplicationsErrorAction
-  | ProjectApplicationUpdatedAction;
+  | ProjectApplicationUpdatedAction
+  | ProjectOwnersLoadedAction
+  | ProjectStatsLoadingAction
+  | ProjectStatsLoadedAction;
 
 export const projectsLoading = (chainID: number): ProjectsLoadingAction => ({
   type: PROJECTS_LOADING,
@@ -243,6 +269,23 @@ export const extractProjectEvents = (
   return projectEventsMap;
 };
 
+export const projectOwnersLoaded = (projectID: string, owners: string[]) => ({
+  type: PROJECT_OWNERS_LOADED,
+  payload: {
+    projectID,
+    owners,
+  },
+});
+
+export const loadProjectOwners =
+  (projectID: string) => async (dispatch: Dispatch) => {
+    const { chainId, id } = getProjectURIComponents(projectID);
+
+    const owners = await fetchProjectOwners(Number(chainId), id);
+
+    dispatch(projectOwnersLoaded(projectID, owners));
+  };
+
 export const loadProjects =
   (chainID: number, withMetaData?: boolean) =>
   async (dispatch: Dispatch, getState: () => RootState) => {
@@ -362,84 +405,199 @@ export const fetchProjectApplications =
 
     const { web3Provider } = global;
 
-    await web3Provider?.chains?.forEach(async (chain) => {
-      const addresses = addressesByChainID(projectChainId);
-      const projectApplicationID = generateUniqueRoundApplicationID(
-        projectChainId,
-        projectID,
-        addresses.projectRegistry
-      );
+    if (!web3Provider?.chains) {
+      return;
+    }
 
-      // During the first alpha round, we created applications with the wrong chain id (using the
-      // round chain instead of the project chain). This is a fix to display the applications with
-      // the wrong application id. NOTE: there is a possibility of clash, because the contracts
-      // have the same address on multiple chains.
-      const projectApplicationIDWithChain = generateUniqueRoundApplicationID(
-        chain.id,
-        projectID,
-        addresses.projectRegistry
-      );
+    const apps = await Promise.all(
+      web3Provider.chains.map(async (chain) => {
+        try {
+          const addresses = addressesByChainID(projectChainId);
+          const projectApplicationID = generateUniqueRoundApplicationID(
+            projectChainId,
+            projectID,
+            addresses.projectRegistry
+          );
 
-      try {
-        const response: any = await graphqlFetch(
-          `query roundProjects($projectID: String, $projectApplicationIDWithChain: String) {
+          // During the first alpha round, we created applications with the wrong chain id (using the
+          // round chain instead of the project chain). This is a fix to display the applications with
+          // the wrong application id. NOTE: there is a possibility of clash, because the contracts
+          // have the same address on multiple chains.
+          const projectApplicationIDWithChain =
+            generateUniqueRoundApplicationID(
+              chain.id,
+              projectID,
+              addresses.projectRegistry
+            );
+
+          const response: any = await graphqlFetch(
+            `query roundProjects($projectID: String, $projectApplicationIDWithChain: String) {
             roundProjects(where: { project_in: [$projectID, $projectApplicationIDWithChain] }) {
               status
               round {
                 id
               }
+              metaPtr {
+                pointer
+                protocol
+              }
             }
           }
           `,
-          chain.id,
-          {
-            projectID: projectApplicationID,
-            projectApplicationIDWithChain,
-          },
-          reactEnv
-        );
+            chain.id,
+            {
+              projectID: projectApplicationID,
+              projectApplicationIDWithChain,
+            },
+            reactEnv
+          );
 
-        const applications = response.data.roundProjects.map((rp: any) => ({
-          status: rp.status,
-          roundID: rp.round.id,
-          chainId: chain.id,
-        }));
+          if (response.errors) {
+            throw response.errors;
+          }
 
-        if (applications.length === 0) {
-          return;
-        }
+          const applications = response.data.roundProjects.map((rp: any) => ({
+            status: rp.status,
+            roundID: rp.round.id,
+            chainId: chain.id,
+            metaPtr: rp.metaPtr,
+          }));
 
-        dispatch({
-          type: PROJECT_APPLICATIONS_LOADED,
-          projectID,
-          applications,
-        });
+          if (applications.length === 0) {
+            return [];
+          }
 
-        // Update each application with the status from the contract
-        // FIXME: This part can be removed when we are sure that the
-        // aplication status returned from the graph is up to date.
-        // eslint-disable-next-line
-        const roundAddresses = applications.map(
-          (app: Application) => app.roundID
-        );
-        dispatch<any>(
-          fetchApplicationStatusesFromContract(
-            roundAddresses,
+          dispatch({
+            type: PROJECT_APPLICATIONS_LOADED,
             projectID,
-            projectApplicationID,
-            chain.id
-          )
-        );
-      } catch (error: any) {
-        datadogRum.addError(error, { projectID });
-        console.error(error);
-        dispatch({
-          type: PROJECT_APPLICATIONS_ERROR,
-          projectID,
-          error: error.message,
-        });
-      }
+            applications,
+          });
+
+          // Update each application with the status from the contract
+          // FIXME: This part can be removed when we are sure that the
+          // aplication status returned from the graph is up to date.
+          // eslint-disable-next-line
+            const roundAddresses = applications.map(
+            (app: Application) => app.roundID
+          );
+
+          dispatch<any>(
+            fetchApplicationStatusesFromContract(
+              roundAddresses,
+              projectID,
+              projectApplicationID,
+              chain.id
+            )
+          );
+
+          return applications;
+        } catch (error: any) {
+          datadogRum.addError(error, { projectID });
+          console.error(error);
+
+          return [];
+        }
+      })
+    );
+
+    dispatch({
+      type: PROJECT_APPLICATIONS_LOADED,
+      projectID,
+      applications: apps.flat(),
     });
+  };
+
+export const loadProjectStats =
+  (projectID: string, rounds: Array<{ roundId: string; chainId: number }>) =>
+  async (dispatch: Dispatch) => {
+    dispatch({
+      type: PROJECT_STATS_LOADING,
+      projectID,
+    });
+
+    const data = { query: "force" };
+    const options = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    };
+
+    const stats: ProjectStats[] = [];
+
+    const updateStats = async (projectRoundData: any, roundId: string) => {
+      const singleStats: ProjectStats = {
+        roundId,
+        ...projectRoundData,
+      };
+
+      stats.push(singleStats);
+    };
+
+    const loadingErrorUpdate = async (roundId: string) => {
+      await updateStats(
+        {
+          fundingReceived: -1,
+          uniqueContributors: -1,
+          avgContribution: -1,
+          totalContributions: -1,
+          success: false,
+        },
+        roundId
+      );
+    };
+
+    for await (const round of rounds) {
+      const addresses = addressesByChainID(round.chainId);
+      const projectApplicationID = generateUniqueRoundApplicationID(
+        round.chainId,
+        projectID,
+        addresses.projectRegistry
+      );
+      await fetch(
+        `${process.env.REACT_APP_GITCOIN_API}update/summary/project/${round.chainId}/${round.roundId}/${projectApplicationID}`,
+        options
+      )
+        .then((response) => response.json())
+        .then(async (projectRoundData) => {
+          if (Object.keys(projectRoundData.data).length !== 0) {
+            await updateStats(
+              {
+                fundingReceived: parseFloat(
+                  projectRoundData.data.totalContributionsInUSD
+                ),
+                uniqueContributors: parseInt(
+                  projectRoundData.data.uniqueContributors,
+                  10
+                ),
+                avgContribution: parseFloat(
+                  projectRoundData.data.averageUSDContribution
+                ),
+                totalContributions: parseInt(
+                  projectRoundData.data.contributionCount,
+                  10
+                ),
+                success: true,
+              },
+              round.roundId
+            );
+          } else {
+            await loadingErrorUpdate(round.roundId);
+          }
+        })
+        .catch(async (error) => {
+          await loadingErrorUpdate(round.roundId);
+          console.error(error);
+        });
+    }
+
+    if (rounds.length > 0)
+      dispatch({
+        type: PROJECT_STATS_LOADED,
+        projectID,
+        stats,
+      });
   };
 
 export const unloadProjects = () => projectsUnload();

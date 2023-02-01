@@ -64,6 +64,22 @@ interface RoundApplicationResetAction {
   roundAddress: string;
 }
 
+export const APPLICATION_DATA_ERROR = "APPLICATION_DATA_ERROR";
+
+interface ApplicationDataErrorAction {
+  type: typeof APPLICATION_DATA_ERROR;
+  error: string;
+}
+
+export const APPLICATION_DATA_LOADED = "APPLICATION_DATA_LOADED";
+
+interface ApplicationDataLoadedAction {
+  type: typeof APPLICATION_DATA_LOADED;
+  roundAddress: string;
+  applicationData: SignedRoundApplication;
+  ipfsHash: string;
+}
+
 export type RoundApplicationActions =
   | RoundApplicationLoadingAction
   | RoundApplicationErrorAction
@@ -71,7 +87,9 @@ export type RoundApplicationActions =
   | RoundApplicationLoadedAction
   | RoundApplicationFoundAction
   | RoundApplicationNotFoundAction
-  | RoundApplicationResetAction;
+  | RoundApplicationResetAction
+  | ApplicationDataErrorAction
+  | ApplicationDataLoadedAction;
 
 const applicationError = (
   roundAddress: string,
@@ -255,12 +273,22 @@ export const submitApplication =
       status: Status.UploadingMetadata,
     });
 
-    const resp = await pinataClient.pinJSON(signedApplication);
+    let resp;
+    try {
+      resp = await pinataClient.pinJSON(signedApplication);
+    } catch (e) {
+      dispatchAndLogApplicationError(
+        dispatch,
+        roundAddress,
+        "error uploading round application metadata",
+        Status.UploadingMetadata
+      );
+      return;
+    }
     const metaPtr = {
       protocol: "1",
       pointer: resp.IpfsHash,
     };
-
     dispatch({
       type: ROUND_APPLICATION_LOADING,
       roundAddress,
@@ -339,6 +367,7 @@ export const checkRoundApplications =
       });
     } catch (e) {
       // FIXME: dispatch an error?
+      datadogLogs.logger.warn("error getting round applications");
       datadogRum.addError(e);
       console.error("error getting round applications");
     } finally {
@@ -348,5 +377,23 @@ export const checkRoundApplications =
           roundAddress,
         });
       }
+    }
+  };
+
+export const fetchApplicationData =
+  (ipfsHash: string, roundAddress: string) => async (dispatch: Dispatch) => {
+    const pinataClient = new PinataClient();
+    try {
+      const resp = await pinataClient.fetchJson(ipfsHash);
+      dispatch({
+        type: APPLICATION_DATA_LOADED,
+        applicationData: resp,
+        roundAddress,
+        ipfsHash,
+      });
+    } catch (e) {
+      dispatch({
+        type: APPLICATION_DATA_ERROR,
+      });
     }
   };

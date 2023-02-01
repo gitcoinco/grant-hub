@@ -8,6 +8,9 @@ import {
   PROJECT_APPLICATIONS_LOADED,
   PROJECT_APPLICATIONS_LOADING,
   PROJECT_APPLICATION_UPDATED,
+  PROJECT_OWNERS_LOADED,
+  PROJECT_STATS_LOADED,
+  PROJECT_STATS_LOADING,
 } from "../actions/projects";
 import { ProjectEventsMap } from "../types";
 
@@ -31,24 +34,41 @@ export type Application = {
   chainId: number;
 };
 
+export type ProjectOwners = { [projectID: string]: string[] };
+
 export interface ProjectsState {
   status: Status;
   loadingChains: number[];
   error: string | undefined;
   ids: string[];
   events: ProjectEventsMap;
+  owners: ProjectOwners;
   applications: {
     [projectID: string]: Application[];
   };
+  stats: {
+    [projectID: string]: ProjectStats[];
+  };
 }
 
-const initialState: ProjectsState = {
+export const initialState: ProjectsState = {
   status: Status.Undefined,
   loadingChains: [],
   error: undefined,
   ids: [],
+  owners: {},
   events: {},
   applications: {},
+  stats: {},
+};
+
+export type ProjectStats = {
+  roundId: string;
+  fundingReceived: number;
+  uniqueContributors: number;
+  avgContribution: number;
+  totalContributions: number;
+  success: boolean;
 };
 
 export const projectsReducer = (
@@ -62,6 +82,16 @@ export const projectsReducer = (
         status: Status.Loading,
         loadingChains: [...state.loadingChains, action.payload],
         ids: [],
+      };
+    }
+
+    case PROJECT_OWNERS_LOADED: {
+      return {
+        ...state,
+        owners: {
+          ...state.owners,
+          [action.payload.projectID]: action.payload.owners,
+        },
       };
     }
 
@@ -97,13 +127,13 @@ export const projectsReducer = (
     }
 
     case PROJECT_APPLICATIONS_LOADING: {
+      // Remove the project applications key
+      const { [action.projectID]: projectApplications, ...applications } =
+        state.applications;
+
       return {
         ...state,
-        applications: {
-          ...state.applications,
-          [action.projectID]: [],
-        },
-        error: undefined,
+        applications,
       };
     }
 
@@ -112,10 +142,7 @@ export const projectsReducer = (
         ...state,
         applications: {
           ...state.applications,
-          [action.projectID]: [
-            ...(state.applications[action.projectID] ?? []),
-            ...action.applications,
-          ],
+          [action.projectID]: action.applications,
         },
         error: undefined,
       };
@@ -145,6 +172,28 @@ export const projectsReducer = (
             updatedApplication,
             ...projectApplications.slice(index + 1),
           ],
+        },
+        error: undefined,
+      };
+    }
+
+    case PROJECT_STATS_LOADING: {
+      return {
+        ...state,
+        stats: {
+          ...state.stats,
+          [action.projectID]: [],
+        },
+        error: undefined,
+      };
+    }
+
+    case PROJECT_STATS_LOADED: {
+      return {
+        ...state,
+        stats: {
+          ...state.stats,
+          [action.projectID]: action.stats,
         },
         error: undefined,
       };
