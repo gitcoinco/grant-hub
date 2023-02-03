@@ -11,12 +11,12 @@ import { Application, AppStatus, ProjectStats } from "../reducers/projects";
 import PinataClient from "../services/pinata";
 import { ProjectEvents, ProjectEventsMap } from "../types";
 import { graphqlFetch } from "../utils/graphql";
+import { fetchProjectOwners } from "../utils/projects";
 import generateUniqueRoundApplicationID from "../utils/roundApplication";
-import { getProviderByChainId, getProjectURIComponents } from "../utils/utils";
+import { getProjectURIComponents, getProviderByChainId } from "../utils/utils";
+import { chains } from "../utils/wagmi";
 import { fetchGrantData } from "./grantsMetadata";
 import { addAlert } from "./ui";
-import { chains } from "../utils/wagmi";
-import { fetchProjectOwners } from "../utils/projects";
 
 export const PROJECTS_LOADING = "PROJECTS_LOADING";
 interface ProjectsLoadingAction {
@@ -423,16 +423,16 @@ export const fetchProjectApplications =
           // round chain instead of the project chain). This is a fix to display the applications with
           // the wrong application id. NOTE: there is a possibility of clash, because the contracts
           // have the same address on multiple chains.
-          const projectApplicationIDWithChain =
-            generateUniqueRoundApplicationID(
-              chain.id,
-              projectID,
-              addresses.projectRegistry
-            );
+          // const projectApplicationIDWithChain =
+          //   generateUniqueRoundApplicationID(
+          //     chain.id,
+          //     projectID,
+          //     addresses.projectRegistry
+          //   );
 
           const response: any = await graphqlFetch(
-            `query roundProjects($projectID: String, $projectApplicationIDWithChain: String) {
-            roundProjects(where: { project_in: [$projectID, $projectApplicationIDWithChain] }) {
+            `query roundProjects($projectID: String) {
+            roundProjects(where: { project: $projectID }) {
               status
               round {
                 id
@@ -447,7 +447,6 @@ export const fetchProjectApplications =
             chain.id,
             {
               projectID: projectApplicationID,
-              projectApplicationIDWithChain,
             },
             reactEnv
           );
