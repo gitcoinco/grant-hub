@@ -419,35 +419,23 @@ export const fetchProjectApplications =
             addresses.projectRegistry
           );
 
-          // During the first alpha round, we created applications with the wrong chain id (using the
-          // round chain instead of the project chain). This is a fix to display the applications with
-          // the wrong application id. NOTE: there is a possibility of clash, because the contracts
-          // have the same address on multiple chains.
-          const projectApplicationIDWithChain =
-            generateUniqueRoundApplicationID(
-              chain.id,
-              projectID,
-              addresses.projectRegistry
-            );
-
           const response: any = await graphqlFetch(
-            `query roundProjects($projectID: String, $projectApplicationIDWithChain: String) {
-            roundProjects(where: { project_in: [$projectID, $projectApplicationIDWithChain] }) {
-              status
-              round {
-                id
-              }
-              metaPtr {
-                pointer
-                protocol
+            `query roundProjects($projectID: String) {
+              roundProjects(where: { project: $projectID }) {
+                status
+                round {
+                  id
+                }
+                metaPtr {
+                  pointer
+                  protocol
+                }
               }
             }
-          }
-          `,
+            `,
             chain.id,
             {
               projectID: projectApplicationID,
-              projectApplicationIDWithChain,
             },
             reactEnv
           );
@@ -477,7 +465,7 @@ export const fetchProjectApplications =
           // FIXME: This part can be removed when we are sure that the
           // aplication status returned from the graph is up to date.
           // eslint-disable-next-line
-            const roundAddresses = applications.map(
+          const roundAddresses = applications.map(
             (app: Application) => app.roundID
           );
 
