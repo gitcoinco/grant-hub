@@ -16,6 +16,8 @@ type Project @entity {
   id: ID!
   accounts: [AccountProject!]! @derivedFrom(field: "project")
   metaPtr: MetaPtr
+  createdAt: BigInt!
+  updatedAt: BigInt!
 }
 
 type Account @entity {
